@@ -11,7 +11,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/wylu1037/lattice-go/wallet/wordlist"
+	"github.com/LatticeBCLab/go-lattice/wallet/wordlist"
 	"math/big"
 	"strings"
 

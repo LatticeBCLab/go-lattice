@@ -1,7 +1,7 @@
 package builtin
 
 import (
-	"github.com/wylu1037/lattice-go/abi"
+	"github.com/LatticeBCLab/go-lattice/abi"
 )
 
 func NewProposalContract() ProposalContract {

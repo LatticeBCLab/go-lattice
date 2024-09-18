@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"github.com/wylu1037/lattice-go/common/types"
+	"github.com/LatticeBCLab/go-lattice/common/types"
 )
 
 func (api *httpApi) GetLatestBlock(ctx context.Context, chainId, accountAddress string) (*types.LatestBlock, error) {

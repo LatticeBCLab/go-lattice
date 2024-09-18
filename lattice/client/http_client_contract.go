@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"github.com/wylu1037/lattice-go/common/types"
+	"github.com/LatticeBCLab/go-lattice/common/types"
 	"math/big"
 )
 

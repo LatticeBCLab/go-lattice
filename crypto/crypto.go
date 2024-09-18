@@ -3,10 +3,10 @@ package crypto
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"github.com/LatticeBCLab/go-lattice/common/types"
+	"github.com/LatticeBCLab/go-lattice/crypto/secp256k1"
+	"github.com/LatticeBCLab/go-lattice/crypto/sm2p256v1"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/wylu1037/lattice-go/common/types"
-	"github.com/wylu1037/lattice-go/crypto/secp256k1"
-	"github.com/wylu1037/lattice-go/crypto/sm2p256v1"
 	"io"
 )
 

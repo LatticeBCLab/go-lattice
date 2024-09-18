@@ -2,9 +2,9 @@ package convert
 
 import (
 	"fmt"
+	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/wylu1037/lattice-go/common/types"
 	"strings"
 )
 

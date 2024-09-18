@@ -3,8 +3,8 @@ package wallet
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/LatticeBCLab/go-lattice/crypto"
 	"github.com/stretchr/testify/assert"
-	"github.com/wylu1037/lattice-go/crypto"
 	"testing"
 )
 

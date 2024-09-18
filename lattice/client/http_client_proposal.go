@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"github.com/wylu1037/lattice-go/common/types"
+	"github.com/LatticeBCLab/go-lattice/common/types"
 )
 
 func (api *httpApi) GetContractLifecycleProposal(ctx context.Context, chainId, contractAddress string, state types.ProposalState) ([]types.Proposal[types.ContractLifecycleProposal], error) {

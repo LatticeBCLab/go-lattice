@@ -1,12 +1,12 @@
 package block
 
 import (
+	"github.com/LatticeBCLab/go-lattice/common/convert"
+	"github.com/LatticeBCLab/go-lattice/common/types"
+	"github.com/LatticeBCLab/go-lattice/crypto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/wylu1037/lattice-go/common/convert"
-	"github.com/wylu1037/lattice-go/common/types"
-	"github.com/wylu1037/lattice-go/crypto"
 	"io"
 	"math/big"
 )

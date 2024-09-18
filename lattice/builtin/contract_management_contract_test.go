@@ -1,9 +1,9 @@
 package builtin
 
 import (
+	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
-	"github.com/wylu1037/lattice-go/common/types"
 	"testing"
 )
 

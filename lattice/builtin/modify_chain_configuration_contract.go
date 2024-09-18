@@ -1,8 +1,8 @@
 package builtin
 
 import (
-	"github.com/wylu1037/lattice-go/abi"
-	"github.com/wylu1037/lattice-go/common/types"
+	"github.com/LatticeBCLab/go-lattice/abi"
+	"github.com/LatticeBCLab/go-lattice/common/types"
 )
 
 func NewModifyChainConfigurationContract() ModifyChainConfigurationContract {

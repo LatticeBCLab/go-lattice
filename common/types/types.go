@@ -3,7 +3,7 @@ package types
 import (
 	"encoding/hex"
 	"encoding/json"
-	"github.com/wylu1037/lattice-go/common/constant"
+	"github.com/LatticeBCLab/go-lattice/common/constant"
 	"math/big"
 )
 

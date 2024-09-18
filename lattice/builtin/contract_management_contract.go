@@ -2,10 +2,10 @@ package builtin
 
 import (
 	"fmt"
+	"github.com/LatticeBCLab/go-lattice/abi"
+	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/wylu1037/lattice-go/abi"
-	"github.com/wylu1037/lattice-go/common/types"
 	"strings"
 )
 

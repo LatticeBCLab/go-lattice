@@ -1,6 +1,6 @@
 package builtin
 
-import "github.com/wylu1037/lattice-go/abi"
+import "github.com/LatticeBCLab/go-lattice/abi"
 
 const (
 	ContractLifecycleREVOKE = iota

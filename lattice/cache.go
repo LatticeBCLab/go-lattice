@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/LatticeBCLab/go-lattice/common/types"
+	"github.com/LatticeBCLab/go-lattice/lattice/client"
 	"github.com/allegro/bigcache/v3"
 	"github.com/rs/zerolog/log"
-	"github.com/wylu1037/lattice-go/common/types"
-	"github.com/wylu1037/lattice-go/lattice/client"
 	"sync"
 	"time"
 )

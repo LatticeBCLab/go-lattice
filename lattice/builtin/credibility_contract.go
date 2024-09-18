@@ -1,11 +1,11 @@
 package builtin
 
 import (
+	"github.com/LatticeBCLab/go-lattice/abi"
+	"github.com/LatticeBCLab/go-lattice/common/convert"
 	myabi "github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/wylu1037/lattice-go/abi"
-	"github.com/wylu1037/lattice-go/common/convert"
 )
 
 // CreateBusinessContractAddress 创建存证业务的业务合约地址

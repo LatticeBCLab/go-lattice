@@ -1,8 +1,8 @@
 package builtin
 
 import (
+	"github.com/LatticeBCLab/go-lattice/abi"
 	myabi "github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/wylu1037/lattice-go/abi"
 )
 
 func NewFileStorageContract() FileStorageContract {

@@ -2,9 +2,9 @@ package sm2p256v1
 
 import (
 	"fmt"
+	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
-	"github.com/wylu1037/lattice-go/common/convert"
 	"testing"
 )
 

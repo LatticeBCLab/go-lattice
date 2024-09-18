@@ -1,8 +1,8 @@
 package block
 
 import (
+	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/wylu1037/lattice-go/common/types"
 	"math/big"
 	"time"
 )

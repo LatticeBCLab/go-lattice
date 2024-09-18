@@ -1,8 +1,8 @@
 package builtin
 
 import (
+	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/stretchr/testify/assert"
-	"github.com/wylu1037/lattice-go/common/convert"
 	"testing"
 )
 

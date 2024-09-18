@@ -1,4 +1,4 @@
-module github.com/wylu1037/lattice-go
+module github.com/LatticeBCLab/go-lattice
 
 go 1.22
 
