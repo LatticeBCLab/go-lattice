@@ -81,7 +81,7 @@ type AccountEvidence struct {
 	Timestamp   uint64 `json:"timestamp"`
 }
 
-func (d *Evidences) Unmarshall(data []byte) error {
+func (d *Evidences) UnmarshalJSON(data []byte) error {
 	if err := jsonparser.ObjectEach(data, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
 		if bytes.Equal(key, []byte("total")) {
 			total, err := strconv.ParseUint(string(value), 10, 64)
