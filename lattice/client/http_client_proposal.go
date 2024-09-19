@@ -89,13 +89,16 @@ func (api *httpApi) GetRawProposal(ctx context.Context, chainId, proposalId stri
 }
 
 func (api *httpApi) GetProposalById(ctx context.Context, chainId, proposalId string, result interface{}) error {
-	response, err := Post[interface{}](ctx, api.Url, NewJsonRpcBody("wallet_getProposalById", proposalId), api.newHeaders(chainId), api.transport)
+	response, err := Post[json.RawMessage](ctx, api.Url, NewJsonRpcBody("wallet_getProposalById", proposalId), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return err
 	}
 	if response.Error != nil {
 		return response.Error.Error()
 	}
-	result = response.Result
+
+	if err := json.Unmarshal(*response.Result, result); err != nil {
+		return err
+	}
 	return nil
 }
