@@ -3,11 +3,12 @@ package types
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/buger/jsonparser"
-	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"strconv"
 	"strings"
+
+	"github.com/buger/jsonparser"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Evidences 留痕信息
@@ -25,19 +26,19 @@ type ErrorEvidence struct {
 }
 
 type TBlockEvidence struct {
-	Number     *big.Int       `json:"Number"`
-	Hash       common.Hash    `json:"hash"`
-	Owner      common.Address `json:"owner"`
-	Timestamp  uint64         `json:"timestamp"`
-	TBlockType uint8          `json:"tblockType"`
+	Number     *big.Int    `json:"Number"`
+	Hash       common.Hash `json:"hash"`
+	Owner      string      `json:"owner"`
+	Timestamp  uint64      `json:"timestamp"`
+	TBlockType uint8       `json:"tblockType"`
 }
 
 type DBlockEvidence struct {
-	Number     *big.Int       `json:"Number"`
-	Coinbase   common.Address `json:"miner"`
-	ParentHash common.Hash    `json:"parentHash"`
-	Timestamp  uint64         `json:"timestamp"`
-	Hash       common.Hash    `json:"hash"`
+	Number     *big.Int    `json:"Number"`
+	Coinbase   string      `json:"miner"`
+	ParentHash common.Hash `json:"parentHash"`
+	Timestamp  uint64      `json:"timestamp"`
+	Hash       common.Hash `json:"hash"`
 }
 
 type VoteEvidence struct {
@@ -49,12 +50,12 @@ type VoteEvidence struct {
 }
 
 type SignEvidence struct {
-	From      common.Address `json:"from"`
-	Owner     common.Address `json:"owner"`
-	Hash      common.Hash    `json:"hash"`
-	Number    *big.Int       `json:"number"`
-	Sign      []byte         `json:"sign"`
-	Timestamp uint64         `json:"timestamp"`
+	From      string      `json:"from"`
+	Owner     string      `json:"owner"`
+	Hash      common.Hash `json:"hash"`
+	Number    *big.Int    `json:"number"`
+	Sign      []byte      `json:"sign"`
+	Timestamp uint64      `json:"timestamp"`
 }
 
 type ReceiptEvidence struct {
@@ -66,12 +67,12 @@ type ReceiptEvidence struct {
 }
 
 type DeployCallEvidence struct {
-	Status          uint8          `json:"status"`
-	TBHash          common.Hash    `json:"tblockHash"`
-	ContractAddress common.Address `json:"contractAddress,omitempty"`
-	Ret             []byte         `json:"ret,omitempty"`
-	ContractType    uint8          `json:"contractType"`
-	Timestamp       uint64         `json:"timestamp"`
+	Status          uint8       `json:"status"`
+	TBHash          common.Hash `json:"tblockHash"`
+	ContractAddress string      `json:"contractAddress,omitempty"`
+	Ret             []byte      `json:"ret,omitempty"`
+	ContractType    uint8       `json:"contractType"`
+	Timestamp       uint64      `json:"timestamp"`
 }
 
 type AccountEvidence struct {
