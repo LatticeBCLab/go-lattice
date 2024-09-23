@@ -120,7 +120,10 @@ func (i *NistApi) PKToAddress(pk *ecdsa.PublicKey) (common.Address, error) {
 	if err != nil {
 		return common.Address{}, err
 	}
-	return common.BytesToAddress(bytes), nil
+	if len(bytes) > 64 {
+		bytes = bytes[len(bytes)-64:]
+	}
+	return common.BytesToAddress(i.Hash(bytes).Bytes()), nil
 }
 
 func (i *NistApi) Sign(hash []byte, sk *ecdsa.PrivateKey) (signature []byte, err error) {

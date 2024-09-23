@@ -81,7 +81,7 @@ func NewFileKey(fileKeyJsonString string) *FileKey {
 // Parameters:
 //   - privateKey string: 带0x前缀的16进制的私钥
 //   - passphrase string: 身份密码
-//   - curve types.Curve: 曲线类型，crypto.Sm2p256v1 or crypto.Secp256k1
+//   - curve types.Curve: 曲线类型，types.Sm2p256v1 or types.Secp256k1
 //
 // Returns:
 //   - *FileKey
@@ -107,7 +107,7 @@ func GenerateFileKey(privateKey, passphrase string, curve types.Curve) (*FileKey
 		Uuid:    uuid.New().String(),
 		Address: convert.AddressToZltc(address),
 		Cipher:  ciphertext,
-		IsGM:    curve == crypto.Sm2p256v1,
+		IsGM:    curve == types.Sm2p256v1,
 	}, nil
 }
 
@@ -116,7 +116,7 @@ func GenerateFileKey(privateKey, passphrase string, curve types.Curve) (*FileKey
 // Parameters:
 //   - privateKey string: 带0x前缀的16进制的私钥
 //   - passphrase string: 身份密码
-//   - curve types.Curve: 曲线类型，crypto.Sm2p256v1 or crypto.Secp256k1
+//   - curve types.Curve: 曲线类型，types.Sm2p256v1 or types.Secp256k1
 //
 // Returns:
 //   - *Cipher
@@ -192,9 +192,9 @@ func (e *FileKey) Decrypt(passphrase string) (*ecdsa.PrivateKey, error) {
 
 	var curve types.Curve
 	if e.IsGM {
-		curve = crypto.Sm2p256v1
+		curve = types.Sm2p256v1
 	} else {
-		curve = crypto.Secp256k1
+		curve = types.Secp256k1
 	}
 	hashKey := key[aes.BlockSize:32] // compact mac
 	actualMac := crypto.NewCrypto(curve).Hash(hashKey, ciphertext)

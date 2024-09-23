@@ -14,9 +14,6 @@ const (
 	HashLength     = 32 // 32 byte
 )
 
-// Curve Elliptic curve
-type Curve string
-
 type Number string
 
 func (n Number) MustToBigInt() *big.Int {

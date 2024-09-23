@@ -1,5 +1,15 @@
 package types
 
+// Curve Elliptic curve
+//   - Secp256k1 NIST
+//   - Sm2p256v1 GM
+type Curve string
+
+const (
+	Secp256k1 Curve = "secp256k1"
+	Sm2p256v1 Curve = "sm2p256v1"
+)
+
 // Fee 费用
 //
 // 最小单位为 wei

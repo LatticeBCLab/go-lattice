@@ -87,7 +87,7 @@ type lattice struct {
 
 // ChainConfig 链配置
 type ChainConfig struct {
-	Curve     types.Curve // crypto.Secp256k1 or crypto.Sm2p256v1
+	Curve     types.Curve // types.Secp256k1 or types.Sm2p256v1
 	TokenLess bool        // false:有通证链，true:无通证链
 }
 
@@ -168,7 +168,7 @@ func (credentials *Credentials) GetSK() (string, error) {
 			return "", err
 		}
 
-		api := crypto.NewCrypto(lo.Ternary(fileKey.IsGM, crypto.Sm2p256v1, crypto.Secp256k1))
+		api := crypto.NewCrypto(lo.Ternary(fileKey.IsGM, types.Sm2p256v1, types.Secp256k1))
 		sk, err := api.SKToHexString(privateKey)
 		if err != nil {
 			return "", err

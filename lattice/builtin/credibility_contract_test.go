@@ -6,6 +6,13 @@ import (
 	"testing"
 )
 
+func TestCredibilityContract_CreateProtocol(t *testing.T) {
+	contract := NewCredibilityContract()
+	data, err := contract.CreateProtocol(1, []byte("syntax = \"proto3\";\n\nmessage Student {\n\tstring id = 1;\n\tstring name = 2;\n}"))
+	assert.NoError(t, err)
+	t.Log(data)
+}
+
 func TestCredibilityContract_Write(t *testing.T) {
 	contract := NewCredibilityContract()
 	addr, _ := convert.ZltcToAddress("zltc_YBomBNykwMqxm719giBL3VtYV4ABT9a8D")

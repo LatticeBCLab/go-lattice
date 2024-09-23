@@ -12,15 +12,17 @@ import (
 
 var instance CryptographyApi
 
+// NewCrypto initial a crypto instance
+// need specify curve [types.Curve]
 func NewCrypto(curve types.Curve) CryptographyApi {
 	if instance != nil {
 		return instance
 	}
 
 	switch curve {
-	case Sm2p256v1:
+	case types.Sm2p256v1:
 		instance = sm2p256v1.New()
-	case Secp256k1:
+	case types.Secp256k1:
 		instance = secp256k1.New()
 	default:
 		instance = sm2p256v1.New()
@@ -45,6 +47,7 @@ type CryptographyApi interface {
 	HexToPK(pkHex string) (*ecdsa.PublicKey, error)
 	// BytesToPK 将[]byte转为公钥
 	BytesToPK(pk []byte) (*ecdsa.PublicKey, error)
+	// BytesToSK 将[]byte转为私钥
 	BytesToSK(sk []byte) (*ecdsa.PrivateKey, error)
 	// PKToAddress 将公钥转为地址
 	PKToAddress(pk *ecdsa.PublicKey) (common.Address, error)

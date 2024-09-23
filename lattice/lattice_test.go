@@ -7,7 +7,6 @@ import (
 	"github.com/LatticeBCLab/go-lattice/common/constant"
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/LatticeBCLab/go-lattice/common/types"
-	"github.com/LatticeBCLab/go-lattice/crypto"
 	"github.com/LatticeBCLab/go-lattice/lattice/builtin"
 	"github.com/LatticeBCLab/go-lattice/lattice/protobuf"
 	"github.com/ethereum/go-ethereum/common"
@@ -26,8 +25,8 @@ const (
 )
 
 var latticeApi = NewLattice(
-	&ChainConfig{Curve: crypto.Sm2p256v1},
-	&ConnectingNodeConfig{Ip: "192.168.1.185", HttpPort: 13800},
+	&ChainConfig{Curve: types.Sm2p256v1},
+	&ConnectingNodeConfig{Ip: "192.168.2.145", HttpPort: 60001},
 	NewMemoryBlockCache(10*time.Second, time.Minute, time.Minute),
 	NewAccountLock(),
 	&Options{MaxIdleConnsPerHost: 200},
@@ -210,10 +209,20 @@ func TestLattice_CallContract(t *testing.T) {
 	t.Logf("Elapsed Time: %v", elapsedTime)
 }
 
+type proposalDetail struct {
+	ProposalContent json.RawMessage `json:"proposalContent,omitempty"`
+	ProposalResult  proposalResult  `json:"proposalResult,omitempty"`
+}
+
+type proposalResult struct {
+	AgreeCollection   []string `json:"agreeCollection"`
+	AgainstCollection []string `json:"againstCollection"`
+}
+
 func TestLattice_JsonRpc(t *testing.T) {
+	var result proposalDetail
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	info, err := latticeApi.HttpApi().GetSubchain(ctx, "2")
+	err := latticeApi.HttpApi().GetProposalById(ctx, "600", "0x022b46820173c860f1e15e29ec71c440f79812addd00000000000000003230323430393139", &result)
 	assert.NoError(t, err)
-	t.Log(info)
 }
