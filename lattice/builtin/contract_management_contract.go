@@ -2,11 +2,13 @@ package builtin
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/LatticeBCLab/go-lattice/abi"
+	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"strings"
 )
 
 type ContractManagementAction string
@@ -125,7 +127,7 @@ func (c *contractManagementContract) UpdateBlacklist(contractAddress string, act
 func (c *contractManagementContract) UpdateWeight(contractAddress string, action ContractManagementAction, weights []WeightDistribution) (string, error) {
 	var builder strings.Builder
 	for _, elem := range weights {
-		builder.WriteString(elem.Address.String())
+		builder.WriteString(convert.AddressToZltc(elem.Address))
 		if action != ContractManagementActionDELETE {
 			builder.WriteString(fmt.Sprintf("%03d", elem.Weight))
 		}
