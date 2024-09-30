@@ -3,6 +3,12 @@ package lattice
 import (
 	"context"
 	"encoding/json"
+	"strconv"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/LatticeBCLab/go-lattice/abi"
 	"github.com/LatticeBCLab/go-lattice/common/constant"
 	"github.com/LatticeBCLab/go-lattice/common/convert"
@@ -11,22 +17,17 @@ import (
 	"github.com/LatticeBCLab/go-lattice/lattice/protobuf"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
-	"strconv"
-	"strings"
-	"sync"
-	"testing"
-	"time"
 )
 
 const (
 	proto      = "syntax = \"proto3\";\n\nmessage Student {\n\tstring id = 1;\n\tstring name = 2;\n}"
 	counterAbi = `[{"inputs":[],"name":"decrementCounter","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getCount","outputs":[{"internalType":"int256","name":"","type":"int256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"incrementCounter","outputs":[],"stateMutability":"nonpayable","type":"function"}]`
-	chainId    = "2"
+	chainId    = "1"
 )
 
 var latticeApi = NewLattice(
 	&ChainConfig{Curve: types.Sm2p256v1},
-	&ConnectingNodeConfig{Ip: "192.168.2.145", HttpPort: 60001},
+	&ConnectingNodeConfig{Ip: "192.168.1.185", HttpPort: 13000},
 	NewMemoryBlockCache(10*time.Second, time.Minute, time.Minute),
 	NewAccountLock(),
 	&Options{MaxIdleConnsPerHost: 200},
@@ -221,8 +222,13 @@ type proposalResult struct {
 
 func TestLattice_JsonRpc(t *testing.T) {
 	var result proposalDetail
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-	err := latticeApi.HttpApi().GetProposalById(ctx, "600", "0x022b46820173c860f1e15e29ec71c440f79812addd00000000000000003230323430393139", &result)
+	err := latticeApi.HttpApi().GetProposalById(ctx, "2", "0x022b46820173c860f1e15e29ec71c440f79812addd00000000000000003230323430393139", &result)
+	assert.NoError(t, err)
+}
+
+func TestLattice_CanDial(t *testing.T) {
+	err := latticeApi.HttpApi().CanDial(2 * time.Second)
 	assert.NoError(t, err)
 }

@@ -5,6 +5,11 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/LatticeBCLab/go-lattice/common/constant"
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/crypto"
@@ -16,10 +21,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
 )
 
 const (
@@ -49,6 +50,7 @@ func NewLattice(chainConfig *ChainConfig, connectingNodeConfig *ConnectingNodeCo
 	}
 
 	initHttpClientArgs := &client.HttpApiInitParam{
+		NodeAddress:                fmt.Sprintf("%s:%d", connectingNodeConfig.Ip, connectingNodeConfig.HttpPort),
 		HttpUrl:                    connectingNodeConfig.GetHttpUrl(),
 		GinServerUrl:               connectingNodeConfig.GetGinServerUrl(),
 		Transport:                  options.GetTransport(),

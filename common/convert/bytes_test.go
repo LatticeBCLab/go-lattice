@@ -1,9 +1,10 @@
 package convert
 
 import (
+	"testing"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestZltcToAddress(t *testing.T) {

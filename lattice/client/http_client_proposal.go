@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/LatticeBCLab/go-lattice/common/types"
 )
 
@@ -13,7 +14,7 @@ func (api *httpApi) GetContractLifecycleProposal(ctx context.Context, chainId, c
 		"proposalAddress": contractAddress,
 	}
 
-	response, err := Post[[]types.Proposal[types.ContractLifecycleProposal]](ctx, api.Url, NewJsonRpcBody("wallet_getProposal", params), api.newHeaders(chainId), api.transport)
+	response, err := Post[[]types.Proposal[types.ContractLifecycleProposal]](ctx, api.NodeUrl, NewJsonRpcBody("wallet_getProposal", params), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +25,7 @@ func (api *httpApi) GetContractLifecycleProposal(ctx context.Context, chainId, c
 }
 
 func (api *httpApi) GetVoteById(ctx context.Context, chainId, voteId string) (*types.VoteDetails, error) {
-	response, err := Post[types.VoteDetails](ctx, api.Url, NewJsonRpcBody("wallet_getVoteById", voteId), api.newHeaders(chainId), api.transport)
+	response, err := Post[types.VoteDetails](ctx, api.NodeUrl, NewJsonRpcBody("wallet_getVoteById", voteId), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +79,7 @@ func (api *httpApi) GetRawProposal(ctx context.Context, chainId, proposalId stri
 		args["dateEnd"] = endDate
 	}
 
-	response, err := Post[json.RawMessage](ctx, api.Url, NewJsonRpcBody("wallet_getProposal", args), api.newHeaders(chainId), api.transport)
+	response, err := Post[json.RawMessage](ctx, api.NodeUrl, NewJsonRpcBody("wallet_getProposal", args), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (api *httpApi) GetRawProposal(ctx context.Context, chainId, proposalId stri
 }
 
 func (api *httpApi) GetProposalById(ctx context.Context, chainId, proposalId string, result interface{}) error {
-	response, err := Post[json.RawMessage](ctx, api.Url, NewJsonRpcBody("wallet_getProposalById", proposalId), api.newHeaders(chainId), api.transport)
+	response, err := Post[json.RawMessage](ctx, api.NodeUrl, NewJsonRpcBody("wallet_getProposalById", proposalId), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return err
 	}

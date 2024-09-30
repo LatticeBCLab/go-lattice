@@ -5,17 +5,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"math/big"
+	"net"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/lattice/block"
 	"github.com/LatticeBCLab/go-lattice/wallet"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/rs/zerolog/log"
-	"io"
-	"math/big"
-	"net/http"
-	"strings"
-	"time"
 )
 
 const emptyChainId = ""
@@ -159,6 +161,7 @@ func (j *jwtImpl) GetToken() (string, error) {
 
 // HttpApiInitParam 初始化HTTP API的参数
 type HttpApiInitParam struct {
+	NodeAddress                string            // 节点的IP:Port
 	HttpUrl                    string            // 节点的URL
 	GinServerUrl               string            // 节点gin服务路径
 	Transport                  http.RoundTripper // tr
@@ -171,7 +174,8 @@ func NewHttpApi(args *HttpApiInitParam) HttpApi {
 		args.Transport = http.DefaultTransport
 	}
 	return &httpApi{
-		Url:          args.HttpUrl,
+		HttpAddress:  args.NodeAddress,
+		NodeUrl:      args.HttpUrl,
 		GinServerUrl: args.GinServerUrl,
 		transport:    args.Transport,
 		jwtApi:       NewJwt(args.JwtSecret, args.JwtTokenExpirationDuration),
@@ -179,6 +183,14 @@ func NewHttpApi(args *HttpApiInitParam) HttpApi {
 }
 
 type HttpApi interface {
+	// CanDial 测试是否可以连接到节点
+	//
+	// Parameters:
+	//   - timeout time.Duration
+	//
+	// Returns:
+	//   - error
+	CanDial(timeout time.Duration) error
 
 	// GetLatestBlock 获取当前账户的最新的区块信息，不包括pending中的交易
 	//
@@ -506,13 +518,17 @@ type HttpApi interface {
 	GetNodeConfiguration(ctx context.Context) (*types.NodeConfiguration, error)
 	// GetNodeWorkingDirectory 获取节点的工作目录（绝对路径）
 	GetNodeWorkingDirectory(ctx context.Context) (string, error)
+	// GetSnapshot 获取快照
 	GetSnapshot(ctx context.Context, chainId string, daemonBlockHeight *big.Int) (*types.NodeProtocolConfig, error)
+	// GetLatcInfo 获取协议配置信息
 	GetLatcInfo(ctx context.Context, chainId string) (*types.NodeProtocolConfig, error)
+	// GetProposalById 根据提案ID查询提案
 	GetProposalById(ctx context.Context, chainId, proposalId string, result interface{}) error
 }
 
 type httpApi struct {
-	Url          string            // 节点的Http请求路径
+	HttpAddress  string            // 节点的IP:Port
+	NodeUrl      string            // 节点的Http请求路径
 	GinServerUrl string            // 节点的Gin服务请求路径
 	transport    http.RoundTripper // http transport
 	jwtApi       Jwt               // jwt api
@@ -544,8 +560,19 @@ func (api *httpApi) newHeaders(chainId string) map[string]string {
 	return headers
 }
 
+func (api *httpApi) CanDial(timeout time.Duration) error {
+	conn, err := net.DialTimeout("tcp", api.HttpAddress, timeout)
+	if err != nil {
+		return err
+	}
+	if err := conn.Close(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (api *httpApi) SendSignedTransaction(ctx context.Context, chainId string, signedTX *block.Transaction) (*common.Hash, error) {
-	response, err := Post[common.Hash](ctx, api.Url, NewJsonRpcBody("wallet_sendRawTBlock", signedTX), api.newHeaders(chainId), api.transport)
+	response, err := Post[common.Hash](ctx, api.NodeUrl, NewJsonRpcBody("wallet_sendRawTBlock", signedTX), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -556,7 +583,7 @@ func (api *httpApi) SendSignedTransaction(ctx context.Context, chainId string, s
 }
 
 func (api *httpApi) PreCallContract(ctx context.Context, chainId string, unsignedTX *block.Transaction) (*types.Receipt, error) {
-	response, err := Post[types.Receipt](ctx, api.Url, NewJsonRpcBody("wallet_preExecuteContract", unsignedTX), api.newHeaders(chainId), api.transport)
+	response, err := Post[types.Receipt](ctx, api.NodeUrl, NewJsonRpcBody("wallet_preExecuteContract", unsignedTX), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -567,7 +594,7 @@ func (api *httpApi) PreCallContract(ctx context.Context, chainId string, unsigne
 }
 
 func (api *httpApi) GetReceipt(ctx context.Context, chainId, hash string) (*types.Receipt, error) {
-	response, err := Post[types.Receipt](ctx, api.Url, NewJsonRpcBody("latc_getReceipt", hash), api.newHeaders(chainId), api.transport)
+	response, err := Post[types.Receipt](ctx, api.NodeUrl, NewJsonRpcBody("latc_getReceipt", hash), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -578,7 +605,7 @@ func (api *httpApi) GetReceipt(ctx context.Context, chainId, hash string) (*type
 }
 
 func (api *httpApi) ExistsBusinessContractAddress(ctx context.Context, chainId, address string) (bool, error) {
-	response, err := Post[bool](ctx, api.Url, NewJsonRpcBody("wallet_confirmTaggedContract", address), api.newHeaders(chainId), api.transport)
+	response, err := Post[bool](ctx, api.NodeUrl, NewJsonRpcBody("wallet_confirmTaggedContract", address), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return false, nil
 	}
@@ -589,7 +616,7 @@ func (api *httpApi) ExistsBusinessContractAddress(ctx context.Context, chainId, 
 }
 
 func (api *httpApi) GetEvidences(ctx context.Context, chainId, date string, evidenceType types.EvidenceType, page, pageSize int) (*types.Evidences, error) {
-	response, err := Post[types.Evidences](ctx, api.Url, NewJsonRpcBody("latc_getEvidences", date, evidenceType, page, pageSize), api.newHeaders(chainId), api.transport)
+	response, err := Post[types.Evidences](ctx, api.NodeUrl, NewJsonRpcBody("latc_getEvidences", date, evidenceType, page, pageSize), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -600,7 +627,7 @@ func (api *httpApi) GetEvidences(ctx context.Context, chainId, date string, evid
 }
 
 func (api *httpApi) GetErrorEvidences(ctx context.Context, chainId, date string, evidenceLevel types.EvidenceLevel, evidenceType types.EvidenceType, page, pageSize int) (*types.Evidences, error) {
-	response, err := Post[types.Evidences](ctx, api.Url, NewJsonRpcBody("latc_getErrorEvidences", date, evidenceLevel, evidenceType, page, pageSize), api.newHeaders(chainId), api.transport)
+	response, err := Post[types.Evidences](ctx, api.NodeUrl, NewJsonRpcBody("latc_getErrorEvidences", date, evidenceLevel, evidenceType, page, pageSize), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -637,21 +664,21 @@ func Post[T any](ctx context.Context, url string, jsonRpcBody *JsonRpcBody, head
 	return &t, nil
 }
 
-func rawPost(ctx context.Context, url string, jsonRpcBody *JsonRpcBody, headers map[string]string, tr http.RoundTripper) ([]byte, error) {
-	log.Debug().Msgf("开始发送JsonRpc请求，url: %s, body: %+v", url, jsonRpcBody)
+func rawPost(ctx context.Context, baseUrl string, jsonRpcBody *JsonRpcBody, headers map[string]string, tr http.RoundTripper) ([]byte, error) {
+	log.Debug().Msgf("开始发送JsonRpc请求，url: %s, body: %+v", baseUrl, jsonRpcBody)
 	bodyBytes, err := json.Marshal(jsonRpcBody)
 	if err != nil {
 		return nil, err
 	}
 	body := strings.NewReader(string(bodyBytes))
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, url, body)
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, baseUrl, body)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create http request")
 		return nil, err
 	}
 
-	if headers != nil && len(headers) != 0 {
+	if len(headers) != 0 {
 		for key, value := range headers {
 			request.Header.Set(key, value)
 		}
@@ -661,7 +688,7 @@ func rawPost(ctx context.Context, url string, jsonRpcBody *JsonRpcBody, headers 
 	response, err := client.Do(request)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to send http request")
-		return nil, err
+		return nil, fmt.Errorf("请求节点失败：%s", err)
 	}
 	defer func(Body io.ReadCloser) {
 		if err := Body.Close(); err != nil {
