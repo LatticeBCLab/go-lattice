@@ -97,3 +97,14 @@ func (api *httpApi) DeleteSubchain(ctx context.Context, subchainId string) error
 	}
 	return nil
 }
+
+func (api *httpApi) GetSubchainPeers(ctx context.Context, subchainId string) (map[string]*types.SubchainPeer, error) {
+	response, err := Post[map[string]*types.SubchainPeer](ctx, api.NodeUrl, NewJsonRpcBody("latc_peers"), api.newHeaders(subchainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return *response.Result, nil
+}

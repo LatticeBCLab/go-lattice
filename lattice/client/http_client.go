@@ -414,16 +414,26 @@ type HttpApi interface {
 	//   - error
 	GetLatestDaemonBlock(ctx context.Context, chainID string) (*types.DaemonBlock, error)
 
-	// GetNodePeers 获取节点的对等节点信息
+	// GetNodePeers 获取在主链上的节点的对等节点信息
 	//
 	// Parameters:
 	//   - ctx context.Context
-	//   - chainID string
 	//
 	// Returns:
 	//   - []*types.NodePeer
 	//   - error
-	GetNodePeers(ctx context.Context, chainID string) ([]*types.NodePeer, error)
+	GetNodePeers(ctx context.Context) ([]*types.NodePeer, error)
+
+	// GetSubchainPeers 获取子链（通道）的节点对等节点信息
+	//
+	// Parameters:
+	//   - ctx context.Context
+	//   - subchainId string
+	//
+	// Returns:
+	//   - map[string]*types.SubchainPeer
+	//   - error
+	GetSubchainPeers(ctx context.Context, subchainId string) (map[string]*types.SubchainPeer, error)
 
 	// GetNodeConfig 查询节点的配置信息
 	//

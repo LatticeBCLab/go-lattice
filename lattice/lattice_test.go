@@ -27,7 +27,7 @@ const (
 
 var latticeApi = NewLattice(
 	&ChainConfig{Curve: types.Sm2p256v1},
-	&ConnectingNodeConfig{Ip: "192.168.1.185", HttpPort: 13000},
+	&ConnectingNodeConfig{Ip: "192.168.1.185", HttpPort: 13800},
 	NewMemoryBlockCache(10*time.Second, time.Minute, time.Minute),
 	NewAccountLock(),
 	&Options{MaxIdleConnsPerHost: 200},
@@ -210,22 +210,12 @@ func TestLattice_CallContract(t *testing.T) {
 	t.Logf("Elapsed Time: %v", elapsedTime)
 }
 
-type proposalDetail struct {
-	ProposalContent json.RawMessage `json:"proposalContent,omitempty"`
-	ProposalResult  proposalResult  `json:"proposalResult,omitempty"`
-}
-
-type proposalResult struct {
-	AgreeCollection   []string `json:"agreeCollection"`
-	AgainstCollection []string `json:"againstCollection"`
-}
-
 func TestLattice_JsonRpc(t *testing.T) {
-	var result proposalDetail
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-	err := latticeApi.HttpApi().GetProposalById(ctx, "2", "0x022b46820173c860f1e15e29ec71c440f79812addd00000000000000003230323430393139", &result)
+	peers, err := latticeApi.HttpApi().GetSubchainPeers(ctx, "2")
 	assert.NoError(t, err)
+	t.Log(peers)
 }
 
 func TestLattice_CanDial(t *testing.T) {

@@ -41,8 +41,8 @@ func (api *httpApi) GetGenesisNodeAddress(ctx context.Context, chainID string) (
 	return *response.Result, nil
 }
 
-func (api *httpApi) GetNodePeers(ctx context.Context, chainID string) ([]*types.NodePeer, error) {
-	response, err := Post[[]*types.NodePeer](ctx, api.NodeUrl, NewJsonRpcBody("node_peers"), api.newHeaders(chainID), api.transport)
+func (api *httpApi) GetNodePeers(ctx context.Context) ([]*types.NodePeer, error) {
+	response, err := Post[[]*types.NodePeer](ctx, api.NodeUrl, NewJsonRpcBody("node_peers"), api.newHeaders(emptyChainId), api.transport)
 	if err != nil {
 		return nil, err
 	}

@@ -3,8 +3,9 @@ package types
 import (
 	"encoding/hex"
 	"encoding/json"
-	"github.com/LatticeBCLab/go-lattice/common/constant"
 	"math/big"
+
+	"github.com/LatticeBCLab/go-lattice/common/constant"
 )
 
 const (
@@ -139,6 +140,27 @@ type NodePeerNetwork struct {
 
 type NodePeerProtocols struct {
 	Latc string `json:"latc"`
+}
+
+// SubchainPeer 子链（通道）的节点对等节点信息
+//
+//   - Id
+//   - Saint
+//   - ChainId
+//   - DaemonBlockHeight
+//   - DaemonBlockHash
+//   - GinHttpPort       文件传输服务的端口
+//   - DFS 		   		 是否使用文件传输服务
+//   - INode       		 节点的INode信息
+type SubchainPeer struct {
+	Id                string   `json:"Id"`
+	Saint             string   `json:"Saint"`
+	ChainId           uint32   `json:"ChainId"`
+	DaemonBlockHeight *big.Int `json:"DBNum"`
+	DaemonBlockHash   string   `json:"DBHash"`
+	GinHttpPort       int      `json:"GinHttpPort"`
+	DFS               bool     `json:"DFS"`
+	INode             string   `json:"inode"`
 }
 
 // NodeConfig 节点配置信息
