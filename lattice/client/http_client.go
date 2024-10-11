@@ -20,9 +20,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// emptyChainId is the empty chain ID. Represents the mainnet chain id.
 const emptyChainId = ""
 
-// JsonRpcBody Json-Rpc的请求体结构
+// JsonRpcBody is the request structure for JSON-RPC requests.
 type JsonRpcBody struct {
 	Id      int           `json:"id,omitempty"`
 	JsonRpc string        `json:"jsonrpc,omitempty"`
@@ -30,7 +31,7 @@ type JsonRpcBody struct {
 	Params  []interface{} `json:"params,omitempty"` // 方法参数
 }
 
-// JsonRpcResponse Json-Rpc请求的响应结构
+// JsonRpcResponse is the response structure for JSON-RPC requests.
 type JsonRpcResponse[T any] struct {
 	Id      int           `json:"id,omitempty"`
 	JsonRpc string        `json:"jsonrpc,omitempty"`
@@ -43,10 +44,12 @@ type JsonRpcError struct {
 	Message string `json:"message,omitempty"`
 }
 
+// Error returns the error message.
 func (e *JsonRpcError) Error() error {
 	return fmt.Errorf("%d:%s", e.Code, e.Message)
 }
 
+// NewJsonRpcBody creates a new JSON-RPC body.
 func NewJsonRpcBody(method string, params ...interface{}) *JsonRpcBody {
 	return &JsonRpcBody{
 		Id:      1,
@@ -56,6 +59,7 @@ func NewJsonRpcBody(method string, params ...interface{}) *JsonRpcBody {
 	}
 }
 
+// NewJwt creates a new JWT instance.
 func NewJwt(secret string, expirationDuration time.Duration) Jwt {
 	if secret == "" {
 		return nil
@@ -68,13 +72,13 @@ func NewJwt(secret string, expirationDuration time.Duration) Jwt {
 	}
 }
 
-// JwtTokenCache jwt token的缓存
+// JwtTokenCache is the cache for the JWT token.
 type JwtTokenCache struct {
 	Token    string
 	ExpireAt time.Time
 }
 
-// IsValid 验证Token是否有效
+// IsValid checks if the token is valid.
 //
 // Returns:
 //   - error
@@ -90,12 +94,14 @@ func (cache *JwtTokenCache) IsValid() error {
 	return nil
 }
 
+// Jwt is the interface for the JWT operations.
 type Jwt interface {
 	GenerateToken() (string, error)
 	ParseToken(token string) (*jwt.Token, error)
 	GetToken() (string, error)
 }
 
+// jwtImpl is the implementation of the Jwt interface.
 type jwtImpl struct {
 	Secret             string            // jwt的secret
 	Algorithm          jwt.SigningMethod // jwt.SigningMethodHS256
@@ -103,6 +109,7 @@ type jwtImpl struct {
 	TokenCache         *JwtTokenCache    // token缓存
 }
 
+// GenerateToken generates a JWT token.
 func (j *jwtImpl) GenerateToken() (string, error) {
 	now := time.Now()
 	expiresAt := now.Add(j.ExpirationDuration).Add(-3 * time.Minute) // 提前3分钟过期
@@ -126,6 +133,7 @@ func (j *jwtImpl) GenerateToken() (string, error) {
 	return token, nil
 }
 
+// ParseToken parses a JWT token.
 func (j *jwtImpl) ParseToken(token string) (*jwt.Token, error) {
 	t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		return []byte("AllYourBase"), nil
@@ -148,6 +156,7 @@ func (j *jwtImpl) ParseToken(token string) (*jwt.Token, error) {
 	}
 }
 
+// GetToken returns the cached JWT token or generates a new one if it's expired.
 func (j *jwtImpl) GetToken() (string, error) {
 	if err := j.TokenCache.IsValid(); err != nil {
 		token, err := j.GenerateToken()
@@ -169,6 +178,7 @@ type HttpApiInitParam struct {
 	JwtTokenExpirationDuration time.Duration     // jwt token的过期时间
 }
 
+// NewHttpApi creates a new HTTP API for the Lattice node.
 func NewHttpApi(args *HttpApiInitParam) HttpApi {
 	if args.Transport == nil {
 		args.Transport = http.DefaultTransport
@@ -182,6 +192,7 @@ func NewHttpApi(args *HttpApiInitParam) HttpApi {
 	}
 }
 
+// This is the interface for the HTTP API of the Lattice node.
 type HttpApi interface {
 	// CanDial 测试是否可以连接到节点
 	//
@@ -304,88 +315,25 @@ type HttpApi interface {
 	//   - subchainId uint64：要加入的链
 	//   - networkId uint64: 网络ID
 	//   - inode string: 已在该链中的节点的INode信息
-	//
-	// Returns:
-	//   - error
 	JoinSubchain(ctx context.Context, subchainId, networkId uint64, inode string) error
-
 	// StartSubchain 启动子链（通道）
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - subchainId string
-	//
-	// Returns:
-	//   - error
 	StartSubchain(ctx context.Context, subchainId string) error
-
 	// StopSubchain 停止子链（通道）
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - subchainId string
-	//
-	// Returns:
-	//   - error
 	StopSubchain(ctx context.Context, subchainId string) error
-
 	// DeleteSubchain 删除子链（通道）
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - subchainId string
-	//
-	// Returns:
-	//   - error
 	DeleteSubchain(ctx context.Context, subchainId string) error
-
 	// GetSubchain 获取子链的配置信息
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - subchainId string
-	//
-	// Returns:
-	//   - *types.Subchain
-	//   - error
 	GetSubchain(ctx context.Context, subchainId string) (*types.Subchain, error)
-
 	// GetCreatedSubchain 获取所有通道
-	//
-	// Parameters:
-	// 	 - ctx context.Context
-	//
-	// Returns:
-	//   - []string
-	//   - error
 	GetCreatedSubchain(ctx context.Context) ([]uint64, error)
-
 	// GetJoinedSubchain 获取已加入通道
-	//
-	// Parameters:
-	// 	 - ctx context.Context
-	//
-	// Returns:
-	//   - []string
-	//   - error
 	GetJoinedSubchain(ctx context.Context) ([]uint64, error)
-
 	// GetSubchainRunningStatus 获取子链的运行状态
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - subchainID string
-	//
-	// Returns:
-	//   - *types.SubchainRunningStatus
-	//   - error
 	GetSubchainRunningStatus(ctx context.Context, subchainID string) (*types.SubchainRunningStatus, error)
-
+	// GetSubchainBriefInfo get subchain brief info
+	// If subchainID is empty, return all subchains brief info, otherwise return the subchain brief info of the specified subchainID
+	GetSubchainBriefInfo(ctx context.Context, subchainID string) ([]*types.SubchainBriefInfo, error)
 	// GetConsensusNodesStatus 查询共识节点的状态
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - chainID string
 	//
 	// Returns:
 	//   - []*types.ConsensusNodeStatus
@@ -475,16 +423,12 @@ type HttpApi interface {
 
 	// ExistsBusinessContractAddress 检查存证的业务合约地址是否存在
 	ExistsBusinessContractAddress(ctx context.Context, chainId, address string) (bool, error)
-
 	// GetTransactionBlockByHash 根据哈希查询交易区块的信息
 	GetTransactionBlockByHash(ctx context.Context, chainId, hash string) (*types.TransactionBlock, error)
-
 	// GetNodeProtocol 获取节点的网络协议信息
 	GetNodeProtocol(ctx context.Context, chainId string) (*types.NodeProtocol, error)
-
 	// GetVoteById 查询投票详情
 	GetVoteById(ctx context.Context, chainId, voteId string) (*types.VoteDetails, error)
-
 	// GetProposal 查询提案
 	GetProposal(ctx context.Context, chainId, proposalId string, ty types.ProposalType, state types.ProposalState, proposalAddress, contractAddress, startDate, endDate string, result interface{}) error
 	// GetRawProposal 查询提案

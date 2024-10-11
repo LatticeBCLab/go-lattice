@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/LatticeBCLab/go-lattice/common/types"
 )
@@ -100,6 +101,25 @@ func (api *httpApi) DeleteSubchain(ctx context.Context, subchainId string) error
 
 func (api *httpApi) GetSubchainPeers(ctx context.Context, subchainId string) (map[string]*types.SubchainPeer, error) {
 	response, err := Post[map[string]*types.SubchainPeer](ctx, api.NodeUrl, NewJsonRpcBody("latc_peers"), api.newHeaders(subchainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return *response.Result, nil
+}
+
+func (api *httpApi) GetSubchainBriefInfo(ctx context.Context, subchainID string) ([]*types.SubchainBriefInfo, error) {
+	subchainIdAsInt := int64(-1)
+	if subchainID != "" {
+		var err error
+		subchainIdAsInt, err = strconv.ParseInt(subchainID, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+	}
+	response, err := Post[[]*types.SubchainBriefInfo](ctx, api.NodeUrl, NewJsonRpcBody("latc_othersLatcInfo", subchainIdAsInt), api.newHeaders(emptyChainId), api.transport)
 	if err != nil {
 		return nil, err
 	}

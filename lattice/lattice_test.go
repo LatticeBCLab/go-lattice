@@ -27,7 +27,7 @@ const (
 
 var latticeApi = NewLattice(
 	&ChainConfig{Curve: types.Sm2p256v1},
-	&ConnectingNodeConfig{Ip: "192.168.1.185", HttpPort: 13800},
+	&ConnectingNodeConfig{Ip: "192.168.1.185", HttpPort: 13000},
 	NewMemoryBlockCache(10*time.Second, time.Minute, time.Minute),
 	NewAccountLock(),
 	&Options{MaxIdleConnsPerHost: 200},
@@ -213,9 +213,9 @@ func TestLattice_CallContract(t *testing.T) {
 func TestLattice_JsonRpc(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-	peers, err := latticeApi.HttpApi().GetSubchainPeers(ctx, "2")
+	subchainBriefInfos, err := latticeApi.HttpApi().GetSubchainBriefInfo(ctx, "-1")
 	assert.NoError(t, err)
-	t.Log(peers)
+	t.Log(subchainBriefInfos[0])
 }
 
 func TestLattice_CanDial(t *testing.T) {

@@ -107,6 +107,13 @@ type Subchain struct {
 	ConfigurationModifyVotingRule   VotingRule `json:"configModifyRule,omitempty"`
 }
 
+// SubchainBriefInfo 子链的简要信息
+type SubchainBriefInfo struct {
+	ID          uint64 `json:"LatcID,omitempty"`
+	Name        string `json:"Name,omitempty"`
+	Description string `json:"Desc,omitempty"`
+}
+
 // ConsensusNodeStatus 共识节点的状态
 //   - Address						   节点地址
 //   - WitnessedBlockCount             见证区块数量
