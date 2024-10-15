@@ -2,14 +2,24 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Tutorial for lattice.go",
-  description: "Fast ZLattice Blockchain integration with go.",
+  title: "Blockchain",
+  description: "Lightweight Go library for integration with ZLattice clients.",
   themeConfig: {
+    logo: "/logo.svg",
+    logoLink: "/",
+    siteTitle: "ZLattice",
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: "Home", link: "/" },
-      { text: "Tutorial", link: "/markdown-examples" },
-      { text: "Contract", link: "/api-examples" },
+      { text: "Guide", link: "/markdown-examples" },
+      { text: "Developers", link: "/api-examples" },
+      {
+        text: "Resources",
+        items: [
+          { text: "Ledger", link: "/markdown-examples" },
+          { text: "Contract", link: "/api-examples" },
+          { text: "gRPC", link: "/api-examples" },
+        ],
+      },
     ],
 
     sidebar: [
@@ -23,7 +33,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: "github", link: "https://github.com/vuejs/vitepress" },
+      { icon: "github", link: "https://github.com/LatticeBCLab/go-lattice" },
     ],
 
     footer: {
