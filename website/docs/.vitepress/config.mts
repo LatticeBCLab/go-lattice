@@ -52,4 +52,18 @@ export default defineConfig({
       },
     ],
   ],
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          globals: {
+            self: "globalThis",
+          },
+        },
+      },
+    },
+    define: {
+      self: "globalThis",
+    },
+  },
 });

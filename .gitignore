@@ -3,3 +3,5 @@
 .DS_Store
 
 website/node_modules
+
+website/docs/.vitepress/dist

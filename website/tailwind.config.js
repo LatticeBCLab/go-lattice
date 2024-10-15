@@ -10,12 +10,13 @@ module.exports = {
       addUtilities(newUtilities, ["responsive", "hover"]);
     },
   ],
-  purge: {
-    enabled: process.env.NODE_ENV === "production",
-    content: ["./docs/.vitepress/**/*.{js,ts,vue}", "./docs/**/*.md"],
-    options: {
-      safelist: ["html", "body"],
-    },
+  content: {
+    files: [
+      "./docs/.vitepress/**/*.{js,ts,vue}",
+      "./docs/**/*.md",
+      "./docs/components/**/*.vue",
+      "./node_modules/flowbite/**/*.js",
+    ],
+    safelist: ["html", "body"],
   },
-  content: ["./node_modules/flowbite/**/*.js"],
 };
