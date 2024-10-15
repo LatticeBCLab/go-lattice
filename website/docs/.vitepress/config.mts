@@ -26,4 +26,13 @@ export default defineConfig({
       { icon: "github", link: "https://github.com/vuejs/vitepress" },
     ],
   },
+  head: [
+    [
+      "link",
+      {
+        rel: "stylesheet",
+        href: "https://unpkg.com/tailwindcss@2.0.4/dist/tailwind.min.css",
+      },
+    ],
+  ],
 });
