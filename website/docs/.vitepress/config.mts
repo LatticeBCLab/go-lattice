@@ -21,7 +21,9 @@ export default defineConfig({
         ],
       },
     ],
-
+    search: {
+      provider: "local",
+    },
     sidebar: [
       {
         text: "Examples",
