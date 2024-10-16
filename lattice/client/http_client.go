@@ -478,6 +478,8 @@ type HttpApi interface {
 	GetLatcInfo(ctx context.Context, chainId string) (*types.NodeProtocolConfig, error)
 	// GetProposalById 根据提案ID查询提案
 	GetProposalById(ctx context.Context, chainId, proposalId string, result interface{}) error
+	// GetSubchainIdByProposalId get subchain id by proposal id
+	GetSubchainIdByProposalId(ctx context.Context, chainId, proposalId string) (uint32, error)
 }
 
 type httpApi struct {

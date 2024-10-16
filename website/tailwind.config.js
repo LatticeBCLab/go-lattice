@@ -11,6 +11,7 @@ module.exports = {
     },
   ],
   content: {
+    // config the files to be scanned by tailwind
     files: [
       "./docs/.vitepress/**/*.{js,ts,vue}",
       "./docs/**/*.md",

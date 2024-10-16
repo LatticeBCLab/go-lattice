@@ -1,8 +1,8 @@
 package types
 
-type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal] struct {
-	Type    uint8 `json:"proposalType"`
-	Content *T    `json:"proposalContent"`
+type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | NewSubchainProposal] struct {
+	Type    uint8 `json:"proposalType,omitempty"`
+	Content *T    `json:"proposalContent,omitempty"`
 }
 
 // ContractLifecycleProposal 合约生命周期提案
@@ -27,6 +27,17 @@ type ModifyChainConfigProposal struct {
 	DeployRule     uint8    `json:"deployRule"`
 	LatcSaint      []string `json:"latcSaint"`
 	Consensus      string   `json:"consensus"`
+}
+
+type NewSubchainProposal struct {
+	Id          string `json:"proposalId"`
+	State       uint8  `json:"proposalState"`
+	ChainConfig struct {
+		NewChain struct {
+			Id uint32 `json:"chainId"`
+		} `json:"newChain"`
+		ParentHash string `json:"parentHash"`
+	} `json:"ChainConfig"`
 }
 
 // ProposalState 提案状态
