@@ -7,11 +7,17 @@
     <img alt="Static Badge" src="https://img.shields.io/badge/Evm-support-orange?logo=ethereum">
 </p>
 
-## Introduction
+<p align="center">
+  <a href="https://golattice.vercel.app/">
+    <img src="https://golattice.vercel.app/logo.svg" alt="ZLattice" width="100">
+  </a>
+</p>
+
+## 📖 Introduction
 
 Go language implementation of blockchain SDK.
 
-## Technology Stack
+## 🚀 Tech Stack
 
 - [x] [Go](https://go.dev/) is a programming language that makes it easy to build simple, reliable, and efficient software.
 - [x] [Cli](https://github.com/urfave/cli) is a declarative, simple, fast, and fun package for building command line tools
@@ -19,10 +25,6 @@ Go language implementation of blockchain SDK.
 - [x] [Sm2](https://github.com/emmansun/gmsm)
 - [x] [Smart Contract]()
 
-## WebAssembly
-
-WASM
-
-## Schedule
+## ⏰ Schedule
 
 - [ ] 2024-12-15: Complete the website construction.
