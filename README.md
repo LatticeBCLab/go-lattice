@@ -1,19 +1,28 @@
-<h1 align="center">Lattice Golang</h1>
+<h1 align="center">Lattice.go</h1>
 
 <p align="center">
-    <a href="">go</a>  &#xa0; | &#xa0;
-    <a href="">blockchain</a>  &#xa0; | &#xa0;
-    <a href="">contract</a>  &#xa0; | &#xa0;
-    <a href="WebAssembly">wasm</a>
+    <img alt="Static Badge" src="https://img.shields.io/badge/go-v1.22-blue?logo=go">
+    <img alt="Static Badge" src="https://img.shields.io/badge/build-passing-green?logo=github">
+    <img alt="Static Badge" src="https://img.shields.io/badge/release-v1.0.0-blue?logo=adguard">
+    <img alt="Static Badge" src="https://img.shields.io/badge/Evm-support-orange?logo=ethereum">
 </p>
 
-## 简介
-Go 语言实现的晶格链 SDK。
+## Introduction
 
-## 技术栈
-- [ ] [Cli](https://github.com/urfave/cli) is a declarative, simple, fast, and fun package for building command line tools 
+Go language implementation of blockchain SDK.
+
+## Technology Stack
+
+- [x] [Go](https://go.dev/) is a programming language that makes it easy to build simple, reliable, and efficient software.
+- [x] [Cli](https://github.com/urfave/cli) is a declarative, simple, fast, and fun package for building command line tools
+- [x] [Evm](https://github.com/ethereum/go-ethereum)
+- [x] [Sm2](https://github.com/emmansun/gmsm)
+- [x] [Smart Contract]()
 
 ## WebAssembly
+
 WASM
 
-## 计划
+## Schedule
+
+- [ ] 2024-12-15: Complete the website construction.
