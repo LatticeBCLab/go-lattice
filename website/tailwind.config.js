@@ -19,4 +19,15 @@ module.exports = {
     ],
     safelist: ["html", "body"],
   },
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          600: "#1e5ae6",
+          700: "#1a46d0",
+          800: "#1b39a4",
+        },
+      },
+    },
+  },
 };
