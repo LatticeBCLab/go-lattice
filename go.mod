@@ -1,6 +1,6 @@
 module github.com/LatticeBCLab/go-lattice
 
-go 1.22
+go 1.22.8
 
 require (
 	github.com/allegro/bigcache/v3 v3.1.0
