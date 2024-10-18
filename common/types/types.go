@@ -390,3 +390,8 @@ type NodeConfiguration struct {
 		Bootstrap    []string `json:"bootstrap"`
 	}
 }
+
+type FreezeSaveSpace struct {
+	SaveSpace uint64 `json:"saveSpace"`
+	Unit      string `json:"unit"`
+}
