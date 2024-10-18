@@ -83,3 +83,14 @@ func (api *httpApi) GetFreezeSaveSpace(ctx context.Context, chainId string) (*ty
 	}
 	return response.Result, nil
 }
+
+func (api *httpApi) GetFreezeInterval(ctx context.Context, chainId string) (*types.FreezeInterval, error) {
+	response, err := Post[types.FreezeInterval](ctx, api.NodeUrl, NewJsonRpcBody("latc_freezeInterval"), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
+}

@@ -391,7 +391,14 @@ type NodeConfiguration struct {
 	}
 }
 
+// 区块压缩节省的空间
 type FreezeSaveSpace struct {
 	SaveSpace uint64 `json:"saveSpace"`
-	Unit      string `json:"unit"`
+	Unit      string `json:"unit"` // byte
+}
+
+// 区块压缩间隔
+type FreezeInterval struct {
+	FreezeInterval uint64 `json:"freezeInterval"`
+	Unit           string `json:"unit"` // minute
 }
