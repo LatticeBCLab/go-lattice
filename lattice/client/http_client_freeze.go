@@ -7,8 +7,8 @@ import (
 	"github.com/LatticeBCLab/go-lattice/common/types"
 )
 
-func (api *httpApi) Freeze(ctx context.Context, dblockNumber *big.Int) (uint64, error) {
-	response, err := Post[uint64](ctx, api.NodeUrl, NewJsonRpcBody("latc_freeze", dblockNumber), api.newHeaders(emptyChainId), api.transport)
+func (api *httpApi) Freeze(ctx context.Context, chainId string, dblockNumber *big.Int) (uint64, error) {
+	response, err := Post[uint64](ctx, api.NodeUrl, NewJsonRpcBody("latc_freeze", dblockNumber), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return 0, err
 	}
