@@ -7,8 +7,8 @@ import (
 	"github.com/LatticeBCLab/go-lattice/common/types"
 )
 
-func (api *httpApi) Freeze(ctx context.Context, chainId string, dblockNumber *big.Int) (uint64, error) {
-	response, err := Post[uint64](ctx, api.NodeUrl, NewJsonRpcBody("latc_freeze", dblockNumber), api.newHeaders(chainId), api.transport)
+func (api *httpApi) Freeze(ctx context.Context, dblockNumber *big.Int) (uint64, error) {
+	response, err := Post[uint64](ctx, api.NodeUrl, NewJsonRpcBody("latc_freeze", dblockNumber), api.newHeaders(emptyChainId), api.transport)
 	if err != nil {
 		return 0, err
 	}
@@ -73,8 +73,8 @@ func (api *httpApi) GetFreezeReceipt(ctx context.Context, chainId string, addres
 	return response.Result, nil
 }
 
-func (api *httpApi) GetFreezeSaveSpace(ctx context.Context, chainId string) (*types.FreezeSaveSpace, error) {
-	response, err := Post[types.FreezeSaveSpace](ctx, api.NodeUrl, NewJsonRpcBody("latc_getFreezeSaveSpace"), api.newHeaders(chainId), api.transport)
+func (api *httpApi) GetFreezeSaveSpace(ctx context.Context) (*types.FreezeSaveSpace, error) {
+	response, err := Post[types.FreezeSaveSpace](ctx, api.NodeUrl, NewJsonRpcBody("latc_getFreezeSaveSpace"), api.newHeaders(emptyChainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -84,8 +84,8 @@ func (api *httpApi) GetFreezeSaveSpace(ctx context.Context, chainId string) (*ty
 	return response.Result, nil
 }
 
-func (api *httpApi) GetFreezeInterval(ctx context.Context, chainId string) (*types.FreezeInterval, error) {
-	response, err := Post[types.FreezeInterval](ctx, api.NodeUrl, NewJsonRpcBody("latc_freezeInterval"), api.newHeaders(chainId), api.transport)
+func (api *httpApi) GetFreezeInterval(ctx context.Context) (*types.FreezeInterval, error) {
+	response, err := Post[types.FreezeInterval](ctx, api.NodeUrl, NewJsonRpcBody("latc_freezeInterval"), api.newHeaders(emptyChainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
