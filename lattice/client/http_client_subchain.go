@@ -130,7 +130,7 @@ func (api *httpApi) GetSubchainBriefInfo(ctx context.Context, subchainID string)
 }
 
 func (api *httpApi) GetSubchainIdByProposalId(ctx context.Context, chainId, proposalId string) (uint32, error) {
-	response, err := Post[types.Proposal[types.NewSubchainProposal]](ctx, api.NodeUrl, NewJsonRpcBody("wallet_getProposalById", proposalId), api.newHeaders(chainId), api.transport)
+	response, err := Post[types.Proposal[types.SubchainProposal]](ctx, api.NodeUrl, NewJsonRpcBody("wallet_getProposalById", proposalId), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return 0, err
 	}

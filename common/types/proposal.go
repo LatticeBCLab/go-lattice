@@ -1,6 +1,6 @@
 package types
 
-type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | NewSubchainProposal] struct {
+type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | SubchainProposal] struct {
 	Type    uint8 `json:"proposalType,omitempty"`
 	Content *T    `json:"proposalContent,omitempty"`
 }
@@ -29,15 +29,29 @@ type ModifyChainConfigProposal struct {
 	Consensus      string   `json:"consensus"`
 }
 
-type NewSubchainProposal struct {
-	Id          string `json:"proposalId"`
-	State       uint8  `json:"proposalState"`
+// SubchainProposal 以链建链的提案内容
+type SubchainProposal struct {
+	Id          string `json:"proposalId,omitempty"`
+	State       uint8  `json:"proposalState,omitempty"`
 	ChainConfig struct {
+		// create
 		NewChain struct {
-			Id uint32 `json:"chainId"`
-		} `json:"newChain"`
-		ParentHash string `json:"parentHash"`
-	} `json:"ChainConfig"`
+			Id                              uint32     `json:"chainId,omitempty"`
+			Name                            string     `json:"name,omitempty"`
+			Period                          uint32     `json:"period,omitempty"`
+			Tokenless                       bool       `json:"tokenless,omitempty"`
+			EnableNoTxDelayedMining         bool       `json:"noEmptyAnchor,omitempty"`
+			NoTxDelayedMiningPeriodMultiple uint32     `json:"emptyAnchorPeriodMul,omitempty"`
+			EnableContractLifecycle         bool       `json:"isContractVote,omitempty"`
+			EnableVotingDictatorship        bool       `json:"isDictatorship,omitempty"`
+			ContractDeploymentVotingRule    VotingRule `json:"deployRule,omitempty"`
+			EnableContractManagement        bool       `json:"contractPermission,omitempty"`
+		} `json:"newChain,omitempty"`
+		Consensus              string `json:"consensus,omitempty"`
+		Timestamp              int64  `json:"timestamp,omitempty"`
+		ParentHash             string `json:"parentHash,omitempty"`
+		JoinSubchainProposalId string `json:"joinProposalId,omitempty"` // the proposal id that apply for join subchain
+	} `json:"ChainConfig,omitempty"`
 }
 
 // ProposalState 提案状态

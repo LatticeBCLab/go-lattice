@@ -1,6 +1,8 @@
 package protobuf
 
 import (
+	"io"
+
 	"github.com/bufbuild/protocompile/parser"
 	"github.com/bufbuild/protocompile/reporter"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -8,7 +10,6 @@ import (
 	"google.golang.org/protobuf/reflect/protodesc"
 	pref "google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"
-	"io"
 )
 
 // MakeFileDescriptor 生成proto的文件描述
