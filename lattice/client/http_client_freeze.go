@@ -73,8 +73,8 @@ func (api *httpApi) GetFreezeReceipt(ctx context.Context, chainId string, addres
 	return response.Result, nil
 }
 
-func (api *httpApi) GetFreezeSaveSpace(ctx context.Context) (*types.FreezeSaveSpace, error) {
-	response, err := Post[types.FreezeSaveSpace](ctx, api.NodeUrl, NewJsonRpcBody("latc_getFreezeSaveSpace"), api.newHeaders(emptyChainId), api.transport)
+func (api *httpApi) GetFreezeSaveSpace(ctx context.Context, chainId string) (*types.FreezeSaveSpace, error) {
+	response, err := Post[types.FreezeSaveSpace](ctx, api.NodeUrl, NewJsonRpcBody("latc_getFreezeSaveSpace"), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -84,8 +84,8 @@ func (api *httpApi) GetFreezeSaveSpace(ctx context.Context) (*types.FreezeSaveSp
 	return response.Result, nil
 }
 
-func (api *httpApi) GetFreezeInterval(ctx context.Context) (*types.FreezeInterval, error) {
-	response, err := Post[types.FreezeInterval](ctx, api.NodeUrl, NewJsonRpcBody("latc_freezeInterval"), api.newHeaders(emptyChainId), api.transport)
+func (api *httpApi) GetFreezeInterval(ctx context.Context, chainId string) (*types.FreezeInterval, error) {
+	response, err := Post[types.FreezeInterval](ctx, api.NodeUrl, NewJsonRpcBody("latc_freezeInterval"), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}

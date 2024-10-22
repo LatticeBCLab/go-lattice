@@ -494,9 +494,9 @@ type HttpApi interface {
 	// GetFreezeReceipt 通过账户地址和区块高度查询压缩的收据
 	GetFreezeReceipt(ctx context.Context, chainId string, address string, tblockNumber *big.Int) (*types.Receipt, error)
 	// GetFreezeSaveSpace 获取当前区块压缩已节省的空间
-	GetFreezeSaveSpace(ctx context.Context) (*types.FreezeSaveSpace, error)
+	GetFreezeSaveSpace(ctx context.Context, chainId string) (*types.FreezeSaveSpace, error)
 	// GetFreezeInterval 获取区块压缩的时间间隔
-	GetFreezeInterval(ctx context.Context) (*types.FreezeInterval, error)
+	GetFreezeInterval(ctx context.Context, chainId string) (*types.FreezeInterval, error)
 }
 
 type httpApi struct {
