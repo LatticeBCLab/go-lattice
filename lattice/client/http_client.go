@@ -480,6 +480,23 @@ type HttpApi interface {
 	GetProposalById(ctx context.Context, chainId, proposalId string, result interface{}) error
 	// GetSubchainIdByProposalId get subchain id by proposal id
 	GetSubchainIdByProposalId(ctx context.Context, chainId, proposalId string) (uint32, error)
+
+	// Freeze 立即压缩区块
+	Freeze(ctx context.Context, chainId string, dblockNumber *big.Int) (uint64, error)
+	// GetFreezeDBlockByHash 通过区块哈希查询压缩的区块
+	GetFreezeDBlockByHash(ctx context.Context, chainId string, hash string) (*types.DaemonBlock, error)
+	// GetFreezeDBlockByHash 通过区块高度查询压缩的区块
+	GetFreezeDBlockByNumber(ctx context.Context, chainId string, dblockNumber *big.Int) (*types.DaemonBlock, error)
+	// GetFreezeTBlockByHash 通过区块哈希查询压缩的交易
+	GetFreezeTBlockByHash(ctx context.Context, chainId string, hash string) (*types.TransactionBlock, error)
+	// GetFreezeTBlockByNumber 通过账户地址和区块高度查询压缩的交易
+	GetFreezeTBlockByNumber(ctx context.Context, chainId string, address string, tblockNumber *big.Int) (*types.TransactionBlock, error)
+	// GetFreezeReceipt 通过账户地址和区块高度查询压缩的收据
+	GetFreezeReceipt(ctx context.Context, chainId string, address string, tblockNumber *big.Int) (*types.Receipt, error)
+	// GetFreezeSaveSpace 获取当前区块压缩已节省的空间
+	GetFreezeSaveSpace(ctx context.Context, chainId string) (*types.FreezeSaveSpace, error)
+	// GetFreezeInterval 获取区块压缩的时间间隔
+	GetFreezeInterval(ctx context.Context, chainId string) (*types.FreezeInterval, error)
 }
 
 type httpApi struct {
