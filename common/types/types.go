@@ -377,17 +377,19 @@ type NodeConfiguration struct {
 		NetworkIDGroup []int `json:"networkIDGroup"`
 	}
 	Node struct {
-		Name         string   `json:"name"`
-		DataDir      string   `json:"dataDir"`
-		SecondaryDir string   `json:"secondaryDir"`
-		Host         string   `json:"Host"`
-		HTTPPort     int      `json:"HTTPPort"`
-		WSPort       int      `json:"WSPort"`
-		P2PPort      int      `json:"P2PPort"`
-		GinHTTPPort  int      `json:"GinHTTPPort"`
-		JWTEnable    bool     `json:"JWTEnable"`
-		JWTSecret    string   `json:"JWTSecret"`
-		Bootstrap    []string `json:"bootstrap"`
+		Name           string   `json:"name"`
+		DataDir        string   `json:"dataDir"`
+		SecondaryDir   string   `json:"secondaryDir"`
+		Host           string   `json:"Host"`
+		HTTPPort       int      `json:"HTTPPort"`
+		WSPort         int      `json:"WSPort"`
+		P2PPort        int      `json:"P2PPort"`
+		GinHTTPPort    int      `json:"GinHTTPPort"`
+		JWTEnable      bool     `json:"JWTEnable"`
+		JWTSecret      string   `json:"JWTSecret"`
+		Bootstrap      []string `json:"bootstrap"`
+		FreezeEnable   bool     `json:"Freeze"`
+		FreezeInterval int      `json:"FreezeInterval"`
 	}
 }
 

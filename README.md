@@ -1,7 +1,7 @@
 <h1 align="center">Lattice.go</h1>
 
 <p align="center">
-    <img alt="Static Badge" src="https://img.shields.io/badge/go-v1.22-blue?logo=go">
+    <img alt="Static Badge" src="https://img.shields.io/badge/go-v1.22.8-blue?logo=go">
     <img alt="Static Badge" src="https://img.shields.io/badge/build-passing-green?logo=github">
     <img alt="Static Badge" src="https://img.shields.io/badge/release-v1.0.0-blue?logo=adguard">
     <img alt="Static Badge" src="https://img.shields.io/badge/Evm-support-orange?logo=ethereum">
