@@ -2,10 +2,11 @@ package sm2p256v1
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestSm2p256v1Api_GenerateKeyPair(t *testing.T) {
