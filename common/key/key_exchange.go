@@ -3,6 +3,7 @@ package key
 import (
 	"crypto/ecdh"
 	"crypto/rand"
+	"errors"
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/rs/zerolog/log"
 	"github.com/tjfoc/gmsm/sm3"
@@ -19,6 +20,7 @@ type HashFunc func() hash.Hash
 type SymEncryptFunc func(data, key []byte) ([]byte, error)
 type FormatFunc func([]byte) string
 
+// Opts is the options for the ECDH exchange.
 type Opts struct {
 	curve          ecdh.Curve
 	hashFunc       HashFunc
@@ -27,6 +29,7 @@ type Opts struct {
 	keySize        int
 }
 
+// defaultOpts returns the default options for the ECDH exchange.
 func defaultOpts() *Opts {
 	return &Opts{
 		curve:          ecdh.P256(),
@@ -37,30 +40,35 @@ func defaultOpts() *Opts {
 	}
 }
 
+// WithCurve returns an OptFunc that sets the curve for the ECDH exchange.
 func WithCurve(curve ecdh.Curve) OptFunc {
 	return func(o *Opts) {
 		o.curve = curve
 	}
 }
 
+// WithHashFunc returns an OptFunc that sets the hash function for the ECDH exchange.
 func WithHashFunc(h HashFunc) OptFunc {
 	return func(o *Opts) {
 		o.hashFunc = h
 	}
 }
 
+// WithSymEncryptFunc returns an OptFunc that sets the symmetric encryption function for the ECDH exchange.
 func WithSymEncryptFunc(fn SymEncryptFunc) OptFunc {
 	return func(o *Opts) {
 		o.symEncryptFunc = fn
 	}
 }
 
+// WithFormatFunc returns an OptFunc that sets the format function for the ECDH exchange.
 func WithFormatFunc(fn FormatFunc) OptFunc {
 	return func(o *Opts) {
 		o.formatFunc = fn
 	}
 }
 
+// WithKeySize returns an OptFunc that sets the key size for the ECDH exchange.
 func WithKeySize(size int) OptFunc {
 	if size < defaultKeySize {
 		log.Warn().Msg("key size should be greater than 16")
@@ -77,11 +85,13 @@ func WithKeySize(size int) OptFunc {
 	}
 }
 
+// ExchangeParams is the parameters for the ECDH exchange.
 type ExchangeParams struct {
 	PK     *ecdh.PublicKey
 	Random []byte
 }
 
+// ExchangeResult is the result of the ECDH exchange.
 type ExchangeResult struct {
 	Random     []byte
 	PK         *ecdh.PublicKey
@@ -89,6 +99,7 @@ type ExchangeResult struct {
 	AccessKey  *AccessKey
 }
 
+// AccessKey is the access key for the ECDH exchange.
 type AccessKey struct {
 	ID     string `json:"id"`
 	Secret string `json:"secret"`
@@ -104,6 +115,8 @@ type Exchange interface {
 	Exchange(client *ExchangeParams) (*ExchangeResult, error)
 	// ClientExchange simulates the client's ECDH exchange.
 	ClientExchange(clientSK *ecdh.PrivateKey, clientRandom []byte, server *ExchangeParams) (*AccessKey, error)
+	// ConfirmAccessKeyIdOrigin confirms the access key id whether it comes from the secret.
+	ConfirmAccessKeyIdOrigin(id, secret string) error
 }
 
 type ECDHEExchange struct {
@@ -215,6 +228,22 @@ func (e *ECDHEExchange) ClientExchange(clientSK *ecdh.PrivateKey, clientRandom [
 	}, nil
 }
 
+func (e *ECDHEExchange) ConfirmAccessKeyIdOrigin(id, secret string) error {
+	// decode the secret that encoded by the format function,
+	// now we fixed using base58 to decode the secret
+	sessionKey := base58.Decode(secret)
+	sessionKey = sessionKey[:e.opts.keySize]
+
+	h := e.opts.hashFunc()
+	h.Write(sessionKey)
+	accessKeyId := h.Sum(nil)
+	accessKeyId = accessKeyId[:e.opts.keySize]
+	if e.opts.formatFunc(accessKeyId) != id {
+		return errors.New("invalid access key id")
+	}
+	return nil
+}
+
 // RandomBytes generates random bytes.
 func RandomBytes() ([]byte, error) {
 	b := make([]byte, defaultRandomBytesSize)
@@ -226,6 +255,7 @@ func RandomBytes() ([]byte, error) {
 }
 
 // Sm4ECB encrypts the data using SM4 ECB mode.
+// key size can be 128 bits, or 192 bits, or 256 bits.
 func Sm4ECB(data, key []byte) ([]byte, error) {
 	cipher, err := sm4.Sm4Ecb(key, data, true)
 	if err != nil {

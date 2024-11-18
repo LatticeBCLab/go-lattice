@@ -26,6 +26,9 @@ func TestECDHEExchange_Exchange(t *testing.T) {
 	ak, err := instance.ClientExchange(clientSK, clientRandom, server)
 	assert.Nil(t, err)
 
+	err = instance.ConfirmAccessKeyIdOrigin(ak.ID, ak.Secret)
+	assert.Nil(t, err)
+
 	// Assert
 	assert.Equal(t, result.AccessKey.ID, ak.ID)
 	assert.Equal(t, result.AccessKey.Secret, ak.Secret)
