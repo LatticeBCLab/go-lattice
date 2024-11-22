@@ -14,9 +14,9 @@ func NewPeekabooContract() PeekabooContract {
 type PeekabooContract interface {
 	MyAbi() *myabi.ABI
 	ContractAddress() string
-	TogglePayloadVisibility(hash string, visibility bool) (string, error)
-	ToggleHashVisibility(hash string, visibility bool) (string, error)
-	ToggleCodeVisibility(hash string, visibility bool) (string, error)
+	TogglePayload(hash string, visibility bool) (string, error)
+	ToggleHash(hash string, visibility bool) (string, error)
+	ToggleCode(hash string, visibility bool) (string, error)
 }
 
 type peekabooContract struct {
@@ -31,7 +31,7 @@ func (c *peekabooContract) ContractAddress() string {
 	return PeekabooBuiltinContract.Address
 }
 
-func (c *peekabooContract) TogglePayloadVisibility(hash string, visibility bool) (string, error) {
+func (c *peekabooContract) TogglePayload(hash string, visibility bool) (string, error) {
 	method := "delPayload"
 	if visibility {
 		method = "addPayload"
@@ -45,7 +45,7 @@ func (c *peekabooContract) TogglePayloadVisibility(hash string, visibility bool)
 	return fn.Encode()
 }
 
-func (c *peekabooContract) ToggleHashVisibility(hash string, visibility bool) (string, error) {
+func (c *peekabooContract) ToggleHash(hash string, visibility bool) (string, error) {
 	method := "delHash"
 	if visibility {
 		method = "addHash"
@@ -59,7 +59,7 @@ func (c *peekabooContract) ToggleHashVisibility(hash string, visibility bool) (s
 	return fn.Encode()
 }
 
-func (c *peekabooContract) ToggleCodeVisibility(hash string, visibility bool) (string, error) {
+func (c *peekabooContract) ToggleCode(hash string, visibility bool) (string, error) {
 	method := "delCode"
 	if visibility {
 		method = "addCode"
