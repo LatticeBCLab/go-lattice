@@ -1,16 +1,79 @@
 package builtin
 
-import "github.com/LatticeBCLab/go-lattice/abi"
+import (
+	"github.com/LatticeBCLab/go-lattice/abi"
+	myabi "github.com/ethereum/go-ethereum/accounts/abi"
+)
 
-func NewBlockPeekabooContract() {}
+func NewPeekabooContract() PeekabooContract {
+	return &peekabooContract{
+		abi: abi.NewAbi(PeekabooBuiltinContract.AbiString),
+	}
+}
 
-type BlockPeekabooContract interface{}
+type PeekabooContract interface {
+	MyAbi() *myabi.ABI
+	ContractAddress() string
+	TogglePayloadVisibility(hash string, visibility bool) (string, error)
+	ToggleHashVisibility(hash string, visibility bool) (string, error)
+	ToggleCodeVisibility(hash string, visibility bool) (string, error)
+}
 
-type blockPeekabooContract struct {
+type peekabooContract struct {
 	abi abi.LatticeAbi
 }
 
-var BlockPeekabooBuiltinContract = Contract{
+func (c *peekabooContract) MyAbi() *myabi.ABI {
+	return c.abi.RawAbi()
+}
+
+func (c *peekabooContract) ContractAddress() string {
+	return PeekabooBuiltinContract.Address
+}
+
+func (c *peekabooContract) TogglePayloadVisibility(hash string, visibility bool) (string, error) {
+	method := "delPayload"
+	if visibility {
+		method = "addPayload"
+	}
+
+	fn, err := c.abi.GetLatticeFunction(method, hash)
+	if err != nil {
+		return "", err
+	}
+
+	return fn.Encode()
+}
+
+func (c *peekabooContract) ToggleHashVisibility(hash string, visibility bool) (string, error) {
+	method := "delHash"
+	if visibility {
+		method = "addHash"
+	}
+
+	fn, err := c.abi.GetLatticeFunction(method, hash)
+	if err != nil {
+		return "", err
+	}
+
+	return fn.Encode()
+}
+
+func (c *peekabooContract) ToggleCodeVisibility(hash string, visibility bool) (string, error) {
+	method := "delCode"
+	if visibility {
+		method = "addCode"
+	}
+
+	fn, err := c.abi.GetLatticeFunction(method, hash)
+	if err != nil {
+		return "", err
+	}
+
+	return fn.Encode()
+}
+
+var PeekabooBuiltinContract = Contract{
 	Description: "区块隐藏合约",
 	Address:     "zltc_a8Nx2gcs2XHye7MKVWykdanumqDkWXqRH",
 	AbiString: `[
