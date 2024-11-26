@@ -29,6 +29,15 @@ type Opts struct {
 	keySize        int
 }
 
+type AKType byte
+
+const (
+	AKTypeUnknown     AKType = iota // invalid
+	AKTypeCommonUser                // 普通用户
+	AKTypeBaaS                      // BaaS
+	AKTypeDataOnChain               // 数据上链
+)
+
 // defaultOpts returns the default options for the ECDH exchange.
 func defaultOpts() *Opts {
 	return &Opts{
@@ -112,11 +121,13 @@ type Exchange interface {
 	GenerateSharedParams() (*ecdh.PrivateKey, []byte, error)
 	// Exchange performs the ECDH exchange and returns the shared secret.
 	// You should generate client exchange params before calling this method. Can use GenerateSharedParams to generate the params.
-	Exchange(client *ExchangeParams) (*ExchangeResult, error)
+	Exchange(akType AKType, client *ExchangeParams) (*ExchangeResult, error)
 	// ClientExchange simulates the client's ECDH exchange.
-	ClientExchange(clientSK *ecdh.PrivateKey, clientRandom []byte, server *ExchangeParams) (*AccessKey, error)
+	ClientExchange(akType AKType, clientSK *ecdh.PrivateKey, clientRandom []byte, server *ExchangeParams) (*AccessKey, error)
 	// ConfirmAccessKeyIdOrigin confirms the access key id whether it comes from the secret.
-	ConfirmAccessKeyIdOrigin(id, secret string) error
+	ConfirmAccessKeyIdOrigin(akType AKType, id, secret string) error
+	// GetAKType returns the access key type.
+	GetAKType(ak string) AKType
 }
 
 type ECDHEExchange struct {
@@ -134,7 +145,6 @@ func NewECDHEExchange(opts ...OptFunc) Exchange {
 	}
 }
 
-// GenerateSharedParams generates the shared parameters for the ECDH exchange.
 func (e *ECDHEExchange) GenerateSharedParams() (*ecdh.PrivateKey, []byte, error) {
 	sk, err := e.opts.curve.GenerateKey(rand.Reader)
 	if err != nil {
@@ -151,21 +161,21 @@ func (e *ECDHEExchange) GenerateSharedParams() (*ecdh.PrivateKey, []byte, error)
 	return sk, random, nil
 }
 
-func (e *ECDHEExchange) Exchange(client *ExchangeParams) (*ExchangeResult, error) {
-	// 1. Generate server private key, generate server random number
+func (e *ECDHEExchange) Exchange(akType AKType, client *ExchangeParams) (*ExchangeResult, error) {
+	// Generate server private key, generate server random number
 	serverSK, serverRandom, err := e.GenerateSharedParams()
 	if err != nil {
 		return nil, err
 	}
 
-	// 2. Sign server's public key that use node certificate
+	// exchange
 	sharedKey, err := serverSK.ECDH(client.PK)
 	if err != nil {
 		log.Err(err).Msg("failed to calculate shared key")
 		return nil, err
 	}
 
-	// 3. Calculate shared secret
+	// Calculate shared secret
 	salt := append(client.Random, serverRandom...)
 	sessionKey, err := scrypt.Key(sharedKey, salt, 1<<2, 1, 8, 32)
 	if err != nil {
@@ -174,13 +184,16 @@ func (e *ECDHEExchange) Exchange(client *ExchangeParams) (*ExchangeResult, error
 	}
 	sessionKey = sessionKey[:e.opts.keySize]
 
-	// 4. Hash the session key to get the access_key_id
+	// Hash the session key to get the access_key_id
 	h := e.opts.hashFunc()
 	h.Write(sessionKey)
-	accessKeyId := h.Sum(nil)
-	accessKeyId = accessKeyId[:e.opts.keySize]
+	tempAccessKeyId := h.Sum(nil)
+	tempAccessKeyId = tempAccessKeyId[:e.opts.keySize]
+	accessKeyId := make([]byte, e.opts.keySize+1)
+	accessKeyId[0] = byte(akType)
+	copy(accessKeyId[1:], tempAccessKeyId)
 
-	// 5. Symmetric encrypt the hashed result
+	// Symmetric encrypt the hashed result
 	h2 := e.opts.hashFunc()
 	h2.Write(salt)
 	data := h2.Sum(nil)
@@ -190,7 +203,7 @@ func (e *ECDHEExchange) Exchange(client *ExchangeParams) (*ExchangeResult, error
 		return nil, err
 	}
 
-	// 6. Return the Exchange Result
+	// Return the Exchange Result
 	return &ExchangeResult{
 		Random:     serverRandom,
 		PK:         serverSK.PublicKey(),
@@ -202,7 +215,7 @@ func (e *ECDHEExchange) Exchange(client *ExchangeParams) (*ExchangeResult, error
 	}, nil
 }
 
-func (e *ECDHEExchange) ClientExchange(clientSK *ecdh.PrivateKey, clientRandom []byte, server *ExchangeParams) (*AccessKey, error) {
+func (e *ECDHEExchange) ClientExchange(akType AKType, clientSK *ecdh.PrivateKey, clientRandom []byte, server *ExchangeParams) (*AccessKey, error) {
 	sharedKey, err := clientSK.ECDH(server.PK)
 	if err != nil {
 		log.Err(err).Msg("failed to calculate shared key")
@@ -219,8 +232,11 @@ func (e *ECDHEExchange) ClientExchange(clientSK *ecdh.PrivateKey, clientRandom [
 
 	h := e.opts.hashFunc()
 	h.Write(sessionKey)
-	accessKeyId := h.Sum(nil)
-	accessKeyId = accessKeyId[:e.opts.keySize]
+	tempAccessKeyId := h.Sum(nil)
+	tempAccessKeyId = tempAccessKeyId[:e.opts.keySize]
+	accessKeyId := make([]byte, e.opts.keySize+1)
+	accessKeyId[0] = byte(akType)
+	copy(accessKeyId[1:], tempAccessKeyId)
 
 	return &AccessKey{
 		ID:     e.opts.formatFunc(accessKeyId),
@@ -228,7 +244,7 @@ func (e *ECDHEExchange) ClientExchange(clientSK *ecdh.PrivateKey, clientRandom [
 	}, nil
 }
 
-func (e *ECDHEExchange) ConfirmAccessKeyIdOrigin(id, secret string) error {
+func (e *ECDHEExchange) ConfirmAccessKeyIdOrigin(akType AKType, id, secret string) error {
 	// decode the secret that encoded by the format function,
 	// now we fixed using base58 to decode the secret
 	sessionKey := base58.Decode(secret)
@@ -236,12 +252,26 @@ func (e *ECDHEExchange) ConfirmAccessKeyIdOrigin(id, secret string) error {
 
 	h := e.opts.hashFunc()
 	h.Write(sessionKey)
-	accessKeyId := h.Sum(nil)
-	accessKeyId = accessKeyId[:e.opts.keySize]
+	tempAccessKeyId := h.Sum(nil)
+	tempAccessKeyId = tempAccessKeyId[:e.opts.keySize]
+	accessKeyId := make([]byte, e.opts.keySize+1)
+	accessKeyId[0] = byte(akType)
+	copy(accessKeyId[1:], tempAccessKeyId)
 	if e.opts.formatFunc(accessKeyId) != id {
 		return errors.New("invalid access key id")
 	}
 	return nil
+}
+
+func (e *ECDHEExchange) GetAKType(ak string) AKType {
+	decodedAK := base58.Decode(ak) // fixed using base58 to decode the secret
+	tp := AKType(decodedAK[0])
+	switch tp {
+	case AKTypeCommonUser, AKTypeBaaS, AKTypeDataOnChain:
+		return tp
+	default:
+		return AKTypeUnknown
+	}
 }
 
 // RandomBytes generates random bytes.
