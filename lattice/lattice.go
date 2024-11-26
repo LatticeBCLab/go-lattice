@@ -302,6 +302,8 @@ func (strategy *RetryStrategy) RandomIntervalOpts() []retry.Option {
 }
 
 type Lattice interface {
+	IsSm2p256v1() bool
+	IsTokenLess() bool
 	// HttpApi return the http api
 	//
 	// Parameters:
@@ -540,6 +542,14 @@ func (svc *lattice) handleTransaction(ctx context.Context, credentials *Credenti
 		}
 	}
 	return hash, nil
+}
+
+func (svc *lattice) IsSm2p256v1() bool {
+	return svc.chainConfig.Curve == types.Sm2p256v1
+}
+
+func (svc *lattice) IsTokenLess() bool {
+	return svc.chainConfig.TokenLess
 }
 
 func (svc *lattice) Transfer(ctx context.Context, credentials *Credentials, chainId, linker, payload string, amount, joule uint64) (*common.Hash, error) {
