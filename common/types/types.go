@@ -373,24 +373,137 @@ type NodeVersion struct {
 
 // NodeConfiguration 节点配置信息
 type NodeConfiguration struct {
-	Latc struct {
-		NetworkIDGroup []int `json:"networkIDGroup"`
-	}
-	Node struct {
-		Name           string   `json:"name"`
-		DataDir        string   `json:"dataDir"`
-		SecondaryDir   string   `json:"secondaryDir"`
-		Host           string   `json:"Host"`
-		HTTPPort       int      `json:"HTTPPort"`
-		WSPort         int      `json:"WSPort"`
-		P2PPort        int      `json:"P2PPort"`
-		GinHTTPPort    int      `json:"GinHTTPPort"`
-		JWTEnable      bool     `json:"JWTEnable"`
-		JWTSecret      string   `json:"JWTSecret"`
-		Bootstrap      []string `json:"bootstrap"`
-		FreezeEnable   bool     `json:"Freeze"`
-		FreezeInterval int      `json:"FreezeInterval"`
-	}
+	Latc latcConfig `json:"Latc"` //Lattice config
+	Node nodeConfig `json:"Node"` //Node config
+}
+
+type latcConfig struct {
+	NetworkIDGroup []int  `json:"NetworkIDGroup"`
+	Name           string `json:"Name"`
+	Desc           string `json:"Desc"`
+	LevelDB        struct {
+		OpenFilesCacheCapacity int `json:"OpenFilesCacheCapacity"`
+		MemoryCache            int `json:"MemoryCache"`
+	} `json:"LevelDB"`
+	AutoWitness        bool   `json:"AutoWitness"`
+	ResendSigInterval  int    `json:"ResendSigInterval"`
+	ViewChangeTimeout  int    `json:"ViewChangeTimeout"`
+	NoRecursion        bool   `json:"NoRecursion"`
+	TrieCleanLimit     int    `json:"TrieCleanLimit"`
+	MinReadySize       int    `json:"MinReadySize"`
+	StartInterval      int    `json:"StartInterval"`
+	ReadyInterval      int    `json:"ReadyInterval"`
+	StoreNeed          bool   `json:"StoreNeed"`
+	EviEnable          bool   `json:"EviEnable"`
+	EviLevel           int    `json:"EviLevel"`
+	WorldStateCompress bool   `json:"WorldStateCompress"`
+	TrieNumberLimit    int    `json:"TrieNumberLimit"`
+	RaftDebug          bool   `json:"RaftDebug"`
+	ConfigsDir         string `json:"ConfigsDir"`
+	DebugPWD           string `json:"DebugPWD"`
+}
+
+type nodeConfig struct {
+	DebugPWD        string `json:"DebugPWD"`
+	DebugDB         bool   `json:"DebugDB"`
+	Name            string `json:"Name"`
+	Version         string `json:"Version"`
+	IteratorVersion int    `json:"IteratorVersion"`
+	DataDir         string `json:"DataDir"`
+	SecondaryDir    string `json:"SecondaryDir"`
+	FileKeyDir      string `json:"FileKeyDir"`
+	ConfigsDir      string `json:"ConfigsDir"`
+	Network         struct {
+		Host                 string   `json:"Host"`
+		AuthVirtualHosts     []string `json:"AuthVirtualHosts"`
+		AuthPort             int      `json:"AuthPort"`
+		HTTPPort             int      `json:"HTTPPort"`
+		HTTPCors             []string `json:"HTTPCors"`
+		HTTPVirtualHosts     []string `json:"HTTPVirtualHosts"`
+		HTTPModules          []string `json:"HTTPModules"`
+		HTTPPathPrefix       string   `json:"HTTPPathPrefix"`
+		BatchRequestLimit    int      `json:"BatchRequestLimit"`
+		BatchResponseMaxSize int      `json:"BatchResponseMaxSize"`
+		WSPort               int      `json:"WSPort"`
+		WSPathPrefix         string   `json:"WSPathPrefix"`
+		WSOrigins            []string `json:"WSOrigins"`
+		WSModules            []string `json:"WSModules"`
+		P2PPort              int      `json:"P2PPort"`
+		Bootstrap            []string `json:"Bootstrap"`
+		NoDiscovery          bool     `json:"NoDiscovery"`
+		MaxPeers             int      `json:"MaxPeers"`
+		StartNTP             bool     `json:"StartNTP"`
+		NTPHost              string   `json:"NTPHost"`
+		JWTEnable            bool     `json:"JWTEnable"`
+		JWTExpiryTimeout     int      `json:"JWTExpiryTimeout"`
+		JWTSecret            string   `json:"JWTSecret"`
+	} `json:"Network"`
+	Log struct {
+		LogLevel        int  `json:"LogLevel"`
+		Console         bool `json:"Console"`
+		LogKeep         int  `json:"LogKeep"`
+		LogMaxSize      int  `json:"LogMaxSize"`
+		UseZhLog        bool `json:"UseZhLog"`
+		FileSliceSize   int  `json:"FileSliceSize"`
+		RetryChannelNum int  `json:"RetryChannelNum"`
+		UploadTimeout   int  `json:"UploadTimeout"`
+		GoroutineMax    int  `json:"GoroutineMax"`
+	} `json:"Log"`
+	Nvm struct {
+		BaseDir         string `json:"BaseDir"`
+		Pattern         string `json:"Pattern"`
+		ContractFileDir string `json:"ContractFileDir"`
+		ContractConfig  string `json:"ContractConfig"`
+		Redundancy      bool   `json:"Redundancy"`
+		VM              struct {
+			EnableUpgrade bool `json:"EnableUpgrade"`
+			Native        struct {
+				Enable      bool `json:"Enable"`
+				StopTimeout int  `json:"StopTimeout"`
+				Docker      struct {
+					Enable    bool    `json:"Enable"`
+					ImageName string  `json:"ImageName"`
+					Cpus      float64 `json:"Cpus"`
+					Memory    string  `json:"Memory"`
+				} `json:"Docker"`
+			} `json:"Native"`
+		} `json:"VM"`
+	} `json:"Nvm"`
+	DistributedStorage struct {
+		Enable      bool `json:"Enable"`
+		GinHTTPPort int  `json:"GinHTTPPort"`
+		ChunkSize   int  `json:"ChunkSize"`
+		NodeAmount  int  `json:"NodeAmount"`
+	} `json:"DistributedStorage"`
+	Freeze struct {
+		Enable         bool `json:"Enable"`
+		FreezeInterval int  `json:"FreezeInterval"`
+		Threshold      int  `json:"Threshold"`
+		OneHand        int  `json:"OneHand"`
+	} `json:"Freeze"`
+	MessageQueue struct {
+		Enable               bool   `json:"Enable"`
+		KafkaIP              string `json:"KafkaIP"`
+		KafkaPort            int    `json:"KafkaPort"`
+		DBlockWithDeposit    bool   `json:"DBlockWithDeposit"`
+		DBlockWithReceipts   bool   `json:"DBlockWithReceipts"`
+		SASL                 bool   `json:"SASL"`
+		SASLUser             string `json:"SASLUser"`
+		SASLPassword         string `json:"SASLPassword"`
+		MQTopicNumPartitions int    `json:"MQTopicNumPartitions"`
+		MQNeedRelay          bool   `json:"MQNeedRelay"`
+		CanRelayToMQ         bool   `json:"CanRelayToMQ"`
+	} `json:"MessageQueue"`
+	CouchDB struct {
+		Enable   bool   `json:"Enable"`
+		Address  string `json:"Address"`
+		Username string `json:"Username"`
+		Password string `json:"Password"`
+	} `json:"CouchDB"`
+	PProfOn        bool   `json:"PProfOn"`
+	PProfPort      int    `json:"PProfPort"`
+	IPCPath        string `json:"IPCPath"`
+	NetworkIDGroup []int  `json:"NetworkIDGroup"`
 }
 
 // 区块压缩节省的空间
