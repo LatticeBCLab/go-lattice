@@ -118,6 +118,17 @@ func (api *httpApi) GetNodeConfiguration(ctx context.Context) (*types.NodeConfig
 	return response.Result, nil
 }
 
+func (api *httpApi) LoadNodeConfiguration(ctx context.Context, chainId string) (*types.NodeConfiguration, error) {
+	response, err := Post[types.NodeConfiguration](ctx, api.NodeUrl, NewJsonRpcBody("latc_loadConfig"), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
+}
+
 func (api *httpApi) GetNodeWorkingDirectory(ctx context.Context) (string, error) {
 	response, err := Post[string](ctx, api.NodeUrl, NewJsonRpcBody("node_getLocationPath"), api.newHeaders(emptyChainId), api.transport)
 	if err != nil {
