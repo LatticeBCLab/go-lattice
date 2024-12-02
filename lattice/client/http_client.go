@@ -485,7 +485,7 @@ type HttpApi interface {
 	Freeze(ctx context.Context, chainId string, dblockNumber *big.Int) (uint64, error)
 	// GetFreezeDBlockByHash 通过区块哈希查询压缩的区块
 	GetFreezeDBlockByHash(ctx context.Context, chainId string, hash string) (*types.DaemonBlock, error)
-	// GetFreezeDBlockByHash 通过区块高度查询压缩的区块
+	// GetFreezeDBlockByNumber 通过区块高度查询压缩的区块
 	GetFreezeDBlockByNumber(ctx context.Context, chainId string, dblockNumber *big.Int) (*types.DaemonBlock, error)
 	// GetFreezeTBlockByHash 通过区块哈希查询压缩的交易
 	GetFreezeTBlockByHash(ctx context.Context, chainId string, hash string) (*types.TransactionBlock, error)

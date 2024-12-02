@@ -512,6 +512,7 @@ func (svc *lattice) HttpApi() client.HttpApi {
 // 1.Sign transaction,
 // 2.Send transaction to the chain.
 func (svc *lattice) handleTransaction(ctx context.Context, credentials *Credentials, chainId string, transaction *block.Transaction, latestBlock *types.LatestBlock) (*common.Hash, error) {
+	start := time.Now()
 	chainIdAsInt, err := strconv.Atoi(chainId)
 	if err != nil {
 		log.Error().Err(err)
@@ -527,7 +528,9 @@ func (svc *lattice) handleTransaction(ctx context.Context, credentials *Credenti
 		log.Error().Err(err)
 		return nil, err
 	}
+	log.Debug().Msgf("【%s】签名交易耗时: %s", credentials.AccountAddress, time.Since(start))
 
+	start = time.Now()
 	cancelCtx, cancelFunc := context.WithTimeout(ctx, defaultHttpRequestTimeout)
 	defer cancelFunc()
 	hash, err := svc.httpApi.SendSignedTransaction(cancelCtx, chainId, transaction)
@@ -541,6 +544,7 @@ func (svc *lattice) handleTransaction(ctx context.Context, credentials *Credenti
 			log.Error().Err(err)
 		}
 	}
+	log.Debug().Msgf("【%s】发送交易耗时: %s", credentials.AccountAddress, time.Since(start))
 	return hash, nil
 }
 
@@ -618,14 +622,19 @@ func (svc *lattice) DeployContract(ctx context.Context, credentials *Credentials
 func (svc *lattice) CallContract(ctx context.Context, credentials *Credentials, chainId, contractAddress, data, payload string, amount, joule uint64) (*common.Hash, error) {
 	log.Debug().Msgf("开始发起调用合约交易，chainId: %s, contractAddress: %s, data: %s, payload: %s, amount: %d, joule: %d", chainId, contractAddress, data, payload, amount, joule)
 
+	start := time.Now()
 	svc.accountLock.Obtain(chainId, credentials.AccountAddress)
 	defer svc.accountLock.Unlock(chainId, credentials.AccountAddress)
+	log.Debug().Msgf("【%s】获取账户锁耗时：%s", credentials.AccountAddress, time.Since(start))
 
+	start = time.Now()
 	latestBlock, err := svc.blockCache.GetBlock(chainId, credentials.AccountAddress)
 	if err != nil {
 		return nil, err
 	}
+	log.Debug().Msgf("【%s】获取最新区块耗时：%s", credentials.AccountAddress, time.Since(start))
 
+	start = time.Now()
 	transaction := block.NewTransactionBuilder(block.TransactionTypeCallContract).
 		SetLatestBlock(latestBlock).
 		SetOwner(credentials.AccountAddress).
@@ -639,6 +648,7 @@ func (svc *lattice) CallContract(ctx context.Context, credentials *Credentials, 
 	cryptoInstance := crypto.NewCrypto(svc.chainConfig.Curve)
 	dataHash := cryptoInstance.Hash(hexutil.MustDecode(data))
 	transaction.CodeHash = dataHash
+	log.Debug().Msgf("【%s】构建交易耗时：%s", credentials.AccountAddress, time.Since(start))
 
 	hash, err := svc.handleTransaction(ctx, credentials, chainId, transaction, latestBlock)
 	if err != nil {
