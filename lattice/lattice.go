@@ -528,7 +528,7 @@ func (svc *lattice) handleTransaction(ctx context.Context, credentials *Credenti
 		log.Error().Err(err)
 		return nil, err
 	}
-	log.Debug().Msgf("【%s】签名交易耗时: %s", credentials.AccountAddress, time.Since(start))
+	log.Debug().Msgf("【%s】编码签名交易总耗时: %s", credentials.AccountAddress, time.Since(start))
 
 	start = time.Now()
 	cancelCtx, cancelFunc := context.WithTimeout(ctx, defaultHttpRequestTimeout)

@@ -7,8 +7,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/rs/zerolog/log"
 	"io"
 	"math/big"
+	"time"
 )
 
 // TransactionType 交易类型别名
@@ -220,14 +222,19 @@ func (tx *Transaction) sign(curve types.Curve, hash []byte, skHex string) ([]byt
 // Returns:
 //   - error
 func (tx *Transaction) SignTX(chainId uint64, curve types.Curve, skHex string) error {
+	start := time.Now()
 	hash, err := tx.rlpEncodeHash(chainId, curve)
 	if err != nil {
 		return err
 	}
+	log.Debug().Msgf("rlp编码耗时: %s", time.Since(start))
+
+	start = time.Now()
 	signature, err := tx.sign(curve, hash[:], skHex)
 	if err != nil {
 		return err
 	}
+	log.Debug().Msgf("签名耗时: %s", time.Since(start))
 	tx.Sign = hexutil.Encode(signature)
 
 	return nil
