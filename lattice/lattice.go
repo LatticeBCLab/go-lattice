@@ -518,11 +518,17 @@ func (svc *lattice) handleTransaction(ctx context.Context, credentials *Credenti
 		log.Error().Err(err)
 		return nil, err
 	}
+	log.Debug().Msgf("转换chainId耗时: %s", time.Since(start))
+
+	start = time.Now()
 	sk, err := credentials.GetSK()
 	if err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
+	log.Debug().Msgf("获取私钥耗时: %s", time.Since(start))
+
+	start = time.Now()
 	err = transaction.SignTX(uint64(chainIdAsInt), svc.chainConfig.Curve, sk)
 	if err != nil {
 		log.Error().Err(err)
