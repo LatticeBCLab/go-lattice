@@ -6,16 +6,20 @@ type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | Subchain
 }
 
 // ContractLifecycleProposal 合约生命周期提案
+// State ProposalState
+// IsRevoke 0-吊销、1-冻结、2-解冻
+// Period 0-部署、1-升级、2-吊销、3-冻结、4-解冻
 type ContractLifecycleProposal struct {
-	Id              string `json:"proposalId"`
-	State           uint8  `json:"proposalState"`
-	Nonce           uint64 `json:"nonce"`
-	ContractAddress string `json:"contractAddress"`
-	IsRevoke        uint32 `json:"isRevoke"`
-	Period          uint8  `json:"period"`
+	Id              string        `json:"proposalId"`
+	State           ProposalState `json:"proposalState"`
+	Nonce           uint64        `json:"nonce"`
+	ContractAddress string        `json:"contractAddress"`
+	IsRevoke        uint32        `json:"isRevoke"`
+	Period          uint8         `json:"period"`
 }
 
 // ModifyChainConfigProposal 修改链配置提案
+// State ProposalState
 type ModifyChainConfigProposal struct {
 	Id             string   `json:"proposalId"`
 	State          uint8    `json:"proposalState"`
@@ -30,6 +34,7 @@ type ModifyChainConfigProposal struct {
 }
 
 // SubchainProposal 以链建链的提案内容
+// State ProposalState
 type SubchainProposal struct {
 	Id          string `json:"proposalId,omitempty"`
 	State       uint8  `json:"proposalState,omitempty"`
