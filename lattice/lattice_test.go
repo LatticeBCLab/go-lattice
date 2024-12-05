@@ -64,7 +64,7 @@ func TestNewLattice_CreateProtocol(t *testing.T) {
 	assert.NoError(t, err)
 	result, err := abi.DecodeReturn(contract.MyAbi(), "addProtocol", receipt.ContractRet)
 	assert.NoError(t, err)
-	t.Logf("创建协议返回：%s", result)
+	t.Logf("创建协议返回：%s", result[0])
 	t.Log(string(r))
 }
 
@@ -144,7 +144,7 @@ func TestLattice_DeployContractWaitReceipt(t *testing.T) {
 	t.Log(string(r))
 
 	// 获取正在进行的提案
-	proposal, err := latticeApi.HttpApi().GetContractLifecycleProposal(context.Background(), chainId, receipt.ContractAddress, types.ProposalStateINITIAL)
+	proposal, err := latticeApi.HttpApi().GetContractLifecycleProposal(context.Background(), chainId, receipt.ContractAddress, types.ProposalStateINITIAL, "", "")
 	assert.NoError(t, err)
 
 	voteContract := builtin.NewProposalContract()

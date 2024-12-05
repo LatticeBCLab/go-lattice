@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/rs/zerolog/log"
 	"strings"
 )
 
@@ -94,27 +95,32 @@ func (i *latticeAbi) GetLatticeFunction(methodName string, args ...interface{}) 
 // Returns:
 //   - string: abi解码后的合约调用结果
 //   - error
-func DecodeReturn(myabi *abi.ABI, functionName, contractReturn string) (string, error) {
+func DecodeReturn(myabi *abi.ABI, functionName, contractReturn string) ([]string, error) {
 	method, ok := myabi.Methods[functionName]
 	if !ok {
-		return "", fmt.Errorf("合约方法【%s】不存在", functionName)
+		return nil, fmt.Errorf("合约方法【%s】不存在", functionName)
 	}
 
 	bytes, err := hexutil.Decode(contractReturn)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	res, err := method.Outputs.UnpackValues(bytes)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	data, err := json.Marshal(res[0])
-	if err != nil {
-		return "", err
+	ret := make([]string, len(res))
+	for i, v := range res {
+		data, err := json.Marshal(v)
+		if err != nil {
+			log.Error().Err(err)
+			return nil, err
+		}
+		ret[i] = string(data)
 	}
 
-	return string(data), nil
+	return ret, nil
 }
 
 // DecodeCall 解码合约的入参
