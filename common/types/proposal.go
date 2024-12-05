@@ -19,7 +19,7 @@ type ContractLifecycleProposal struct {
 	ContractAddress string        `json:"contractAddress"`
 	IsRevoke        uint32        `json:"isRevoke"`
 	Period          uint8         `json:"period"`
-	CreatedAt       int64         `json:"createdAt,omitempty"`
+	CreatedAt       int64         `json:"createAt,omitempty"`
 	ModifiedAt      int64         `json:"modifiedAt,omitempty"`
 	DBHeight        uint64        `json:"dbNumber"`
 }
