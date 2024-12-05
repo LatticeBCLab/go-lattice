@@ -6,9 +6,12 @@ type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | Subchain
 }
 
 // ContractLifecycleProposal 合约生命周期提案
-// State ProposalState
-// IsRevoke 0-吊销、1-冻结、2-解冻
-// Period 0-部署、1-升级、2-吊销、3-冻结、4-解冻
+// State      ProposalState
+// IsRevoke   0-吊销、1-冻结、2-解冻
+// Period     0-部署、1-升级、2-吊销、3-冻结、4-解冻
+// CreatedAt  提案创建时间戳
+// ModifiedAt 提案修改时间戳
+// DBHeight   提案结束时的守护区块高度,
 type ContractLifecycleProposal struct {
 	Id              string        `json:"proposalId"`
 	State           ProposalState `json:"proposalState"`
@@ -16,6 +19,9 @@ type ContractLifecycleProposal struct {
 	ContractAddress string        `json:"contractAddress"`
 	IsRevoke        uint32        `json:"isRevoke"`
 	Period          uint8         `json:"period"`
+	CreatedAt       int64         `json:"createdAt,omitempty"`
+	ModifiedAt      int64         `json:"modifiedAt,omitempty"`
+	DBHeight        uint64        `json:"dbNumber"`
 }
 
 // ModifyChainConfigProposal 修改链配置提案
