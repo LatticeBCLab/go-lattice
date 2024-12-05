@@ -273,7 +273,7 @@ type HttpApi interface {
 	// Returns:
 	//    - types.Proposal[types.ContractLifecycleProposal]
 	//    - error
-	GetContractLifecycleProposal(ctx context.Context, chainId, contractAddress string, state types.ProposalState) ([]types.Proposal[types.ContractLifecycleProposal], error)
+	GetContractLifecycleProposal(ctx context.Context, chainId, contractAddress string, state types.ProposalState, startDate, endDate string) ([]types.Proposal[types.ContractLifecycleProposal], error)
 
 	// UploadFile 上传文件到链上
 	//

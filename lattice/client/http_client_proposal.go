@@ -7,14 +7,21 @@ import (
 	"github.com/LatticeBCLab/go-lattice/common/types"
 )
 
-func (api *httpApi) GetContractLifecycleProposal(ctx context.Context, chainId, contractAddress string, state types.ProposalState) ([]types.Proposal[types.ContractLifecycleProposal], error) {
-	params := map[string]interface{}{
+func (api *httpApi) GetContractLifecycleProposal(ctx context.Context, chainId, contractAddress string, state types.ProposalState, startDate, endDate string) ([]types.Proposal[types.ContractLifecycleProposal], error) {
+	args := map[string]interface{}{
 		"proposalType":    types.ProposalTypeContractLifecycle,
 		"proposalState":   state,
 		"proposalAddress": contractAddress,
 	}
 
-	response, err := Post[[]types.Proposal[types.ContractLifecycleProposal]](ctx, api.NodeUrl, NewJsonRpcBody("wallet_getProposal", params), api.newHeaders(chainId), api.transport)
+	if len(startDate) != 0 {
+		args["dateStart"] = startDate
+	}
+	if len(endDate) != 0 {
+		args["dateEnd"] = endDate
+	}
+
+	response, err := Post[[]types.Proposal[types.ContractLifecycleProposal]](ctx, api.NodeUrl, NewJsonRpcBody("wallet_getProposal", args), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
