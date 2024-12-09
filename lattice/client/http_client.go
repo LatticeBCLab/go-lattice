@@ -497,6 +497,13 @@ type HttpApi interface {
 	GetFreezeSaveSpace(ctx context.Context, chainId string) (*types.FreezeSaveSpace, error)
 	// GetFreezeInterval 获取区块压缩的时间间隔
 	GetFreezeInterval(ctx context.Context, chainId string) (*types.FreezeInterval, error)
+	// ImportFileKey interface to the wallet module, import the file key to the blockchain node.
+	// string, the address of the account
+	ImportFileKey(ctx context.Context, fileKey string) (string, error)
+	// ImportRawKey interface to the wallet module, import the account to the blockchain node.
+	ImportRawKey(ctx context.Context, privateKey, password string) (bool, error)
+	// GetAccounts get accounts from the node
+	GetAccounts(ctx context.Context, chainId string) ([]string, error)
 }
 
 type httpApi struct {
