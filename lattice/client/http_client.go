@@ -420,7 +420,8 @@ type HttpApi interface {
 
 	// GetDaemonBlockByHash 根据守护区块哈希查询守护区块信息
 	GetDaemonBlockByHash(ctx context.Context, chainId, hash string) (*types.DaemonBlock, error)
-
+	// GetDaemonBlockByHeight 根据守护区块高度查询守护区块信息
+	GetDaemonBlockByHeight(ctx context.Context, chainId string, height uint64) (*types.DaemonBlock, error)
 	// ExistsBusinessContractAddress 检查存证的业务合约地址是否存在
 	ExistsBusinessContractAddress(ctx context.Context, chainId, address string) (bool, error)
 	// GetTransactionBlockByHash 根据哈希查询交易区块的信息

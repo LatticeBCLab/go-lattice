@@ -50,6 +50,17 @@ func (api *httpApi) GetDaemonBlockByHash(ctx context.Context, chainId, hash stri
 	return response.Result, nil
 }
 
+func (api *httpApi) GetDaemonBlockByHeight(ctx context.Context, chainId string, height uint64) (*types.DaemonBlock, error) {
+	response, err := Post[types.DaemonBlock](ctx, api.NodeUrl, NewJsonRpcBody("latc_getDBlockByNumber", height), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
+}
+
 func (api *httpApi) GetTransactionBlockByHash(ctx context.Context, chainId, hash string) (*types.TransactionBlock, error) {
 	response, err := Post[types.TransactionBlock](ctx, api.NodeUrl, NewJsonRpcBody("latc_getTBlockByHash", hash), api.newHeaders(chainId), api.transport)
 	if err != nil {
