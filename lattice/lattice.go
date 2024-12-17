@@ -355,6 +355,7 @@ type Lattice interface {
 	//   - error
 	CallContract(ctx context.Context, credentials *Credentials, chainId, contractAddress, data, payload string, amount, joule uint64) (*common.Hash, error)
 
+	WaitReceipt(ctx context.Context, chainId string, hash *common.Hash, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
 	// TransferWaitReceipt 发起转账交易并等待回执
 	//
 	// Parameters:
@@ -654,7 +655,7 @@ func (svc *lattice) CallContract(ctx context.Context, credentials *Credentials, 
 	return hash, nil
 }
 
-func (svc *lattice) waitReceipt(ctx context.Context, chainId string, hash *common.Hash, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error) {
+func (svc *lattice) WaitReceipt(ctx context.Context, chainId string, hash *common.Hash, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error) {
 	var err error
 	var receipt *types.Receipt
 	err = retry.Do(
@@ -691,7 +692,7 @@ func (svc *lattice) TransferWaitReceipt(ctx context.Context, credentials *Creden
 		return nil, nil, err
 	}
 
-	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+	return svc.WaitReceipt(ctx, chainId, hash, retryStrategy)
 }
 
 func (svc *lattice) DeployContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, data, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error) {
@@ -700,7 +701,7 @@ func (svc *lattice) DeployContractWaitReceipt(ctx context.Context, credentials *
 		return nil, nil, err
 	}
 
-	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+	return svc.WaitReceipt(ctx, chainId, hash, retryStrategy)
 }
 
 func (svc *lattice) CallContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress, data, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error) {
@@ -709,7 +710,7 @@ func (svc *lattice) CallContractWaitReceipt(ctx context.Context, credentials *Cr
 		return nil, nil, err
 	}
 
-	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+	return svc.WaitReceipt(ctx, chainId, hash, retryStrategy)
 }
 
 func (svc *lattice) PreCallContract(ctx context.Context, chainId, owner, contractAddress, data, payload string) (*types.Receipt, error) {
@@ -775,7 +776,7 @@ func (svc *lattice) UpgradeContractWaitReceipt(ctx context.Context, credentials 
 		return nil, nil, err
 	}
 
-	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+	return svc.WaitReceipt(ctx, chainId, hash, retryStrategy)
 }
 
 func (svc *lattice) deployMultilingualContract(ctx context.Context, credentials *Credentials, chainId string, lang types.ContractLang, data types.DeployMultilingualContractCode, payload string, amount, joule uint64) (*common.Hash, error) {
@@ -935,7 +936,7 @@ func (svc *lattice) DeployGoContractWaitReceipt(ctx context.Context, credentials
 		return nil, nil, err
 	}
 
-	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+	return svc.WaitReceipt(ctx, chainId, hash, retryStrategy)
 }
 
 func (svc *lattice) UpgradeGoContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.UpgradeMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error) {
@@ -944,7 +945,7 @@ func (svc *lattice) UpgradeGoContractWaitReceipt(ctx context.Context, credential
 		return nil, nil, err
 	}
 
-	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+	return svc.WaitReceipt(ctx, chainId, hash, retryStrategy)
 }
 
 func (svc *lattice) CallGoContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.CallMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error) {
@@ -953,7 +954,7 @@ func (svc *lattice) CallGoContractWaitReceipt(ctx context.Context, credentials *
 		return nil, nil, err
 	}
 
-	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+	return svc.WaitReceipt(ctx, chainId, hash, retryStrategy)
 }
 
 func (svc *lattice) DeployJavaContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId string, data types.DeployMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error) {
@@ -962,7 +963,7 @@ func (svc *lattice) DeployJavaContractWaitReceipt(ctx context.Context, credentia
 		return nil, nil, err
 	}
 
-	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+	return svc.WaitReceipt(ctx, chainId, hash, retryStrategy)
 }
 
 func (svc *lattice) UpgradeJavaContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.UpgradeMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error) {
@@ -971,7 +972,7 @@ func (svc *lattice) UpgradeJavaContractWaitReceipt(ctx context.Context, credenti
 		return nil, nil, err
 	}
 
-	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+	return svc.WaitReceipt(ctx, chainId, hash, retryStrategy)
 }
 
 func (svc *lattice) CallJavaContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.CallMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error) {
@@ -980,7 +981,7 @@ func (svc *lattice) CallJavaContractWaitReceipt(ctx context.Context, credentials
 		return nil, nil, err
 	}
 
-	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+	return svc.WaitReceipt(ctx, chainId, hash, retryStrategy)
 }
 
 func (svc *lattice) NewCallContractTx(_ context.Context, credentials *Credentials, chainId, contractAddress, data, payload string, amount, joule uint64) (unsignedTx *block.Transaction, unsignedHash common.Hash, err error) {
