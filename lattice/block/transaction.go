@@ -155,7 +155,7 @@ func (tx *Transaction) DecodePayload() []byte {
 //
 // Returns:
 //   - common.Hash: 哈希
-func (tx *Transaction) rlpEncodeHash(chainId uint64, curve types.Curve) (common.Hash, error) {
+func (tx *Transaction) RlpEncodeHash(chainId uint64, curve types.Curve) (common.Hash, error) {
 	var err error
 	hash := crypto.NewCrypto(curve).EncodeHash(func(writer io.Writer) {
 		err = rlp.Encode(writer, []interface{}{
@@ -220,7 +220,7 @@ func (tx *Transaction) sign(curve types.Curve, hash []byte, skHex string) ([]byt
 // Returns:
 //   - error
 func (tx *Transaction) SignTX(chainId uint64, curve types.Curve, skHex string) error {
-	hash, err := tx.rlpEncodeHash(chainId, curve)
+	hash, err := tx.RlpEncodeHash(chainId, curve)
 	if err != nil {
 		return err
 	}

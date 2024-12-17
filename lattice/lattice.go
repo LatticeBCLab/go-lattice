@@ -498,10 +498,14 @@ type Lattice interface {
 	CallGoContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.CallMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
 
 	DeployJavaContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId string, data types.DeployMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
-
+	// UpgradeJavaContractWaitReceipt upgrade java contract and waiting for the receipt
 	UpgradeJavaContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.UpgradeMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
-
+	// CallJavaContractWaitReceipt call java contract and waiting for the receipt
 	CallJavaContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.CallMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
+	// NewCallContractTx construct a call contract tx
+	NewCallContractTx(ctx context.Context, credentials *Credentials, chainId, contractAddress, data, payload string, amount, joule uint64) (unsignedTx *block.Transaction, unsignedHash common.Hash, err error)
+	// NewDeployContractTx construct a deployment contract tx
+	NewDeployContractTx(ctx context.Context, credentials *Credentials, chainId, data, payload string, amount, joule uint64) (unsignedTx *block.Transaction, unsignedHash common.Hash, err error)
 }
 
 func (svc *lattice) HttpApi() client.HttpApi {
@@ -977,4 +981,85 @@ func (svc *lattice) CallJavaContractWaitReceipt(ctx context.Context, credentials
 	}
 
 	return svc.waitReceipt(ctx, chainId, hash, retryStrategy)
+}
+
+func (svc *lattice) NewCallContractTx(_ context.Context, credentials *Credentials, chainId, contractAddress, data, payload string, amount, joule uint64) (unsignedTx *block.Transaction, unsignedHash common.Hash, err error) {
+	log.Debug().Msgf("开始构造调用合约交易，chainId: %s, contractAddress: %s, data: %s, payload: %s, amount: %d, joule: %d", chainId, contractAddress, data, payload, amount, joule)
+
+	svc.accountLock.Obtain(chainId, credentials.AccountAddress)
+	defer svc.accountLock.Unlock(chainId, credentials.AccountAddress)
+
+	latestBlock, err := svc.blockCache.GetBlock(chainId, credentials.AccountAddress)
+	if err != nil {
+		return nil, common.Hash{}, err
+	}
+
+	unsignedTx = block.NewTransactionBuilder(block.TransactionTypeCallContract).
+		SetLatestBlock(latestBlock).
+		SetOwner(credentials.AccountAddress).
+		SetLinker(contractAddress).
+		SetCode(data).
+		SetPayload(payload).
+		SetAmount(amount).
+		SetJoule(joule).
+		Build()
+
+	cryptoInstance := crypto.NewCrypto(svc.chainConfig.Curve)
+	dataHash := cryptoInstance.Hash(hexutil.MustDecode(data))
+	unsignedTx.CodeHash = dataHash
+
+	chainIdAsInt, err := strconv.Atoi(chainId)
+	if err != nil {
+		log.Error().Err(err)
+		return nil, common.Hash{}, err
+	}
+	unsignedHash, err = unsignedTx.RlpEncodeHash(uint64(chainIdAsInt), svc.chainConfig.Curve)
+	if err != nil {
+		log.Error().Err(err)
+		return nil, common.Hash{}, err
+	}
+
+	log.Debug().Msgf("结束构造调用合约交易，待签名消息为：%s", unsignedHash)
+	return unsignedTx, unsignedHash, nil
+}
+
+func (svc *lattice) NewDeployContractTx(_ context.Context, credentials *Credentials, chainId, data, payload string, amount, joule uint64) (unsignedTx *block.Transaction, unsignedHash common.Hash, err error) {
+	log.Debug().Msgf("开始构造部署合约交易，chainId: %s, data: %s, payload: %s, amount: %d, joule: %d", chainId, data, payload, amount, joule)
+
+	svc.accountLock.Obtain(chainId, credentials.AccountAddress)
+	defer svc.accountLock.Unlock(chainId, credentials.AccountAddress)
+
+	latestBlock, err := svc.blockCache.GetBlock(chainId, credentials.AccountAddress)
+	if err != nil {
+		log.Error().Err(err)
+		return nil, common.Hash{}, err
+	}
+
+	unsignedTx = block.NewTransactionBuilder(block.TransactionTypeDeployContract).
+		SetLatestBlock(latestBlock).
+		SetOwner(credentials.AccountAddress).
+		SetLinker(constant.ZeroAddress).
+		SetCode(data).
+		SetPayload(payload).
+		SetAmount(amount).
+		SetJoule(joule).
+		Build()
+
+	cryptoInstance := crypto.NewCrypto(svc.chainConfig.Curve)
+	dataHash := cryptoInstance.Hash(hexutil.MustDecode(data))
+	unsignedTx.CodeHash = dataHash
+
+	chainIdAsInt, err := strconv.Atoi(chainId)
+	if err != nil {
+		log.Error().Err(err)
+		return nil, common.Hash{}, err
+	}
+	unsignedHash, err = unsignedTx.RlpEncodeHash(uint64(chainIdAsInt), svc.chainConfig.Curve)
+	if err != nil {
+		log.Error().Err(err)
+		return nil, common.Hash{}, err
+	}
+
+	log.Debug().Msgf("结束构造部署合约交易，待签名消息为：%s", unsignedHash)
+	return unsignedTx, unsignedHash, nil
 }
