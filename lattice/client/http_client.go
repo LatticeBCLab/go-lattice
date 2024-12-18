@@ -192,7 +192,7 @@ func NewHttpApi(args *HttpApiInitParam) HttpApi {
 	}
 }
 
-// This is the interface for the HTTP API of the Lattice node.
+// HttpApi This is the interface for the HTTP API of the Lattice node.
 type HttpApi interface {
 	// CanDial 测试是否可以连接到节点
 	//
@@ -471,6 +471,7 @@ type HttpApi interface {
 	GetNodeSaintKey(ctx context.Context) (*wallet.FileKey, error)
 	// GetNodeConfiguration 获取节点的配置
 	GetNodeConfiguration(ctx context.Context) (*types.NodeConfiguration, error)
+	LoadNodeConfiguration(ctx context.Context, chainId string) (*types.NodeConfiguration, error)
 	// GetNodeWorkingDirectory 获取节点的工作目录（绝对路径）
 	GetNodeWorkingDirectory(ctx context.Context) (string, error)
 	// GetSnapshot 获取快照
