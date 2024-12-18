@@ -678,7 +678,7 @@ func (svc *lattice) WaitReceipt(ctx context.Context, chainId string, hash *commo
 		assertErr := &retry.Error{}
 		if errors.As(err, assertErr) {
 			uniqErrs := lo.UniqBy(assertErr.WrappedErrors(), func(e error) string { return e.Error() })
-			return nil, nil, errors.New(strings.Join(lo.Map(uniqErrs, func(e error, index int) string { return e.Error() }), "; "))
+			return hash, nil, errors.New(strings.Join(lo.Map(uniqErrs, func(e error, index int) string { return e.Error() }), "; "))
 		}
 		log.Error().Err(err)
 		return hash, nil, err
