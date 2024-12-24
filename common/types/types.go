@@ -419,7 +419,8 @@ type nodeConfig struct {
 	Version         string `json:"Version"`
 	IteratorVersion int    `json:"IteratorVersion"`
 	DataDir         string `json:"DataDir"`
-	SecondaryDir    string `json:"SecondaryDir"`
+	OffChainDir     string `json:"OffChainDir"`
+	TransientDir    string `json:"TransientDir"`
 	FileKeyDir      string `json:"FileKeyDir"`
 	ConfigsDir      string `json:"ConfigsDir"`
 	Network         struct {
