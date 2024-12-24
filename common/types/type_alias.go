@@ -149,3 +149,19 @@ const (
 	EvidenceLevelERROR    EvidenceLevel = "error"
 	EvidenceLevelCRITICAL EvidenceLevel = "crit"
 )
+
+// ContractLifecyclePeriod 合约生命周期阶段
+//   - ContractLifecyclePeriodDEPLOYMENT 部署
+//   - ContractLifecyclePeriodUPGRADE    升级
+//   - ContractLifecyclePeriodREVOKE     吊销
+//   - ContractLifecyclePeriodFREEZE     冻结
+//   - ContractLifecyclePeriodUNFREEZE   解冻
+type ContractLifecyclePeriod uint8
+
+const (
+	ContractLifecyclePeriodDEPLOYMENT ContractLifecyclePeriod = iota
+	ContractLifecyclePeriodUPGRADE
+	ContractLifecyclePeriodREVOKE
+	ContractLifecyclePeriodFREEZE
+	ContractLifecyclePeriodUNFREEZE
+)

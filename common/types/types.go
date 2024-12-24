@@ -419,8 +419,8 @@ type nodeConfig struct {
 	Version         string `json:"Version"`
 	IteratorVersion int    `json:"IteratorVersion"`
 	DataDir         string `json:"DataDir"`
-	OffChainDir     string `json:"OffChainDir"`
-	TransientDir    string `json:"TransientDir"`
+	OffChainDir     string `json:"OffChainDir"`  // 业务目录，目前是 存证溯源业务 的数据库
+	TransientDir    string `json:"TransientDir"` // 非必要数据目录，可删除的数据目录
 	FileKeyDir      string `json:"FileKeyDir"`
 	ConfigsDir      string `json:"ConfigsDir"`
 	Network         struct {

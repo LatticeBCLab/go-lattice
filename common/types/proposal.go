@@ -13,15 +13,15 @@ type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | Subchain
 // ModifiedAt 提案修改时间戳
 // DBHeight   提案结束时的守护区块高度,
 type ContractLifecycleProposal struct {
-	Id              string        `json:"proposalId"`
-	State           ProposalState `json:"proposalState"`
-	Nonce           uint64        `json:"nonce"`
-	ContractAddress string        `json:"contractAddress"`
-	IsRevoke        uint32        `json:"isRevoke"`
-	Period          uint8         `json:"period"`
-	CreatedAt       int64         `json:"createAt,omitempty"`
-	ModifiedAt      int64         `json:"modifiedAt,omitempty"`
-	DBHeight        uint64        `json:"dbNumber"`
+	Id              string                  `json:"proposalId"`
+	State           ProposalState           `json:"proposalState"`
+	Nonce           uint64                  `json:"nonce"`
+	ContractAddress string                  `json:"contractAddress"`
+	IsRevoke        uint32                  `json:"isRevoke"`
+	Period          ContractLifecyclePeriod `json:"period"`
+	CreatedAt       int64                   `json:"createAt,omitempty"`
+	ModifiedAt      int64                   `json:"modifiedAt,omitempty"`
+	DBHeight        uint64                  `json:"dbNumber"`
 }
 
 // ModifyChainConfigProposal 修改链配置提案
