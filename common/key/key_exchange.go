@@ -179,7 +179,13 @@ func (e *ECDHEExchange) Exchange(tp AKType, local *ExchangeParams) (*ExchangeRes
 	}
 
 	// Calculate shared secret
-	salt := append(local.Random, remoteRandom...)
+	var salt []byte
+	r := bytes.Compare(local.Random, remoteRandom)
+	if r >= 0 {
+		salt = append(local.Random, remoteRandom...)
+	} else {
+		salt = append(remoteRandom, local.Random...)
+	}
 	sessionKey, err := scrypt.Key(sharedKey, salt, 1<<2, 1, 8, 32)
 	if err != nil {
 		log.Err(err).Msg("failed to calculate session key")
