@@ -1,8 +1,10 @@
 package key
 
 import (
+	"bytes"
 	"crypto/ecdh"
 	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/rs/zerolog/log"
@@ -96,7 +98,8 @@ func WithKeySize(size int) OptFunc {
 
 // ExchangeParams is the parameters for the ECDH exchange.
 type ExchangeParams struct {
-	PK     *ecdh.PublicKey
+	SK     *ecdh.PrivateKey // when your role is local(client), use it
+	PK     *ecdh.PublicKey  // when your role is remote(server), use it
 	Random []byte
 }
 
@@ -120,12 +123,12 @@ type Exchange interface {
 	// Warning: the private key should be kept secret.
 	GenerateSharedParams() (*ecdh.PrivateKey, []byte, error)
 	// Exchange performs the ECDH exchange and returns the shared secret.
-	// You should generate client exchange params before calling this method. Can use GenerateSharedParams to generate the params.
-	Exchange(akType AKType, client *ExchangeParams) (*ExchangeResult, error)
-	// ClientExchange simulates the client's ECDH exchange.
-	ClientExchange(akType AKType, clientSK *ecdh.PrivateKey, clientRandom []byte, server *ExchangeParams) (*AccessKey, error)
+	// You should generate local exchange params before calling this method. Can use GenerateSharedParams to generate the params.
+	Exchange(akType AKType, local *ExchangeParams) (*ExchangeResult, error)
+	// SelfExchange simulates the client's ECDH exchange.
+	SelfExchange(tp AKType, local *ExchangeParams, remote *ExchangeParams) (*AccessKey, error)
 	// ConfirmAccessKeyIdOrigin confirms the access key id whether it comes from the secret.
-	ConfirmAccessKeyIdOrigin(akType AKType, id, secret string) error
+	ConfirmAccessKeyIdOrigin(tp AKType, id, secret string) error
 	// GetAKType returns the access key type.
 	GetAKType(ak string) AKType
 }
@@ -161,22 +164,22 @@ func (e *ECDHEExchange) GenerateSharedParams() (*ecdh.PrivateKey, []byte, error)
 	return sk, random, nil
 }
 
-func (e *ECDHEExchange) Exchange(akType AKType, client *ExchangeParams) (*ExchangeResult, error) {
+func (e *ECDHEExchange) Exchange(tp AKType, local *ExchangeParams) (*ExchangeResult, error) {
 	// Generate server private key, generate server random number
-	serverSK, serverRandom, err := e.GenerateSharedParams()
+	remoteSK, remoteRandom, err := e.GenerateSharedParams()
 	if err != nil {
 		return nil, err
 	}
 
 	// exchange
-	sharedKey, err := serverSK.ECDH(client.PK)
+	sharedKey, err := remoteSK.ECDH(local.PK)
 	if err != nil {
 		log.Err(err).Msg("failed to calculate shared key")
 		return nil, err
 	}
 
 	// Calculate shared secret
-	salt := append(client.Random, serverRandom...)
+	salt := append(local.Random, remoteRandom...)
 	sessionKey, err := scrypt.Key(sharedKey, salt, 1<<2, 1, 8, 32)
 	if err != nil {
 		log.Err(err).Msg("failed to calculate session key")
@@ -190,7 +193,7 @@ func (e *ECDHEExchange) Exchange(akType AKType, client *ExchangeParams) (*Exchan
 	tempAccessKeyId := h.Sum(nil)
 	tempAccessKeyId = tempAccessKeyId[:e.opts.keySize]
 	accessKeyId := make([]byte, e.opts.keySize+1)
-	accessKeyId[0] = byte(akType)
+	accessKeyId[0] = byte(tp)
 	copy(accessKeyId[1:], tempAccessKeyId)
 
 	// Symmetric encrypt the hashed result
@@ -205,8 +208,8 @@ func (e *ECDHEExchange) Exchange(akType AKType, client *ExchangeParams) (*Exchan
 
 	// Return the Exchange Result
 	return &ExchangeResult{
-		Random:     serverRandom,
-		PK:         serverSK.PublicKey(),
+		Random:     remoteRandom,
+		PK:         remoteSK.PublicKey(),
 		CipherText: e.opts.formatFunc(cipherText),
 		AccessKey: &AccessKey{
 			ID:     e.opts.formatFunc(accessKeyId),
@@ -215,14 +218,21 @@ func (e *ECDHEExchange) Exchange(akType AKType, client *ExchangeParams) (*Exchan
 	}, nil
 }
 
-func (e *ECDHEExchange) ClientExchange(akType AKType, clientSK *ecdh.PrivateKey, clientRandom []byte, server *ExchangeParams) (*AccessKey, error) {
-	sharedKey, err := clientSK.ECDH(server.PK)
+func (e *ECDHEExchange) SelfExchange(akType AKType, local *ExchangeParams, remote *ExchangeParams) (*AccessKey, error) {
+	sharedKey, err := local.SK.ECDH(remote.PK)
+
 	if err != nil {
 		log.Err(err).Msg("failed to calculate shared key")
 		return nil, err
 	}
 
-	salt := append(clientRandom, server.Random...)
+	var salt []byte
+	r := bytes.Compare(local.Random, remote.Random)
+	if r >= 0 {
+		salt = append(local.Random, remote.Random...)
+	} else {
+		salt = append(remote.Random, local.Random...)
+	}
 	sessionKey, err := scrypt.Key(sharedKey, salt, 1<<2, 1, 8, 32)
 	if err != nil {
 		log.Err(err).Msg("failed to calculate session key")
@@ -292,4 +302,34 @@ func Sm4ECB(data, key []byte) ([]byte, error) {
 		return nil, err
 	}
 	return cipher, nil
+}
+
+func ECDHSKFromHex(hexSK string) (*ecdh.PrivateKey, error) {
+	bs, err := hex.DecodeString(hexSK)
+	if err != nil {
+		return nil, err
+	}
+
+	curve := ecdh.P256()
+	privateKey, err := curve.NewPrivateKey(bs)
+	if err != nil {
+		return nil, err
+	}
+
+	return privateKey, nil
+}
+
+func ECDHPKFromHex(hexPK string) (*ecdh.PublicKey, error) {
+	bs, err := hex.DecodeString(hexPK)
+	if err != nil {
+		return nil, err
+	}
+
+	curve := ecdh.P256()
+	publicKey, err := curve.NewPublicKey(bs)
+	if err != nil {
+		return nil, err
+	}
+
+	return publicKey, nil
 }
