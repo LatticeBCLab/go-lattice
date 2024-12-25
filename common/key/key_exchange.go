@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"crypto/ecdh"
 	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"github.com/btcsuite/btcutil/base58"
+	"github.com/defiweb/go-eth/hexutil"
 	"github.com/rs/zerolog/log"
 	"github.com/tjfoc/gmsm/sm3"
 	"github.com/tjfoc/gmsm/sm4"
@@ -311,7 +311,7 @@ func Sm4ECB(data, key []byte) ([]byte, error) {
 }
 
 func ECDHSKFromHex(hexSK string) (*ecdh.PrivateKey, error) {
-	bs, err := hex.DecodeString(hexSK)
+	bs, err := hexutil.HexToBytes(hexSK)
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +326,7 @@ func ECDHSKFromHex(hexSK string) (*ecdh.PrivateKey, error) {
 }
 
 func ECDHPKFromHex(hexPK string) (*ecdh.PublicKey, error) {
-	bs, err := hex.DecodeString(hexPK)
+	bs, err := hexutil.HexToBytes(hexPK)
 	if err != nil {
 		return nil, err
 	}
