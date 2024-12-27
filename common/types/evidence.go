@@ -82,6 +82,26 @@ type AccountEvidence struct {
 	Timestamp   uint64 `json:"timestamp"`
 }
 
+type ConfigEvidence struct {
+	EviType    int    `json:"type"`
+	ConfigInfo string `json:"configInfo"`
+	Timestamp  uint64 `json:"timestamp"`
+}
+
+type ChainByChainEvidence struct {
+	Success          bool   `json:"success"`
+	ChainByChainType string `json:"chainByChainType"`
+	Message          string `json:"message"`
+	Timestamp        uint64 `json:"timestamp"`
+}
+
+type HandshakeEvidence struct {
+	PeerID    string `json:"peerID"`
+	Message   string `json:"message"`
+	Error     string `json:"error,omitempty"`
+	Timestamp uint64 `json:"timestamp"`
+}
+
 func (d *Evidences) UnmarshalJSON(data []byte) error {
 	if err := jsonparser.ObjectEach(data, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
 		if bytes.Equal(key, []byte("total")) {
@@ -143,6 +163,24 @@ func (d *Evidences) UnmarshalJSON(data []byte) error {
 						d.Data[iterKey] = evidence
 					case EvidenceTypeADDED, EvidenceTypeDELETED, EvidenceTypeUNLOCKED, EvidenceTypeLOCKED:
 						var evidence AccountEvidence
+						if err := json.Unmarshal(iterVal, &evidence); err != nil {
+							return err
+						}
+						d.Data[iterKey] = evidence
+					case EvidenceTypeMODIFY_CONFIG:
+						var evidence ConfigEvidence
+						if err := json.Unmarshal(iterVal, &evidence); err != nil {
+							return err
+						}
+						d.Data[iterKey] = evidence
+					case EvidenceTypeCHAIN_BY_CHAIN:
+						var evidence ChainByChainEvidence
+						if err := json.Unmarshal(iterVal, &evidence); err != nil {
+							return err
+						}
+						d.Data[iterKey] = evidence
+					case EvidenceTypeHANDSHAKE:
+						var evidence HandshakeEvidence
 						if err := json.Unmarshal(iterVal, &evidence); err != nil {
 							return err
 						}
