@@ -4,15 +4,14 @@ import (
 	"bytes"
 	"crypto/ecdh"
 	"crypto/rand"
+	"encoding/hex"
 	"errors"
-	"github.com/btcsuite/btcutil/base58"
 	"github.com/defiweb/go-eth/hexutil"
 	"github.com/rs/zerolog/log"
 	"github.com/tjfoc/gmsm/sm3"
 	"github.com/tjfoc/gmsm/sm4"
 	"golang.org/x/crypto/scrypt"
 	"hash"
-	"strings"
 )
 
 const defaultRandomBytesSize = 32
@@ -21,14 +20,16 @@ const defaultKeySize = 16 // 28 or 32
 type OptFunc func(*Opts)
 type HashFunc func() hash.Hash
 type SymEncryptFunc func(data, key []byte) ([]byte, error)
-type FormatFunc func([]byte) string
+type EncodeFunc func([]byte) string
+type DecodeFunc func(input string) ([]byte, error)
 
 // Opts is the options for the ECDH exchange.
 type Opts struct {
 	curve          ecdh.Curve
 	hashFunc       HashFunc
 	symEncryptFunc SymEncryptFunc
-	formatFunc     FormatFunc
+	encodeFunc     EncodeFunc
+	decodeFunc     DecodeFunc
 	keySize        int
 }
 
@@ -47,7 +48,8 @@ func defaultOpts() *Opts {
 		curve:          ecdh.P256(),
 		hashFunc:       sm3.New,
 		symEncryptFunc: Sm4ECB,
-		formatFunc:     base58.Encode,
+		encodeFunc:     hex.EncodeToString,
+		decodeFunc:     hex.DecodeString,
 		keySize:        defaultKeySize,
 	}
 }
@@ -74,9 +76,9 @@ func WithSymEncryptFunc(fn SymEncryptFunc) OptFunc {
 }
 
 // WithFormatFunc returns an OptFunc that sets the format function for the ECDH exchange.
-func WithFormatFunc(fn FormatFunc) OptFunc {
+func WithFormatFunc(fn EncodeFunc) OptFunc {
 	return func(o *Opts) {
-		o.formatFunc = fn
+		o.encodeFunc = fn
 	}
 }
 
@@ -217,10 +219,10 @@ func (e *ECDHEExchange) Exchange(tp AKType, local *ExchangeParams) (*ExchangeRes
 	return &ExchangeResult{
 		Random:     remoteRandom,
 		PK:         remoteSK.PublicKey(),
-		CipherText: e.opts.formatFunc(cipherText),
+		CipherText: e.opts.encodeFunc(cipherText),
 		AccessKey: &AccessKey{
-			ID:     ensureLength23(e.opts.formatFunc(accessKeyId)),
-			Secret: e.opts.formatFunc(sessionKey),
+			ID:     e.opts.encodeFunc(accessKeyId),
+			Secret: e.opts.encodeFunc(sessionKey),
 		},
 	}, nil
 }
@@ -256,15 +258,18 @@ func (e *ECDHEExchange) SelfExchange(akType AKType, local *ExchangeParams, remot
 	copy(accessKeyId[1:], tempAccessKeyId)
 
 	return &AccessKey{
-		ID:     ensureLength23(e.opts.formatFunc(accessKeyId)),
-		Secret: e.opts.formatFunc(sessionKey),
+		ID:     e.opts.encodeFunc(accessKeyId),
+		Secret: e.opts.encodeFunc(sessionKey),
 	}, nil
 }
 
 func (e *ECDHEExchange) ConfirmAccessKeyIdOrigin(akType AKType, id, secret string) error {
 	// decode the secret that encoded by the format function,
-	// now we fixed using base58 to decode the secret
-	sessionKey := base58.Decode(secret)
+	sessionKey, err := e.opts.decodeFunc(secret)
+	if err != nil {
+		log.Error().Err(err)
+		return err
+	}
 	sessionKey = sessionKey[:e.opts.keySize]
 
 	h := e.opts.hashFunc()
@@ -274,14 +279,18 @@ func (e *ECDHEExchange) ConfirmAccessKeyIdOrigin(akType AKType, id, secret strin
 	accessKeyId := make([]byte, e.opts.keySize+1)
 	accessKeyId[0] = byte(akType)
 	copy(accessKeyId[1:], tempAccessKeyId)
-	if ensureLength23(e.opts.formatFunc(accessKeyId)) != id {
+	if e.opts.encodeFunc(accessKeyId) != id {
 		return errors.New("invalid access key id")
 	}
 	return nil
 }
 
 func (e *ECDHEExchange) GetAKType(ak string) AKType {
-	decodedAK := base58.Decode(ak) // fixed using base58 to decode the secret
+	decodedAK, err := e.opts.decodeFunc(ak[:2])
+	if err != nil {
+		log.Error().Err(err)
+		return AKTypeUnknown
+	}
 	tp := AKType(decodedAK[0])
 	switch tp {
 	case AKTypeCommonUser, AKTypeBaaS, AKTypeDataOnChain:
@@ -299,19 +308,6 @@ func RandomBytes() ([]byte, error) {
 		return nil, err
 	}
 	return b, nil
-}
-
-// ensure the length of AccessKeyId equals 23
-func ensureLength23(input string) string {
-	length := len(input)
-	if length == 23 {
-		return input
-	}
-	if length < 23 {
-		return input + strings.Repeat("X", 23-length)
-	} else {
-		return input[:23]
-	}
 }
 
 // Sm4ECB encrypts the data using SM4 ECB mode.

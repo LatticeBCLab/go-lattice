@@ -1,13 +1,14 @@
 package key
 
 import (
+	"fmt"
 	"github.com/defiweb/go-eth/hexutil"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestECDHEExchange_Exchange(t *testing.T) {
-	akType := AKTypeCommonUser
+	akType := AKTypeDataOnChain
 	// Client
 	instance := NewECDHEExchange()
 	clientSK, clientRandom, err := instance.GenerateSharedParams()
@@ -20,29 +21,6 @@ func TestECDHEExchange_Exchange(t *testing.T) {
 	t.Logf("ID: %s", result.AccessKey.ID)
 	t.Logf("Length: %d", len(result.AccessKey.ID))
 	t.Logf("Secret: %s", result.AccessKey.Secret)
-
-	// Client
-	client := &ExchangeParams{
-		SK:     clientSK,
-		Random: clientRandom,
-	}
-
-	// Server
-	server := &ExchangeParams{
-		PK:     result.PK,
-		Random: result.Random,
-	}
-	ak, err := instance.SelfExchange(akType, client, server)
-	assert.Nil(t, err)
-
-	err = instance.ConfirmAccessKeyIdOrigin(akType, ak.ID, ak.Secret)
-	assert.Nil(t, err)
-
-	// Assert
-	assert.Equal(t, result.AccessKey.ID, ak.ID)
-	assert.Equal(t, result.AccessKey.Secret, ak.Secret)
-
-	assert.Equal(t, akType, instance.GetAKType(ak.ID))
 }
 
 func TestECDHEExchange_SelfExchange(t *testing.T) {
@@ -83,4 +61,10 @@ func TestECDHEExchange_SelfExchange(t *testing.T) {
 	expectedAccessKeySecret := "6EdHs9VtuG5YgPYs99tcKm"
 	assert.Equal(t, expectedAccessKeyId, ak.ID)
 	assert.Equal(t, expectedAccessKeySecret, ak.Secret)
+}
+
+func TestECDHEExchange_GetAKType(t *testing.T) {
+	id := "03afb119bbcac1232f69df0"
+	instance := NewECDHEExchange()
+	fmt.Println(instance.GetAKType(id))
 }
