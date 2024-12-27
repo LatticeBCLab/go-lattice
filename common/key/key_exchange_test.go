@@ -7,7 +7,7 @@ import (
 )
 
 func TestECDHEExchange_Exchange(t *testing.T) {
-	akType := AKTypeBaaS
+	akType := AKTypeCommonUser
 	// Client
 	instance := NewECDHEExchange()
 	clientSK, clientRandom, err := instance.GenerateSharedParams()
@@ -18,6 +18,7 @@ func TestECDHEExchange_Exchange(t *testing.T) {
 	})
 	assert.Nil(t, err)
 	t.Logf("ID: %s", result.AccessKey.ID)
+	t.Logf("Length: %d", len(result.AccessKey.ID))
 	t.Logf("Secret: %s", result.AccessKey.Secret)
 
 	// Client

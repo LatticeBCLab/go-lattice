@@ -12,6 +12,7 @@ import (
 	"github.com/tjfoc/gmsm/sm4"
 	"golang.org/x/crypto/scrypt"
 	"hash"
+	"strings"
 )
 
 const defaultRandomBytesSize = 32
@@ -218,7 +219,7 @@ func (e *ECDHEExchange) Exchange(tp AKType, local *ExchangeParams) (*ExchangeRes
 		PK:         remoteSK.PublicKey(),
 		CipherText: e.opts.formatFunc(cipherText),
 		AccessKey: &AccessKey{
-			ID:     e.opts.formatFunc(accessKeyId),
+			ID:     ensureLength23(e.opts.formatFunc(accessKeyId)),
 			Secret: e.opts.formatFunc(sessionKey),
 		},
 	}, nil
@@ -255,7 +256,7 @@ func (e *ECDHEExchange) SelfExchange(akType AKType, local *ExchangeParams, remot
 	copy(accessKeyId[1:], tempAccessKeyId)
 
 	return &AccessKey{
-		ID:     e.opts.formatFunc(accessKeyId),
+		ID:     ensureLength23(e.opts.formatFunc(accessKeyId)),
 		Secret: e.opts.formatFunc(sessionKey),
 	}, nil
 }
@@ -273,7 +274,7 @@ func (e *ECDHEExchange) ConfirmAccessKeyIdOrigin(akType AKType, id, secret strin
 	accessKeyId := make([]byte, e.opts.keySize+1)
 	accessKeyId[0] = byte(akType)
 	copy(accessKeyId[1:], tempAccessKeyId)
-	if e.opts.formatFunc(accessKeyId) != id {
+	if ensureLength23(e.opts.formatFunc(accessKeyId)) != id {
 		return errors.New("invalid access key id")
 	}
 	return nil
@@ -298,6 +299,19 @@ func RandomBytes() ([]byte, error) {
 		return nil, err
 	}
 	return b, nil
+}
+
+// ensure the length of AccessKeyId equals 23
+func ensureLength23(input string) string {
+	length := len(input)
+	if length == 23 {
+		return input
+	}
+	if length < 23 {
+		return input + strings.Repeat("X", 23-length)
+	} else {
+		return input[:23]
+	}
 }
 
 // Sm4ECB encrypts the data using SM4 ECB mode.
