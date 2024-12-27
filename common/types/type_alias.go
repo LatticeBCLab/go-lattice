@@ -110,30 +110,36 @@ const (
 //   - EvidenceTypeLOCKED   锁定账户
 //   - EvidenceTypeUNLOCKED 解锁账户
 //   - EvidenceTypeORACLE   预言机
+//   - EvidenceTypeMODIFY_CONFIG  链配置修改
+//   - EvidenceTypeCHAIN_BY_CHAIN 子链
+//   - EvidenceTypeHANDSHAKE      握手
 type EvidenceType string
 
 const (
-	EvidenceTypeVOTING   EvidenceType = "vote"
-	EvidenceTypeTBLOCK   EvidenceType = "tblock"
-	EvidenceTypeDBLOCK   EvidenceType = "dblock"
-	EvidenceTypeSIGN     EvidenceType = "sign"
-	EvidenceTypePRECALL  EvidenceType = "pre"
-	EvidenceTypeONCHAIN  EvidenceType = "onChain"
-	EvidenceTypeEXECUTE  EvidenceType = "execute"
-	EvidenceTypeUPDATE   EvidenceType = "update"
-	EvidenceTypeUPGRADE  EvidenceType = "upgrade"
-	EvidenceTypeDEPLOY   EvidenceType = "deploy"
-	EvidenceTypeCALL     EvidenceType = "call"
-	EvidenceTypeREVOKE   EvidenceType = "revoke"
-	EvidenceTypeFREEZE   EvidenceType = "freeze"
-	EvidenceTypeUNFREEZE EvidenceType = "release"
-	EvidenceTypeERROR    EvidenceType = "error"
-	EvidenceTypeCRITICAL EvidenceType = "crit"
-	EvidenceTypeADDED    EvidenceType = "add"
-	EvidenceTypeDELETED  EvidenceType = "del"
-	EvidenceTypeLOCKED   EvidenceType = "lock"
-	EvidenceTypeUNLOCKED EvidenceType = "unlock"
-	EvidenceTypeORACLE   EvidenceType = "oracle"
+	EvidenceTypeVOTING         EvidenceType = "vote"
+	EvidenceTypeTBLOCK         EvidenceType = "tblock"
+	EvidenceTypeDBLOCK         EvidenceType = "dblock"
+	EvidenceTypeSIGN           EvidenceType = "sign"
+	EvidenceTypePRECALL        EvidenceType = "pre"
+	EvidenceTypeONCHAIN        EvidenceType = "onChain"
+	EvidenceTypeEXECUTE        EvidenceType = "execute"
+	EvidenceTypeUPDATE         EvidenceType = "update"
+	EvidenceTypeUPGRADE        EvidenceType = "upgrade"
+	EvidenceTypeDEPLOY         EvidenceType = "deploy"
+	EvidenceTypeCALL           EvidenceType = "call"
+	EvidenceTypeREVOKE         EvidenceType = "revoke"
+	EvidenceTypeFREEZE         EvidenceType = "freeze"
+	EvidenceTypeUNFREEZE       EvidenceType = "release"
+	EvidenceTypeERROR          EvidenceType = "error"
+	EvidenceTypeCRITICAL       EvidenceType = "crit"
+	EvidenceTypeADDED          EvidenceType = "add"
+	EvidenceTypeDELETED        EvidenceType = "del"
+	EvidenceTypeLOCKED         EvidenceType = "lock"
+	EvidenceTypeUNLOCKED       EvidenceType = "unlock"
+	EvidenceTypeORACLE         EvidenceType = "oracle"
+	EvidenceTypeMODIFY_CONFIG  EvidenceType = "modifyConfig"
+	EvidenceTypeCHAIN_BY_CHAIN EvidenceType = "chainByChain"
+	EvidenceTypeHANDSHAKE      EvidenceType = "handshake"
 )
 
 // EvidenceLevel 留痕级别
