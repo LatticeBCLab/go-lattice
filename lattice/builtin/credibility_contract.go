@@ -131,6 +131,10 @@ type CredibilityContract interface {
 	//   - data string
 	//   - err error
 	Write(request *WriteLedgerRequest) (data string, err error)
+	UnsafeWrite(request *WriteLedgerRequest) (data string, err error)
+	// UnsafeWriteWithStatus the differences between UnsafeWrite and UnsafeWriteWithStatus is that you can
+	// tell whether the data is new or updated through the events of the latter.
+	UnsafeWriteWithStatus(request *WriteLedgerRequest) (data string, err error)
 
 	// BatchWrite 批量写入存证数据
 	//
@@ -141,6 +145,8 @@ type CredibilityContract interface {
 	//   - data string
 	//   - err error
 	BatchWrite(request []WriteLedgerRequest) (data string, err error)
+	UnsafeBatchWrite(request []WriteLedgerRequest) (data string, err error)
+	UnsafeBatchWriteWithStatus(request []WriteLedgerRequest) (data string, err error)
 
 	// Read 读取存证数据
 	//
@@ -152,6 +158,9 @@ type CredibilityContract interface {
 	//   - data string
 	//   - err error
 	Read(dataId, businessContractAddress string) (data string, err error)
+	// UnsafeRead equals the Read method, the differences is that the unsafe read method
+	// reads data stored in levelDB but not in the MPT tree.
+	UnsafeRead(dataId, businessContractAddress string) (data string, err error)
 }
 
 type credibilityContract struct {
@@ -228,6 +237,24 @@ func (c *credibilityContract) Write(request *WriteLedgerRequest) (data string, e
 	return hexutil.Encode(code), nil
 }
 
+func (c *credibilityContract) UnsafeWrite(request *WriteLedgerRequest) (data string, err error) {
+	code, err := c.abi.RawAbi().Pack("writeTraceabilityUnsafe", request.ProtocolUri, request.Hash, request.Data, request.Address)
+	if err != nil {
+		return "", err
+	}
+
+	return hexutil.Encode(code), nil
+}
+
+func (c *credibilityContract) UnsafeWriteWithStatus(request *WriteLedgerRequest) (data string, err error) {
+	code, err := c.abi.RawAbi().Pack("writeTraceabilityWithStatusUnsafe ", request.ProtocolUri, request.Hash, request.Data, request.Address)
+	if err != nil {
+		return "", err
+	}
+
+	return hexutil.Encode(code), nil
+}
+
 func (c *credibilityContract) BatchWrite(request []WriteLedgerRequest) (data string, err error) {
 	code, err := c.abi.RawAbi().Pack("writeTraceabilityBatch", request)
 	if err != nil {
@@ -237,8 +264,35 @@ func (c *credibilityContract) BatchWrite(request []WriteLedgerRequest) (data str
 	return hexutil.Encode(code), nil
 }
 
+func (c *credibilityContract) UnsafeBatchWrite(request []WriteLedgerRequest) (data string, err error) {
+	code, err := c.abi.RawAbi().Pack("writeTraceabilityBatchUnsafe", request)
+	if err != nil {
+		return "", err
+	}
+
+	return hexutil.Encode(code), nil
+}
+
+func (c *credibilityContract) UnsafeBatchWriteWithStatus(request []WriteLedgerRequest) (data string, err error) {
+	code, err := c.abi.RawAbi().Pack("writeTraceabilityBatchWithStatusUnsafe", request)
+	if err != nil {
+		return "", err
+	}
+
+	return hexutil.Encode(code), nil
+}
+
 func (c *credibilityContract) Read(dataId, businessContractAddress string) (data string, err error) {
 	fn, err := c.abi.GetLatticeFunction("getTraceability", dataId, businessContractAddress)
+	if err != nil {
+		return "", err
+	}
+
+	return fn.Encode()
+}
+
+func (c *credibilityContract) UnsafeRead(dataId, businessContractAddress string) (data string, err error) {
+	fn, err := c.abi.GetLatticeFunction("getTraceabilityUnsafe", dataId, businessContractAddress)
 	if err != nil {
 		return "", err
 	}
@@ -450,6 +504,52 @@ var CredibilityBuiltinContract = Contract{
 					"type": "address"
 				}
 			],
+			"name": "getTraceabilityUnsafe",
+			"outputs": [
+				{
+					"components": [
+						{
+							"internalType": "uint64",
+							"name": "number",
+							"type": "uint64"
+						},
+						{
+							"internalType": "uint64",
+							"name": "protocol",
+							"type": "uint64"
+						},
+						{
+							"internalType": "address",
+							"name": "updater",
+							"type": "address"
+						},
+						{
+							"internalType": "bytes32[]",
+							"name": "data",
+							"type": "bytes32[]"
+						}
+					],
+					"internalType": "struct credibilidity.Evidence[]",
+					"name": "evi",
+					"type": "tuple[]"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "string",
+					"name": "hash",
+					"type": "string"
+				},
+				{
+					"internalType": "address",
+					"name": "address",
+					"type": "address"
+				}
+			],
 			"name": "setDataSecret",
 			"outputs": [],
 			"stateMutability": "nonpayable",
@@ -506,7 +606,63 @@ var CredibilityBuiltinContract = Contract{
 					"type": "address"
 				}
 			],
+			"name": "writeTraceabilityUnsafe",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint64",
+					"name": "protocolUri",
+					"type": "uint64"
+				},
+				{
+					"internalType": "string",
+					"name": "hash",
+					"type": "string"
+				},
+				{
+					"internalType": "bytes32[]",
+					"name": "data",
+					"type": "bytes32[]"
+				},
+				{
+					"internalType": "address",
+					"name": "address",
+					"type": "address"
+				}
+			],
 			"name": "writeTraceabilityWithStatus",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint64",
+					"name": "protocolUri",
+					"type": "uint64"
+				},
+				{
+					"internalType": "string",
+					"name": "hash",
+					"type": "string"
+				},
+				{
+					"internalType": "bytes32[]",
+					"name": "data",
+					"type": "bytes32[]"
+				},
+				{
+					"internalType": "address",
+					"name": "address",
+					"type": "address"
+				}
+			],
+			"name": "writeTraceabilityWithStatusUnsafe",
 			"outputs": [],
 			"stateMutability": "nonpayable",
 			"type": "function"
@@ -576,7 +732,77 @@ var CredibilityBuiltinContract = Contract{
 					"type": "tuple[]"
 				}
 			],
+			"name": "writeTraceabilityBatchUnsafe",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"components": [
+						{
+							"internalType": "uint64",
+							"name": "protocolUri",
+							"type": "uint64"
+						},
+						{
+							"internalType": "string",
+							"name": "hash",
+							"type": "string"
+						},
+						{
+							"internalType": "bytes32[]",
+							"name": "data",
+							"type": "bytes32[]"
+						},
+						{
+							"internalType": "address",
+							"name": "address",
+							"type": "address"
+						}
+					],
+					"internalType": "struct Business.batch[]",
+					"name": "bt",
+					"type": "tuple[]"
+				}
+			],
 			"name": "writeTraceabilityBatchWithStatus",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"components": [
+						{
+							"internalType": "uint64",
+							"name": "protocolUri",
+							"type": "uint64"
+						},
+						{
+							"internalType": "string",
+							"name": "hash",
+							"type": "string"
+						},
+						{
+							"internalType": "bytes32[]",
+							"name": "data",
+							"type": "bytes32[]"
+						},
+						{
+							"internalType": "address",
+							"name": "address",
+							"type": "address"
+						}
+					],
+					"internalType": "struct Business.batch[]",
+					"name": "bt",
+					"type": "tuple[]"
+				}
+			],
+			"name": "writeTraceabilityBatchWithStatusUnsafe",
 			"outputs": [],
 			"stateMutability": "nonpayable",
 			"type": "function"
