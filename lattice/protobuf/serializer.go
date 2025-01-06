@@ -85,7 +85,10 @@ func UnmarshallMessage(fd pref.FileDescriptor, data []byte) (string, error) {
 		return "", err
 	}
 
-	jsonBytes, err := protojson.Marshal(message)
+	options := protojson.MarshalOptions{
+		EmitUnpopulated: true,
+	}
+	jsonBytes, err := options.Marshal(message)
 	if err != nil {
 		return "", err
 	}
