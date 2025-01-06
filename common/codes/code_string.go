@@ -2,8 +2,8 @@ package codes
 
 import "strconv"
 
-func (c Code) String() string {
-	switch c {
+func (c *Code) String() string {
+	switch *c {
 	case OK:
 		return "OK"
 	case Canceled:
@@ -39,7 +39,7 @@ func (c Code) String() string {
 	case Unauthenticated:
 		return "Unauthenticated"
 	default:
-		return "Code(" + strconv.FormatInt(int64(c), 10) + ")"
+		return "Code(" + strconv.FormatInt(int64(*c), 10) + ")"
 	}
 }
 

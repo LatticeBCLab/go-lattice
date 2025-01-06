@@ -1,5 +1,11 @@
 package codes
 
+import (
+	"fmt"
+	"net/http"
+	"strconv"
+)
+
 type Code uint32
 
 const (
@@ -168,3 +174,93 @@ const (
 
 	_maxCode = 17
 )
+
+var strToCode = map[string]Code{
+	`"OK"`: OK,
+	`"CANCELLED"`:/* [sic] */ Canceled,
+	`"UNKNOWN"`:             Unknown,
+	`"INVALID_ARGUMENT"`:    InvalidArgument,
+	`"DEADLINE_EXCEEDED"`:   DeadlineExceeded,
+	`"NOT_FOUND"`:           NotFound,
+	`"ALREADY_EXISTS"`:      AlreadyExists,
+	`"PERMISSION_DENIED"`:   PermissionDenied,
+	`"RESOURCE_EXHAUSTED"`:  ResourceExhausted,
+	`"FAILED_PRECONDITION"`: FailedPrecondition,
+	`"ABORTED"`:             Aborted,
+	`"OUT_OF_RANGE"`:        OutOfRange,
+	`"UNIMPLEMENTED"`:       Unimplemented,
+	`"INTERNAL"`:            Internal,
+	`"UNAVAILABLE"`:         Unavailable,
+	`"DATA_LOSS"`:           DataLoss,
+	`"UNAUTHENTICATED"`:     Unauthenticated,
+}
+
+// UnmarshalJSON unmarshal b into the Code.
+func (c *Code) UnmarshalJSON(b []byte) error {
+	// From json.Unmarshaler: By convention, to approximate the behavior of
+	// Unmarshal itself, Unmarshalers implement UnmarshalJSON([]byte("null")) as
+	// a no-op.
+	if string(b) == "null" {
+		return nil
+	}
+	if c == nil {
+		return fmt.Errorf("nil receiver passed to UnmarshalJSON")
+	}
+
+	if ci, err := strconv.ParseUint(string(b), 10, 32); err == nil {
+		if ci >= _maxCode {
+			return fmt.Errorf("invalid code: %d", ci)
+		}
+
+		*c = Code(ci)
+		return nil
+	}
+
+	if jc, ok := strToCode[string(b)]; ok {
+		*c = jc
+		return nil
+	}
+	return fmt.Errorf("invalid code: %q", string(b))
+}
+
+// ToHTTPStatusCode convert custom error code to standard http status code.
+func (c *Code) ToHTTPStatusCode() int {
+	switch *c {
+	case OK:
+		return http.StatusOK
+	case Canceled:
+		return http.StatusRequestTimeout
+	case Unknown:
+		return http.StatusInternalServerError
+	case InvalidArgument:
+		return http.StatusBadRequest
+	case DeadlineExceeded:
+		return http.StatusGatewayTimeout
+	case NotFound:
+		return http.StatusNotFound
+	case AlreadyExists:
+		return http.StatusConflict
+	case PermissionDenied:
+		return http.StatusForbidden
+	case ResourceExhausted:
+		return http.StatusTooManyRequests
+	case FailedPrecondition:
+		return http.StatusPreconditionFailed
+	case Aborted:
+		return http.StatusConflict
+	case OutOfRange:
+		return http.StatusRequestedRangeNotSatisfiable
+	case Unimplemented:
+		return http.StatusNotImplemented
+	case Internal:
+		return http.StatusInternalServerError
+	case Unavailable:
+		return http.StatusServiceUnavailable
+	case DataLoss:
+		return http.StatusInternalServerError
+	case Unauthenticated:
+		return http.StatusUnauthorized
+	default:
+		return http.StatusInternalServerError
+	}
+}
