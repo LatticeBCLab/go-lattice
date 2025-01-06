@@ -17,16 +17,13 @@ func NewAbi(abiString string) LatticeAbi {
 }
 
 type LatticeAbi interface {
-
 	// RawAbi 获取RawABI
 	RawAbi() *abi.ABI
-
 	// Constructor 获取构造函数
 	//
 	// Returns:
 	//   - *abi.Method
 	Constructor() *abi.Method
-
 	// Function 获取方法
 	//
 	// Parameters:
@@ -36,9 +33,9 @@ type LatticeAbi interface {
 	//   - *abi.Method
 	//   - error: 方法不存在时，抛出错误
 	Function(method string) (*abi.Method, error)
-
+	// GetConstructor get construction method from abi string.
 	GetConstructor(args ...interface{}) LatticeFunction
-
+	// GetLatticeFunction get function from abi string.
 	GetLatticeFunction(methodName string, args ...interface{}) (LatticeFunction, error)
 }
 

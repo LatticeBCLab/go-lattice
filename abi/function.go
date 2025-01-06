@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/rs/zerolog/log"
 	"math"
 	"math/big"
 	"reflect"
@@ -22,7 +23,8 @@ func NewLatticeFunction(
 	abi *abi.ABI,
 	methodName string,
 	args []interface{},
-	method *abi.Method) LatticeFunction {
+	method *abi.Method,
+) LatticeFunction {
 	return &latticeFunction{
 		abiString:  abiString,
 		abi:        abi,
@@ -67,6 +69,14 @@ func (f *latticeFunction) Encode() (string, error) {
 		if err != nil {
 			return "", err
 		}
+		if f.methodName == "" {
+			if data, err = contract.Constructor.EncodeArgs([]byte(""), convertedArgs...); err == nil {
+				return hexutil.Encode(data), nil
+			} else {
+				log.Error().Err(err)
+				return "", err
+			}
+		}
 		m, ok := contract.Methods[f.methodName]
 		if !ok {
 			return "", errors.New(fmt.Sprintf("合约方法【%s】不存在", f.methodName))
@@ -76,6 +86,7 @@ func (f *latticeFunction) Encode() (string, error) {
 		}
 	} else {
 		if data, err = f.abi.Pack(f.methodName, convertedArgs...); err != nil {
+			log.Error().Err(err).Str("method", f.methodName)
 			return "", err
 		}
 	}
@@ -164,8 +175,10 @@ func (f *latticeFunction) ConvertArgument(abiType abi.Type, param interface{}) (
 			for i := 0; i < r.Len(); i++ {
 				inputArray = append(inputArray, r.Index(i).Interface())
 			}
-
 		} else {
+			// `["apple","banana","orange","cherry"]`
+			// `[1,2,4]`
+			// `["true","false"]`
 			s, ok := param.(string)
 			if !ok {
 				return nil, fmt.Errorf("invalid array: %s", s)
@@ -223,6 +236,12 @@ func (f *latticeFunction) ConvertArgument(abiType abi.Type, param interface{}) (
 				tupleArr[i] = converted.(map[string]interface{})
 			}
 			return tupleArr, nil
+		case abi.IntTy, abi.UintTy:
+			numberArr := make([]*big.Int, len(convertedArgs))
+			for i, converted := range convertedArgs {
+				numberArr[i] = converted.(*big.Int)
+			}
+			return numberArr, nil
 		case abi.FixedBytesTy: // 1~32
 			switch abiType.Elem.Size {
 			case 1:
@@ -907,16 +926,33 @@ func (f *latticeFunction) ConvertArgument(abiType abi.Type, param interface{}) (
 		encodedArgsMap := make(map[string]interface{})
 		keys := abiType.TupleRawNames
 
-		paramsArr := param.([]interface{})
-		for i, elem := range abiType.TupleElems {
-			convertedArg, err := f.ConvertArgument(*elem, paramsArr[i])
-			if err != nil {
-				return nil, err
+		if paramsArr, ok := param.([]interface{}); ok {
+			for i, elem := range abiType.TupleElems {
+				convertedArg, err := f.ConvertArgument(*elem, paramsArr[i])
+				if err != nil {
+					return nil, err
+				}
+				encodedArgsMap[keys[i]] = convertedArg
 			}
-			encodedArgsMap[keys[i]] = convertedArg
-		}
+			return encodedArgsMap, nil
+		} else {
+			s, ok := param.(string)
+			if !ok {
+				return nil, fmt.Errorf("invalid tuple: %v", param)
+			}
+			s = strings.TrimPrefix(s, "[")
+			s = strings.TrimSuffix(s, "]")
+			strArr := strings.Split(s, ",")
 
-		return encodedArgsMap, nil
+			for i, elem := range abiType.TupleElems {
+				convertedArg, err := f.ConvertArgument(*elem, strArr[i])
+				if err != nil {
+					return nil, err
+				}
+				encodedArgsMap[keys[i]] = convertedArg
+			}
+			return encodedArgsMap, nil
+		}
 	// 固定精度的小数类型
 	case abi.FixedPointTy:
 		return nil, fmt.Errorf("unsupported input type %v", abiType)
