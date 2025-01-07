@@ -10,13 +10,19 @@ export default defineConfig({
     siteTitle: "ZLattice",
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: "Guide", link: "/markdown-examples" },
+      {
+        text: "Guide",
+        items: [
+          { text: "Introduction", link: "/guide/introduction" },
+          { text: "Getting Started", link: "/guide/getting-started" },
+        ],
+      },
       { text: "Developers", link: "/api-examples" },
       {
         text: "Resources",
         items: [
-          { text: "Ledger", link: "/markdown-examples" },
-          { text: "Contract", link: "/api-examples" },
+          { text: "Ledger", link: "/resources/ledger" },
+          { text: "Contract", link: "/resources/contract" },
           { text: "gRPC", link: "/api-examples" },
         ],
       },
@@ -24,15 +30,28 @@ export default defineConfig({
     search: {
       provider: "local",
     },
-    sidebar: [
+    /* sidebar: [
       {
-        text: "Examples",
+        text: "Guide",
         items: [
-          { text: "Markdown Examples", link: "/markdown-examples" },
-          { text: "Runtime API Examples", link: "/api-examples" },
+          { text: "Introduction", link: "/guide/introduction" },
+          { text: "Getting Started", link: "/guide/getting-started" },
         ],
+        collapsed: true,
       },
-    ],
+      {
+        text: "Developers",
+      },
+      {
+        text: "Resources",
+        items: [
+          { text: "Ledger", link: "/markdown-examples" },
+          { text: "Contract", link: "/api-examples" },
+          { text: "gRPC", link: "/api-examples" },
+        ],
+        collapsed: true,
+      },
+    ], */
 
     socialLinks: [
       { icon: "github", link: "https://github.com/LatticeBCLab/go-lattice" },
