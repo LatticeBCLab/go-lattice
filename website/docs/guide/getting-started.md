@@ -2,17 +2,17 @@
 title: Getting Started
 ---
 
-# Getting Started
+# 快速开始
 
-## Prerequisites
-You already have a running **node** of `ZLattice`.
+## 前置条件
+你已经有一个运行中的 **节点** 。并且获取节点的 HTTP 连接信息：`http://127.0.0.1:8080`。
 
-## Install
+## 安装
 
 ```bash
 go install github.com/LatticeBCLab/go-lattice
 ```
-Now you can initialize a new ZLattice client as follows:
+现在你可以初始化一个新的 ZLattice 客户端，如下所示：
 
 ```go
 import (
@@ -70,22 +70,22 @@ func initZLatticeClient(config *Config) *ZLatticeClient {
 ```
 
 
-## Transfer
+## 转账
 
-## Contract
-### Deploy Contract
+## 合约
+### 部署合约
 
-### Call Contract
+### 调用合约
 
-### Precall Contract
+### 预调用合约
 
-### Builtin Contract
+### 内置合约
 
 ## Http
 
-### Get Receipt
+### 获取收据
 
-### Get TBlock
+### 获取交易块
 
-### Get DBlokc
+### 获取守护块
 
