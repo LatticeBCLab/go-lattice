@@ -523,13 +523,15 @@ func (svc *lattice) handleTransaction(ctx context.Context, credentials *Credenti
 		return nil, err
 	}
 
+	start := time.Now()
 	sk, err := credentials.GetSK()
 	if err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
+	log.Debug().Msgf("获取私钥耗时：%d ms", time.Since(start).Milliseconds())
 
-	start := time.Now()
+	start = time.Now()
 	err = transaction.SignTX(uint64(chainIdAsInt), svc.chainConfig.Curve, sk)
 	if err != nil {
 		log.Error().Err(err)
@@ -664,7 +666,7 @@ func (svc *lattice) CallContract(ctx context.Context, credentials *Credentials, 
 	if err != nil {
 		return nil, err
 	}
-	log.Debug().Msgf("调用合约处理交易(签名+发送)总耗时：%d ms", time.Since(start).Milliseconds())
+	log.Debug().Msgf("调用合约处理交易(获取私钥+签名+发送)总耗时：%d ms", time.Since(start).Milliseconds())
 	log.Debug().Msgf("结束调用合约，哈希为：%s", hash.String())
 	return hash, nil
 }
