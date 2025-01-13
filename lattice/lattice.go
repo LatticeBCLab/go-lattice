@@ -629,10 +629,12 @@ func (svc *lattice) DeployContract(ctx context.Context, credentials *Credentials
 func (svc *lattice) CallContract(ctx context.Context, credentials *Credentials, chainId, contractAddress, data, payload string, amount, joule uint64) (*common.Hash, error) {
 	log.Debug().Msgf("开始发起调用合约交易，chainId: %s, contractAddress: %s, data: %s, payload: %s, amount: %d, joule: %d", chainId, contractAddress, data, payload, amount, joule)
 
+	start := time.Now()
 	svc.accountLock.Obtain(chainId, credentials.AccountAddress)
 	defer svc.accountLock.Unlock(chainId, credentials.AccountAddress)
+	log.Debug().Msgf("调用合约获取账户锁耗时：%d ms", time.Since(start).Milliseconds())
 
-	start := time.Now()
+	start = time.Now()
 	latestBlock, err := svc.blockCache.GetBlock(chainId, credentials.AccountAddress)
 	if err != nil {
 		return nil, err
@@ -657,10 +659,12 @@ func (svc *lattice) CallContract(ctx context.Context, credentials *Credentials, 
 	transaction.CodeHash = dataHash
 	log.Debug().Msgf("调用合约生成dataHash耗时：%d ms", time.Since(start).Milliseconds())
 
+	start = time.Now()
 	hash, err := svc.handleTransaction(ctx, credentials, chainId, transaction, latestBlock)
 	if err != nil {
 		return nil, err
 	}
+	log.Debug().Msgf("调用合约处理交易(签名+发送)总耗时：%d ms", time.Since(start).Milliseconds())
 	log.Debug().Msgf("结束调用合约，哈希为：%s", hash.String())
 	return hash, nil
 }
