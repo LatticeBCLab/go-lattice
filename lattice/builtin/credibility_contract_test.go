@@ -1,9 +1,10 @@
 package builtin
 
 import (
+	"testing"
+
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestCredibilityContract_CreateProtocol(t *testing.T) {

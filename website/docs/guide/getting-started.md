@@ -11,9 +11,14 @@ title: Getting Started
 
 ## 2.安装
 
+### 2.1 安装 go-lattice
+
 ```bash
 go install github.com/LatticeBCLab/go-lattice
 ```
+
+### 2.2 初始化 ZLattice 客户端
+
 现在你可以初始化一个新的 ZLattice 客户端，如下所示：
 
 ```go
@@ -82,7 +87,8 @@ func (c *ZLatticeClient) HttpApi() client.HttpApi {
 }
 ```
 
-创建Credentials
+### 2.3 创建Credentials
+创建凭证
 ```go
 import (
     zlattice "github.com/LatticeBCLab/go-lattice/lattice"
@@ -142,16 +148,11 @@ func NewCredentialsWithPassphrase() *zlattice.Credentials {
 转账是区块链中最基础的操作，指的是从一个账户向另一个账户发送代币或原生货币的过程。在晶格链中，每笔转账都会被记录在区块中，具有不可篡改性和可追溯性。
 :::
 
-- From: 转账发起方
-- To: 转账接收方
-- Amount: 转账金额
-- GasLimit: 转账消耗的Gas
-- GasPrice: 转账消耗的Gas价格
 
 ### 3.1 异步转账
 
 ```go
-latticeClient := initZLatticeClient(cfg).Client()
+zlatticeClient := initZLatticeClient(cfg).Client()
 credentials := NewCredentials()
 chainId := "1"
 to := "zltc_Z1pnS94bP4hQSYLs4aP4UwBP9pH8bEvhi"
@@ -161,7 +162,7 @@ joule := 1
 
 cancelCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 defer cancel()
-hash, err := latticeClient.Transfer(cancelCtx, credentials, chainId, to, payload, amount, joule)
+hash, err := zlatticeClient.Transfer(cancelCtx, credentials, chainId, to, payload, amount, joule)
 if err != nil {
     log.Fatal(err)
 }
@@ -169,6 +170,7 @@ fmt.Println(hash)
 ```
 
 ### 3.2 同步转账
+
 ```go
 cancelCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 defer cancel()
@@ -179,8 +181,45 @@ if err != nil {
 fmt.Println(hash)
 ```
 
-## 4.合约
-### 部署合约
+## 4.智能合约
+::: tip
+智能合约是一段存储在区块链上的代码，它会在满足触发条件时自动执行，就像一台“不可篡改的自动售货机”。是一个去中心化、不可篡改的程序，它存储在区块链中，并在交易或事件触发时执行特定的逻辑。
+:::
+
+### 4.1 部署合约
+#### 同步部署
+```go
+zlatticeClient := initZLatticeClient(cfg).Client()
+credentials := NewCredentials()
+chainId := "1"
+to := "zltc_Z1pnS94bP4hQSYLs4aP4UwBP9pH8bEvhi"
+payload := "0x" // hex string
+amount := 0
+joule := 0
+payload := "0x"
+abi := "你的合约ABI"
+
+// 编码
+
+cancelCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+defer cancel()
+hash, receipt, err := zlatticeClient.DeployContractWaitReceipt(cancelCtx, credentials, chainId, data, payload, amount, joule, zlattice.DefaultFixedRetryStrategy())
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println("合约地址", receipt.ContractAddress)
+```
+
+#### 异步部署
+```go
+cancelCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+defer cancel()
+hash, err := zlatticeClient.DeployContract(cancelCtx, credentials, chainId, data, payload, amount, joule)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println("交易哈希", hash)
+```
 
 ### 调用合约
 
@@ -188,11 +227,40 @@ fmt.Println(hash)
 
 ### 内置合约
 
-## Http
+## 5.HTTP Client
 
-### 获取收据
+### 5.1 获取收据
+```go
+chainId := "1"
+hash := "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+zlatticeClient := initZLatticeClient(cfg).Client()
+receipt, err := zlatticeClient.HttpApi().GetReceipt(context.Background(), chainId, hash)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println(receipt)
+```
 
-### 获取交易块
+### 5.2 获取交易块
+```go
+chainId := "1"
+hash := "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+zlatticeClient := initZLatticeClient(cfg).Client()
+block, err := zlatticeClient.HttpApi().GetTransactionBlockByHash(context.Background(), chainId, hash)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println(block)
+```
 
-### 获取守护块
-
+### 5.3 获取守护块
+```go
+chainId := "1"
+daemonBlockHash := "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+zlatticeClient := initZLatticeClient(cfg).Client()
+block, err := zlatticeClient.HttpApi().GetDaemonBlockByHash(context.Background(), chainId, daemonBlockHash)
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Println(block)
+```
