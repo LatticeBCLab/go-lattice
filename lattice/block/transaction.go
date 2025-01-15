@@ -223,7 +223,7 @@ func (tx *Transaction) CalculateTransactionHash(curve types.Curve) (common.Hash,
 			tx.GetLinkerAddress(),
 			tx.Hub,
 			tx.Amount,
-			0, // income
+			uint(0), // income
 			tx.Joule,
 			tx.Difficulty,
 			tx.ProofOfWork,
