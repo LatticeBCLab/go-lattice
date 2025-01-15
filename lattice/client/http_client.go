@@ -506,6 +506,8 @@ type HttpApi interface {
 	ImportRawKey(ctx context.Context, privateKey, password string) (bool, error)
 	// GetAccounts get accounts from the node
 	GetAccounts(ctx context.Context, chainId string) ([]string, error)
+	// GetTBlockState 获取账户区块状态
+	GetTBlockState(ctx context.Context, chainId, hash string) (types.TBlockState, error)
 }
 
 type httpApi struct {

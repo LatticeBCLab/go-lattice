@@ -171,3 +171,21 @@ const (
 	ContractLifecyclePeriodFREEZE
 	ContractLifecyclePeriodUNFREEZE
 )
+
+type TBlockState string
+
+// TBlockState 账户区块状态
+//   - TBlockStateEMPTY       空
+//   - TBlockStateNONEXISTENT 不存在
+//   - TBlockStatePENDING     在交易池中
+//   - TBlockStateWITNESSING  见证中
+//   - TBlockStateONCHAIN     已上链
+//   - TBlockStateDAEMONIZED  已被守护（执行、部署）
+const (
+	TBlockStateEMPTY       TBlockState = ""
+	TBlockStateNONEXISTENT TBlockState = "notExist"
+	TBlockStatePENDING     TBlockState = "inPool"
+	TBlockStateWITNESSING  TBlockState = "witnessing"
+	TBlockStateONCHAIN     TBlockState = "onChain"
+	TBlockStateDAEMONIZED  TBlockState = "daemon"
+)

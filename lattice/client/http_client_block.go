@@ -82,3 +82,14 @@ func (api *httpApi) GetTransactionsPagination(ctx context.Context, chainId strin
 	}
 	return response.Result, nil
 }
+
+func (api *httpApi) GetTBlockState(ctx context.Context, chainId, hash string) (types.TBlockState, error) {
+	response, err := Post[types.TBlockState](ctx, api.NodeUrl, NewJsonRpcBody("latc_getTBlockState", hash), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return types.TBlockStateEMPTY, err
+	}
+	if response.Error != nil {
+		return types.TBlockStateEMPTY, response.Error.Error()
+	}
+	return *response.Result, nil
+}
