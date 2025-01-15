@@ -210,6 +210,35 @@ func (tx *Transaction) sign(curve types.Curve, hash []byte, skHex string) ([]byt
 	return sign, nil
 }
 
+func (tx *Transaction) CalculateTransactionHash(curve types.Curve) (common.Hash, error) {
+	var err error
+	hash := crypto.NewCrypto(curve).EncodeHash(func(writer io.Writer) {
+		err = rlp.Encode(writer, []interface{}{
+			tx.Height,
+			tx.GetTypeCode(),
+			tx.ParentHash,
+			tx.DaemonHash,
+			tx.CodeHash,
+			tx.GetOwnerAddress(),
+			tx.GetLinkerAddress(),
+			tx.Hub,
+			tx.Amount,
+			0, // income
+			tx.Joule,
+			tx.Difficulty,
+			tx.ProofOfWork,
+			tx.DecodePayload(),
+			tx.Timestamp,
+			tx.Sign,
+			types.TXVersionLATEST,
+		})
+	})
+	if err != nil {
+		return common.Hash{}, err
+	}
+	return hash, nil
+}
+
 // SignTX 签名交易
 //
 // Parameters:

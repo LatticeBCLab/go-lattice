@@ -354,7 +354,7 @@ type Lattice interface {
 	//   - *common.Hash: 交易哈希
 	//   - error
 	CallContract(ctx context.Context, credentials *Credentials, chainId, contractAddress, data, payload string, amount, joule uint64) (*common.Hash, error)
-
+	UnsafeCallContract(ctx context.Context, credentials *Credentials, chainId, contractAddress, data, payload string, amount, joule uint64) (*common.Hash, error)
 	WaitReceipt(ctx context.Context, chainId string, hash *common.Hash, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
 	// TransferWaitReceipt 发起转账交易并等待回执
 	//
@@ -524,8 +524,7 @@ func (svc *lattice) handleTransaction(ctx context.Context, credentials *Credenti
 	log.Debug().Msgf("获取私钥耗时：%d ms", time.Since(start).Milliseconds())
 
 	start = time.Now()
-	err = transaction.SignTX(uint64(chainIdAsInt), svc.chainConfig.Curve, sk)
-	if err != nil {
+	if err = transaction.SignTX(uint64(chainIdAsInt), svc.chainConfig.Curve, sk); err != nil {
 		log.Error().Err(err)
 		return nil, err
 	}
@@ -659,6 +658,85 @@ func (svc *lattice) CallContract(ctx context.Context, credentials *Credentials, 
 		return nil, err
 	}
 	log.Debug().Msgf("调用合约处理交易(获取私钥+签名+发送)总耗时：%d ms", time.Since(start).Milliseconds())
+	log.Debug().Msgf("结束调用合约，哈希为：%s", hash.String())
+	return hash, nil
+}
+
+func (svc *lattice) UnsafeCallContract(ctx context.Context, credentials *Credentials, chainId, contractAddress, data, payload string, amount, joule uint64) (*common.Hash, error) {
+	log.Debug().Msgf("开始发起调用合约交易，chainId: %s, contractAddress: %s, data: %s, payload: %s, amount: %d, joule: %d", chainId, contractAddress, data, payload, amount, joule)
+
+	start := time.Now()
+	svc.accountLock.Obtain(chainId, credentials.AccountAddress)
+	log.Debug().Msgf("调用合约获取账户锁耗时：%d ms", time.Since(start).Milliseconds())
+
+	latestBlock, err := svc.blockCache.GetBlock(chainId, credentials.AccountAddress)
+	if err != nil {
+		// ⚠️Warning don't delete this line of code
+		svc.accountLock.Unlock(chainId, credentials.AccountAddress)
+		return nil, err
+	}
+
+	transaction := block.NewTransactionBuilder(block.TransactionTypeCallContract).
+		SetLatestBlock(latestBlock).
+		SetOwner(credentials.AccountAddress).
+		SetLinker(contractAddress).
+		SetCode(data).
+		SetPayload(payload).
+		SetAmount(amount).
+		SetJoule(joule).
+		Build()
+
+	cryptoInstance := crypto.NewCrypto(svc.chainConfig.Curve)
+	dataHash := cryptoInstance.Hash(hexutil.MustDecode(data))
+	transaction.CodeHash = dataHash
+
+	chainIdAsInt, err := strconv.Atoi(chainId)
+	if err != nil {
+		// ⚠️Warning don't delete this line of code
+		svc.accountLock.Unlock(chainId, credentials.AccountAddress)
+		log.Error().Err(err)
+		return nil, err
+	}
+	sk, err := credentials.GetSK()
+	if err != nil {
+		// ⚠️Warning don't delete this line of code
+		svc.accountLock.Unlock(chainId, credentials.AccountAddress)
+		log.Error().Err(err)
+		return nil, err
+	}
+	if err = transaction.SignTX(uint64(chainIdAsInt), svc.chainConfig.Curve, sk); err != nil {
+		// ⚠️Warning don't delete this line of code
+		svc.accountLock.Unlock(chainId, credentials.AccountAddress)
+		log.Error().Err(err)
+		return nil, err
+	}
+
+	// update cache
+	calculatedHash, err := transaction.CalculateTransactionHash(svc.chainConfig.Curve)
+	if err != nil {
+		// ⚠️Warning don't delete this line of code
+		svc.accountLock.Unlock(chainId, credentials.AccountAddress)
+		log.Error().Err(err)
+		return nil, err
+	}
+	log.Debug().Msgf("计算出的哈希为：%s", calculatedHash.String())
+	latestBlock.Hash = calculatedHash
+	latestBlock.IncrHeight()
+	if err = svc.blockCache.SetBlock(chainId, credentials.AccountAddress, latestBlock); err != nil {
+		log.Error().Err(err)
+	}
+
+	// ⚠️Warning don't delete this line of code
+	svc.accountLock.Unlock(chainId, credentials.AccountAddress)
+
+	cancelCtx, cancelFunc := context.WithTimeout(ctx, defaultHttpRequestTimeout)
+	defer cancelFunc()
+	hash, err := svc.httpApi.SendSignedTransaction(cancelCtx, chainId, transaction)
+	if err != nil {
+		log.Error().Err(err)
+		return nil, err
+	}
+
 	log.Debug().Msgf("结束调用合约，哈希为：%s", hash.String())
 	return hash, nil
 }
