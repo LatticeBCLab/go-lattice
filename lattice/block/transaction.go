@@ -147,6 +147,10 @@ func (tx *Transaction) DecodePayload() []byte {
 	return hexutil.MustDecode(tx.Payload)
 }
 
+func (tx *Transaction) DecodeSign() []byte {
+	return hexutil.MustDecode(tx.Sign)
+}
+
 // RlpEncodeHash 对交易进行rlp编码并计算哈希
 //
 // Parameters:
@@ -229,7 +233,7 @@ func (tx *Transaction) CalculateTransactionHash(curve types.Curve) (common.Hash,
 			tx.ProofOfWork,
 			tx.DecodePayload(),
 			tx.Timestamp,
-			tx.Sign,
+			tx.DecodeSign(),
 			types.TXVersionLATEST,
 		})
 	})
