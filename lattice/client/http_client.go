@@ -237,6 +237,8 @@ type HttpApi interface {
 	// Returns:
 	//    - o
 	SendSignedTransaction(ctx context.Context, chainId string, signedTX *block.Transaction) (*common.Hash, error)
+	// SendSignedTransactions batch send transactions
+	SendSignedTransactions(ctx context.Context, chainId string, signedTXs []*block.Transaction) ([]*common.Hash, error)
 
 	// PreCallContract 预执行合约
 	//
@@ -564,6 +566,17 @@ func (api *httpApi) SendSignedTransaction(ctx context.Context, chainId string, s
 		return nil, response.Error.Error()
 	}
 	return response.Result, nil
+}
+
+func (api *httpApi) SendSignedTransactions(ctx context.Context, chainId string, signedTXs []*block.Transaction) ([]*common.Hash, error) {
+	response, err := Post[[]*common.Hash](ctx, api.NodeUrl, NewJsonRpcBody("wallet_sendRawBatchTBlock", signedTXs), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return *response.Result, nil
 }
 
 func (api *httpApi) PreCallContract(ctx context.Context, chainId string, unsignedTX *block.Transaction) (*types.Receipt, error) {

@@ -467,9 +467,7 @@ type Lattice interface {
 	//   - *common.Hash: 部署GO合约的交易哈希
 	//   - error: 部署GO合约时的错误
 	DeployGoContract(ctx context.Context, credentials *Credentials, chainId string, data types.DeployMultilingualContractCode, payload string, amount, joule uint64) (*common.Hash, error)
-
 	UpgradeGoContract(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.UpgradeMultilingualContractCode, payload string, amount, joule uint64) (*common.Hash, error)
-
 	CallGoContract(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.CallMultilingualContractCode, payload string, amount, joule uint64) (*common.Hash, error)
 
 	// DeployJavaContract 部署JAVA合约
@@ -487,17 +485,11 @@ type Lattice interface {
 	//   - *common.Hash: 部署JAVA合约的交易哈希
 	//   - error: 部署JAVA合约时的错误
 	DeployJavaContract(ctx context.Context, credentials *Credentials, chainId string, data types.DeployMultilingualContractCode, payload string, amount, joule uint64) (*common.Hash, error)
-
 	UpgradeJavaContract(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.UpgradeMultilingualContractCode, payload string, amount, joule uint64) (*common.Hash, error)
-
 	CallJavaContract(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.CallMultilingualContractCode, payload string, amount, joule uint64) (*common.Hash, error)
-
 	DeployGoContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId string, data types.DeployMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
-
 	UpgradeGoContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.UpgradeMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
-
 	CallGoContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.CallMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
-
 	DeployJavaContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId string, data types.DeployMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
 	// UpgradeJavaContractWaitReceipt upgrade java contract and waiting for the receipt
 	UpgradeJavaContractWaitReceipt(ctx context.Context, credentials *Credentials, chainId, contractAddress string, data types.UpgradeMultilingualContractCode, payload string, amount, joule uint64, retryStrategy *RetryStrategy) (*common.Hash, *types.Receipt, error)
