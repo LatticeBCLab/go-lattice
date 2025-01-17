@@ -203,6 +203,16 @@ type HttpApi interface {
 	//   - error
 	CanDial(timeout time.Duration) error
 
+	// SendRequest 透传原始的http请求
+	//
+	// Parameters:
+	//   - request *http.Request
+	//
+	// Returns:
+	//   - *http.Response : 返回的结果
+	//   - error
+	SendRequest(request *http.Request) (*http.Response, error)
+
 	// GetLatestBlock 获取当前账户的最新的区块信息，不包括pending中的交易
 	//
 	// Parameters:
@@ -516,6 +526,13 @@ type httpApi struct {
 	GinServerUrl string            // 节点的Gin服务请求路径
 	transport    http.RoundTripper // http transport
 	jwtApi       Jwt               // jwt api
+}
+
+// HttpRequest : 透传原始http请求到链上
+func (api *httpApi) SendRequest(request *http.Request) (*http.Response, error) {
+	log.Debug().Msgf("开始发送http请求，url: %s", request.URL)
+	client := &http.Client{Transport: api.transport}
+	return client.Do(request)
 }
 
 const (
