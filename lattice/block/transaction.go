@@ -258,6 +258,11 @@ func (tx *Transaction) SignTX(chainId uint64, curve types.Curve, skHex string) e
 		return err
 	}
 
+	return tx.SignHash(hash, curve, skHex)
+}
+
+// SignHash 签名哈希
+func (tx *Transaction) SignHash(hash common.Hash, curve types.Curve, skHex string) error {
 	signature, err := tx.sign(curve, hash[:], skHex)
 	if err != nil {
 		return err
