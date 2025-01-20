@@ -189,3 +189,12 @@ const (
 	TBlockStateONCHAIN     TBlockState = "onChain"
 	TBlockStateDAEMONIZED  TBlockState = "daemon"
 )
+
+type TXVersion uint8
+
+const (
+	TXVersionCHAOS TXVersion = iota
+	TXVersionPANGU
+	TXVersionNVWA
+	TXVersionLATEST
+)

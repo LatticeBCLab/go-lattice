@@ -147,6 +147,10 @@ func (tx *Transaction) DecodePayload() []byte {
 	return hexutil.MustDecode(tx.Payload)
 }
 
+func (tx *Transaction) DecodeSign() []byte {
+	return hexutil.MustDecode(tx.Sign)
+}
+
 // RlpEncodeHash 对交易进行rlp编码并计算哈希
 //
 // Parameters:
@@ -210,6 +214,35 @@ func (tx *Transaction) sign(curve types.Curve, hash []byte, skHex string) ([]byt
 	return sign, nil
 }
 
+func (tx *Transaction) CalculateTransactionHash(curve types.Curve) (common.Hash, error) {
+	var err error
+	hash := crypto.NewCrypto(curve).EncodeHash(func(writer io.Writer) {
+		err = rlp.Encode(writer, []interface{}{
+			tx.Height,
+			tx.GetTypeCode(),
+			tx.ParentHash,
+			tx.DaemonHash,
+			tx.CodeHash,
+			tx.GetOwnerAddress(),
+			tx.GetLinkerAddress(),
+			tx.Hub,
+			tx.Amount,
+			uint(0), // income
+			tx.Joule,
+			tx.Difficulty,
+			tx.ProofOfWork,
+			tx.DecodePayload(),
+			tx.Timestamp,
+			tx.DecodeSign(),
+			types.TXVersionLATEST,
+		})
+	})
+	if err != nil {
+		return common.Hash{}, err
+	}
+	return hash, nil
+}
+
 // SignTX 签名交易
 //
 // Parameters:
@@ -225,6 +258,11 @@ func (tx *Transaction) SignTX(chainId uint64, curve types.Curve, skHex string) e
 		return err
 	}
 
+	return tx.SignHash(hash, curve, skHex)
+}
+
+// SignHash 签名哈希
+func (tx *Transaction) SignHash(hash common.Hash, curve types.Curve, skHex string) error {
 	signature, err := tx.sign(curve, hash[:], skHex)
 	if err != nil {
 		return err
