@@ -544,7 +544,7 @@ func (api *httpApi) Forward(rw http.ResponseWriter, r *http.Request) {
 	log.Debug().Msgf("正在转发http请求到链上，转发%s到%s", r.URL, nodeUrl)
 	headers := api.newHeaders("")
 	for k, v := range headers {
-		if r.Header.Get(k) == "" {
+		if r.Header.Get(k) == "" && v != "" {
 			r.Header.Set(k, v)
 		}
 	}
