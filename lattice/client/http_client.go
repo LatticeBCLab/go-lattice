@@ -541,7 +541,7 @@ func (api *httpApi) Forward(rw http.ResponseWriter, r *http.Request) {
 		api.forwardErrorHandler(rw, r, fmt.Errorf("failed to parse node url %s, err=%v", api.NodeUrl, err))
 		return
 	}
-	log.Debug().Msgf("正在转发http请求到链上，从%s转发到%s", r.URL, nodeUrl)
+	log.Debug().Msgf("正在转发http请求到链上，转发%s到%s", r.URL, nodeUrl)
 	headers := api.newHeaders("")
 	for k, v := range headers {
 		if r.Header.Get(k) == "" {
