@@ -9,6 +9,8 @@ import (
 	"math/big"
 	"net"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"strings"
 	"time"
 
@@ -202,6 +204,13 @@ type HttpApi interface {
 	// Returns:
 	//   - error
 	CanDial(timeout time.Duration) error
+
+	// Forward 转发原始的http请求
+	//
+	// Parameters:
+	//   - w *http.ResponseWriter
+	//   - r *http.Request
+	Forward(w http.ResponseWriter, r *http.Request)
 
 	// GetLatestBlock 获取当前账户的最新的区块信息，不包括pending中的交易
 	//
@@ -518,6 +527,31 @@ type httpApi struct {
 	GinServerUrl string            // 节点的Gin服务请求路径
 	transport    http.RoundTripper // http transport
 	jwtApi       Jwt               // jwt api
+}
+
+func (api *httpApi) forwardErrorHandler(rw http.ResponseWriter, req *http.Request, err error) {
+	rw.WriteHeader(http.StatusBadGateway)
+	rw.Write([]byte(err.Error()))
+}
+
+// Forward : 透传原始http请求到链上
+func (api *httpApi) Forward(rw http.ResponseWriter, r *http.Request) {
+	nodeUrl, err := url.Parse(api.NodeUrl)
+	if err != nil {
+		api.forwardErrorHandler(rw, r, fmt.Errorf("failed to parse node url %s, err=%v", api.NodeUrl, err))
+		return
+	}
+	log.Debug().Msgf("正在转发http请求到链上，转发%s到%s", r.URL, nodeUrl)
+	headers := api.newHeaders("")
+	for k, v := range headers {
+		if r.Header.Get(k) == "" && v != "" {
+			r.Header.Set(k, v)
+		}
+	}
+	proxy := httputil.NewSingleHostReverseProxy(nodeUrl)
+	proxy.Transport = api.transport
+	proxy.ErrorHandler = api.forwardErrorHandler
+	proxy.ServeHTTP(rw, r)
 }
 
 const (
