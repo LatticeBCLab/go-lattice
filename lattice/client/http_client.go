@@ -519,6 +519,8 @@ type HttpApi interface {
 	GetAccounts(ctx context.Context, chainId string) ([]string, error)
 	// GetTBlockState 获取账户区块状态
 	GetTBlockState(ctx context.Context, chainId, hash string) (types.TBlockState, error)
+	// GetElapsed 获取节点各关键操作耗时统计
+	GetElapsed(ctx context.Context) (map[string]int64, error)
 }
 
 type httpApi struct {
@@ -666,6 +668,18 @@ func (api *httpApi) GetErrorEvidences(ctx context.Context, chainId, date string,
 		return nil, response.Error.Error()
 	}
 	return response.Result, nil
+}
+
+// GetElapsed implements HttpApi.
+func (api *httpApi) GetElapsed(ctx context.Context) (map[string]int64, error) {
+	response, err := Post[map[string]int64](ctx, api.NodeUrl, NewJsonRpcBody("latc_getElapsed"), api.newHeaders(emptyChainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return *response.Result, nil
 }
 
 // Post send http request use post method
