@@ -250,7 +250,7 @@ func (c *credibilityContract) UnsafeWrite(request *WriteLedgerRequest) (data str
 }
 
 func (c *credibilityContract) UnsafeWriteWithStatus(request *WriteLedgerRequest) (data string, err error) {
-	code, err := c.abi.RawAbi().Pack("writeTraceabilityWithStatusUnsafe ", request.ProtocolUri, request.Hash, request.Data, request.Address)
+	code, err := c.abi.RawAbi().Pack("writeTraceabilityWithStatusUnsafe", request.ProtocolUri, request.Hash, request.Data, request.Address)
 	if err != nil {
 		return "", err
 	}
