@@ -161,6 +161,9 @@ type CredibilityContract interface {
 	// UnsafeRead equals the Read method, the differences is that the unsafe read method
 	// reads data stored in levelDB but not in the MPT tree.
 	UnsafeRead(dataId, businessContractAddress string) (data string, err error)
+	// ToggleVisibility Toggle data visibility
+	// First invoke, hidden data. Second invoke, display
+	ToggleVisibility(dataId, businessContractAddress string) (data string, err error)
 }
 
 type credibilityContract struct {
@@ -293,6 +296,15 @@ func (c *credibilityContract) Read(dataId, businessContractAddress string) (data
 
 func (c *credibilityContract) UnsafeRead(dataId, businessContractAddress string) (data string, err error) {
 	fn, err := c.abi.GetLatticeFunction("getTraceabilityUnsafe", dataId, businessContractAddress)
+	if err != nil {
+		return "", err
+	}
+
+	return fn.Encode()
+}
+
+func (c *credibilityContract) ToggleVisibility(dataId, businessContractAddress string) (data string, err error) {
+	fn, err := c.abi.GetLatticeFunction("setDataSecret", dataId, businessContractAddress)
 	if err != nil {
 		return "", err
 	}
