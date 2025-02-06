@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"math/big"
 
 	"github.com/LatticeBCLab/go-lattice/common/constant"
@@ -516,14 +517,18 @@ type nodeConfig struct {
 	NetworkIDGroup []int  `json:"NetworkIDGroup"`
 }
 
-// 区块压缩节省的空间
+// FreezeSaveSpace 区块压缩节省的空间
 type FreezeSaveSpace struct {
 	SaveSpace uint64 `json:"saveSpace"`
 	Unit      string `json:"unit"` // byte
 }
 
-// 区块压缩间隔
+// FreezeInterval 区块压缩间隔
 type FreezeInterval struct {
 	FreezeInterval uint64 `json:"freezeInterval"`
 	Unit           string `json:"unit"` // minute
+}
+
+func (fi *FreezeInterval) String() string {
+	return fmt.Sprintf("%d分钟/次", fi.FreezeInterval)
 }
