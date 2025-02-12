@@ -31,6 +31,7 @@ require (
 	github.com/defiweb/go-anymapper v0.3.0 // indirect
 	github.com/defiweb/go-rlp v0.3.0 // indirect
 	github.com/defiweb/go-sigparser v0.6.0 // indirect
+	github.com/gorilla/websocket v1.5.3
 	github.com/holiman/uint256 v1.2.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

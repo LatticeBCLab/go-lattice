@@ -164,6 +164,7 @@ type SubchainPeer struct {
 	Id                string   `json:"Id"`
 	Saint             string   `json:"Saint"`
 	ChainId           uint32   `json:"ChainId"`
+	IsBoot            bool     `json:"isBoot"`
 	DaemonBlockHeight *big.Int `json:"DBNum"`
 	DaemonBlockHash   string   `json:"DBHash"`
 	GinHttpPort       int      `json:"GinHttpPort"`
@@ -531,4 +532,17 @@ type FreezeInterval struct {
 
 func (fi *FreezeInterval) String() string {
 	return fmt.Sprintf("%d分钟/次", fi.FreezeInterval)
+}
+
+// LatcConsensus 前置共识和后置共识
+type LatcConsensus struct {
+	DaemonConsensus string `json:"daemonConsensus"` // 后置共识: Witness, pbft, raft
+	FrontConsensus  string `json:"frontConsensus"`  // 前置共识: PoA, PoAP, View
+}
+
+// SyncStatus 当前区块同步状态
+type SyncStatus struct {
+	PackSize  int  `json:"packSize"`
+	Syncing   int  `json:"syncing"`
+	Reconnect bool `json:"reconnect"`
 }
