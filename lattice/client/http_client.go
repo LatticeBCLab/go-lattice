@@ -521,6 +521,8 @@ type HttpApi interface {
 	GetTBlockState(ctx context.Context, chainId, hash string) (types.TBlockState, error)
 	// GetElapsed 获取节点各关键操作耗时统计
 	GetElapsed(ctx context.Context) (map[string]int64, error)
+	// GetNodeCertificate 查看节点数字证书
+	GetNodeCertificate(ctx context.Context) (*types.NodeCertificate, error)
 }
 
 type httpApi struct {

@@ -2,7 +2,11 @@ package client
 
 import (
 	"context"
+	"crypto/x509"
+	"encoding/pem"
+	"github.com/rs/zerolog/log"
 	"math/big"
+	"strconv"
 
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/wallet"
@@ -160,4 +164,34 @@ func (api *httpApi) GetLatcInfo(ctx context.Context, chainId string) (*types.Nod
 		return nil, response.Error.Error()
 	}
 	return response.Result, nil
+}
+
+func (api *httpApi) GetNodeCertificate(ctx context.Context) (*types.NodeCertificate, error) {
+	response, err := Post[x509.Certificate](ctx, api.NodeUrl, NewJsonRpcBody("latc_getOwnerCert"), api.newHeaders(emptyChainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+
+	certificate := response.Result
+	subjectLocality := certificate.Subject.Locality
+	blockHeight, err := strconv.ParseUint(subjectLocality[0], 10, 64)
+	if err != nil {
+		log.Error().Err(err)
+		return nil, err
+	}
+	block := &pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: certificate.Raw,
+	}
+
+	return &types.NodeCertificate{
+		Certificate:        certificate,
+		BlockHeightAtIssue: blockHeight,
+		Type:               types.NodeCertificateType(subjectLocality[1]),
+		OwnerAddress:       subjectLocality[2],
+		PEMCertificate:     string(pem.EncodeToMemory(block)),
+	}, err
 }

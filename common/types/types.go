@@ -1,6 +1,7 @@
 package types
 
 import (
+	"crypto/x509"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -531,4 +532,13 @@ type FreezeInterval struct {
 
 func (fi *FreezeInterval) String() string {
 	return fmt.Sprintf("%d分钟/次", fi.FreezeInterval)
+}
+
+// NodeCertificate node digital certificate
+type NodeCertificate struct {
+	Certificate        *x509.Certificate   `json:"certificate,omitempty"`
+	Type               NodeCertificateType `json:"certificateType,omitempty"`    // Certificate type
+	OwnerAddress       string              `json:"ownerAddress,omitempty"`       // Address of the certificate owner
+	BlockHeightAtIssue uint64              `json:"blockHeightAtIssue,omitempty"` // Block height at the issue certificate
+	PEMCertificate     string              `json:"pemCertificate,omitempty"`
 }
