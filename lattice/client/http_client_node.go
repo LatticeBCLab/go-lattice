@@ -2,14 +2,9 @@ package client
 
 import (
 	"context"
-	"crypto/x509"
-	"encoding/pem"
-	"github.com/rs/zerolog/log"
-	"math/big"
-	"strconv"
-
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/wallet"
+	"math/big"
 )
 
 func (api *httpApi) GetNodeInfo(ctx context.Context) (*types.NodeInfo, error) {
@@ -56,28 +51,6 @@ func (api *httpApi) GetNodePeers(ctx context.Context) ([]*types.NodePeer, error)
 	return *response.Result, nil
 }
 
-func (api *httpApi) GetNodeConfig(ctx context.Context, chainID string) (*types.NodeConfig, error) {
-	response, err := Post[types.NodeConfig](ctx, api.NodeUrl, NewJsonRpcBody("latc_getConfig"), api.newHeaders(chainID), api.transport)
-	if err != nil {
-		return nil, err
-	}
-	if response.Error != nil {
-		return nil, response.Error.Error()
-	}
-	return response.Result, nil
-}
-
-func (api *httpApi) GetNodeProtocol(ctx context.Context, chainId string) (*types.NodeProtocol, error) {
-	response, err := Post[types.NodeProtocol](ctx, api.NodeUrl, NewJsonRpcBody("latc_getProtocols"), api.newHeaders(chainId), api.transport)
-	if err != nil {
-		return nil, err
-	}
-	if response.Error != nil {
-		return nil, response.Error.Error()
-	}
-	return response.Result, nil
-}
-
 func (api *httpApi) GetNodeConfirmedConfiguration(ctx context.Context, chainId string) (*types.NodeConfirmedConfiguration, error) {
 	response, err := Post[types.NodeConfirmedConfiguration](ctx, api.NodeUrl, NewJsonRpcBody("wallet_getConfirmConfig"), api.newHeaders(chainId), api.transport)
 	if err != nil {
@@ -111,28 +84,6 @@ func (api *httpApi) GetNodeSaintKey(ctx context.Context) (*wallet.FileKey, error
 	return response.Result, nil
 }
 
-func (api *httpApi) GetNodeConfiguration(ctx context.Context) (*types.NodeConfiguration, error) {
-	response, err := Post[types.NodeConfiguration](ctx, api.NodeUrl, NewJsonRpcBody("latc_getConfig"), api.newHeaders(emptyChainId), api.transport)
-	if err != nil {
-		return nil, err
-	}
-	if response.Error != nil {
-		return nil, response.Error.Error()
-	}
-	return response.Result, nil
-}
-
-func (api *httpApi) LoadNodeConfiguration(ctx context.Context, chainId string) (*types.NodeConfiguration, error) {
-	response, err := Post[types.NodeConfiguration](ctx, api.NodeUrl, NewJsonRpcBody("latc_loadConfig"), api.newHeaders(chainId), api.transport)
-	if err != nil {
-		return nil, err
-	}
-	if response.Error != nil {
-		return nil, response.Error.Error()
-	}
-	return response.Result, nil
-}
-
 func (api *httpApi) GetNodeWorkingDirectory(ctx context.Context) (string, error) {
 	response, err := Post[string](ctx, api.NodeUrl, NewJsonRpcBody("node_getLocationPath"), api.newHeaders(emptyChainId), api.transport)
 	if err != nil {
@@ -153,45 +104,4 @@ func (api *httpApi) GetSnapshot(ctx context.Context, chainId string, daemonBlock
 		return nil, response.Error.Error()
 	}
 	return response.Result, nil
-}
-
-func (api *httpApi) GetLatcInfo(ctx context.Context, chainId string) (*types.NodeProtocolConfig, error) {
-	response, err := Post[types.NodeProtocolConfig](ctx, api.NodeUrl, NewJsonRpcBody("latc_latcInfo"), api.newHeaders(chainId), api.transport)
-	if err != nil {
-		return nil, err
-	}
-	if response.Error != nil {
-		return nil, response.Error.Error()
-	}
-	return response.Result, nil
-}
-
-func (api *httpApi) GetNodeCertificate(ctx context.Context) (*types.NodeCertificate, error) {
-	response, err := Post[x509.Certificate](ctx, api.NodeUrl, NewJsonRpcBody("latc_getOwnerCert"), api.newHeaders(emptyChainId), api.transport)
-	if err != nil {
-		return nil, err
-	}
-	if response.Error != nil {
-		return nil, response.Error.Error()
-	}
-
-	certificate := response.Result
-	subjectLocality := certificate.Subject.Locality
-	blockHeight, err := strconv.ParseUint(subjectLocality[0], 10, 64)
-	if err != nil {
-		log.Error().Err(err)
-		return nil, err
-	}
-	block := &pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: certificate.Raw,
-	}
-
-	return &types.NodeCertificate{
-		Certificate:        certificate,
-		BlockHeightAtIssue: blockHeight,
-		Type:               types.NodeCertificateType(subjectLocality[1]),
-		OwnerAddress:       subjectLocality[2],
-		PEMCertificate:     string(pem.EncodeToMemory(block)),
-	}, err
 }
