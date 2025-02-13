@@ -165,6 +165,7 @@ type SubchainPeer struct {
 	Saint             string   `json:"Saint"`
 	ChainId           uint32   `json:"ChainId"`
 	IsBoot            bool     `json:"isBoot"`
+	CertSerialNumber  *big.Int `json:"CertSerialNumber"`
 	DaemonBlockHeight *big.Int `json:"DBNum"`
 	DaemonBlockHash   string   `json:"DBHash"`
 	GinHttpPort       int      `json:"GinHttpPort"`
