@@ -37,6 +37,24 @@ func TestHttpClientRequest(t *testing.T) {
 		t.Log(wrappedCertificate.Type.ToChinese())
 		t.Log(wrappedCertificate.PEMCertificate)
 	})
+
+	t.Run("get peer node certificate by serial number", func(t *testing.T) {
+		serialNumber := "55415987022000890681526953338523518501"
+		wrappedCertificate, err := httpApi.GetPeerNodeCertificate(ctx, serialNumber)
+		assert.NoError(t, err)
+		assert.NotNil(t, wrappedCertificate)
+		t.Log(wrappedCertificate.Type.ToChinese())
+		t.Log(wrappedCertificate.PEMCertificate)
+	})
+
+	t.Run("get peer node certificate by address", func(t *testing.T) {
+		nodeAddress := "zltc_mXhpBG3X1dezEPumnfSQya38Awm654dXT"
+		wrappedCertificate, err := httpApi.GetPeerNodeCertificateByAddress(ctx, nodeAddress)
+		assert.NoError(t, err)
+		assert.NotNil(t, wrappedCertificate)
+		t.Log(wrappedCertificate.Type.ToChinese())
+		t.Log(wrappedCertificate.PEMCertificate)
+	})
 }
 
 func TestBlock(t *testing.T) {

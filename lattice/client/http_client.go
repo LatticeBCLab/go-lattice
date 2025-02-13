@@ -393,6 +393,9 @@ type HttpApi interface {
 	//   - map[string]*types.SubchainPeer
 	//   - error
 	GetSubchainPeers(ctx context.Context, subchainId string) (map[string]*types.SubchainPeer, error)
+	// GetLatcPeers 查询peer节点
+	// namespace: latc
+	GetLatcPeers(ctx context.Context, chainId string) (map[string]*types.SubchainPeer, error)
 
 	// GetNodeConfig 查询节点的配置信息
 	//
@@ -523,6 +526,10 @@ type HttpApi interface {
 	GetElapsed(ctx context.Context) (map[string]int64, error)
 	// GetNodeCertificate 查看节点数字证书
 	GetNodeCertificate(ctx context.Context) (*types.NodeCertificate, error)
+	// GetPeerNodeCertificate 根据SerialNumber查询节点数字证书
+	GetPeerNodeCertificate(ctx context.Context, serialNumber string) (*types.NodeCertificate, error)
+	// GetPeerNodeCertificateByAddress 根据节点地址查询节点数字证书
+	GetPeerNodeCertificateByAddress(ctx context.Context, nodeAddress string) (*types.NodeCertificate, error)
 }
 
 type httpApi struct {

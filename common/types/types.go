@@ -154,22 +154,26 @@ type NodePeerProtocols struct {
 // SubchainPeer 子链（通道）的节点对等节点信息
 //
 //   - Id
-//   - Saint
-//   - ChainId
-//   - DaemonBlockHeight
-//   - DaemonBlockHash
+//   - Saint			 节点地址
+//   - ChainId			 链ID
+//   - IsBootstrap       节点是否为种子节点
+//   - CertificateSN     节点证书序列号
+//   - DaemonBlockHeight 守护区块高度
+//   - DaemonBlockHash	 守护区块哈希
 //   - GinHttpPort       文件传输服务的端口
 //   - DFS 		   		 是否使用文件传输服务
 //   - INode       		 节点的INode信息
 type SubchainPeer struct {
-	Id                string   `json:"Id"`
-	Saint             string   `json:"Saint"`
-	ChainId           uint32   `json:"ChainId"`
-	DaemonBlockHeight *big.Int `json:"DBNum"`
-	DaemonBlockHash   string   `json:"DBHash"`
-	GinHttpPort       int      `json:"GinHttpPort"`
-	DFS               bool     `json:"DFS"`
-	INode             string   `json:"inode"`
+	Id                string   `json:"Id,omitempty"`
+	Saint             string   `json:"Saint,omitempty"`
+	ChainId           uint32   `json:"ChainId,omitempty"`
+	IsBootstrap       bool     `json:"IsBoot,omitempty"`
+	CertificateSN     *big.Int `json:"CertSerialNumber,omitempty"`
+	DaemonBlockHeight *big.Int `json:"DBNum,omitempty"`
+	DaemonBlockHash   string   `json:"DBHash,omitempty"`
+	GinHttpPort       int      `json:"GinHttpPort,omitempty"`
+	DFS               bool     `json:"DFS,omitempty"`
+	INode             string   `json:"inode,omitempty"`
 }
 
 // NodeConfig 节点配置信息
