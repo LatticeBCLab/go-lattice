@@ -546,3 +546,16 @@ type NodeCertificate struct {
 	BlockHeightAtIssue uint64              `json:"blockHeightAtIssue,omitempty"` // Block height at the issue certificate
 	PEMCertificate     string              `json:"pemCertificate,omitempty"`
 }
+
+// LatcConsensus 前置共识和后置共识
+type LatcConsensus struct {
+	DaemonConsensus string `json:"daemonConsensus"` // 后置共识: Witness, pbft, raft
+	FrontConsensus  string `json:"frontConsensus"`  // 前置共识: PoA, PoAP, View
+}
+
+// SyncStatus 当前区块同步状态
+type SyncStatus struct {
+	PackSize  int  `json:"packSize"`
+	Syncing   int  `json:"syncing"`
+	Reconnect bool `json:"reconnect"`
+}

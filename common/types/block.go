@@ -1,8 +1,9 @@
 package types
 
 import (
-	"github.com/ethereum/go-ethereum/common"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type LatestBlock struct {
@@ -47,6 +48,7 @@ type DaemonBlock struct {
 	Contracts    []string      `json:"contracts"`
 	Difficulty   *big.Int      `json:"difficulty"`
 	Height       *big.Int      `json:"number"`
+	LatestHeight *big.Int      `json:"lastedDBNumber"`
 	Extra        string        `json:"extra"`
 	Reward       *big.Int      `json:"reward"`
 	Pow          *big.Int      `json:"pow"`

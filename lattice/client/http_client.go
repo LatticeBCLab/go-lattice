@@ -530,6 +530,12 @@ type HttpApi interface {
 	GetPeerNodeCertificate(ctx context.Context, serialNumber string) (*types.NodeCertificate, error)
 	// GetPeerNodeCertificateByAddress 根据节点地址查询节点数字证书
 	GetPeerNodeCertificateByAddress(ctx context.Context, nodeAddress string) (*types.NodeCertificate, error)
+	// GetConsensus 获取节点前置共识和后置共识
+	GetConsensus(ctx context.Context) (*types.LatcConsensus, error)
+	// GetSyncStatus 获取节点同步状态
+	GetSyncStatus(ctx context.Context) (*types.SyncStatus, error)
+	// GetLastBatchDBlockNumber 获取最近一次并行处理的守护区块高度
+	GetLastBatchDBlockNumber(ctx context.Context) (*big.Int, error)
 }
 
 type httpApi struct {
@@ -688,6 +694,42 @@ func (api *httpApi) GetElapsed(ctx context.Context) (map[string]int64, error) {
 		return nil, response.Error.Error()
 	}
 	return *response.Result, nil
+}
+
+// GetConsensus implements HttpApi.
+func (api *httpApi) GetConsensus(ctx context.Context) (*types.LatcConsensus, error) {
+	response, err := Post[types.LatcConsensus](ctx, api.NodeUrl, NewJsonRpcBody("latc_getConsensus"), api.newHeaders(emptyChainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
+}
+
+// GetLastBatchDBlockNumber implements HttpApi.
+func (api *httpApi) GetLastBatchDBlockNumber(ctx context.Context) (*big.Int, error) {
+	response, err := Post[big.Int](ctx, api.NodeUrl, NewJsonRpcBody("latc_getLastedBatchDBNumber"), api.newHeaders(emptyChainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
+}
+
+// GetSyncStatus implements HttpApi.
+func (api *httpApi) GetSyncStatus(ctx context.Context) (*types.SyncStatus, error) {
+	response, err := Post[types.SyncStatus](ctx, api.NodeUrl, NewJsonRpcBody("sync_status"), api.newHeaders(emptyChainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
 }
 
 // Post send http request use post method
