@@ -198,3 +198,27 @@ const (
 	TXVersionNVWA
 	TXVersionLATEST
 )
+
+type NodeCertificateType string
+
+const (
+	NodeCertificateTypeInitialConsensus NodeCertificateType = "ConsensusInit"
+	NodeCertificateTypeInitialClient    NodeCertificateType = "ClientInit"
+	NodeCertificateTypeConsensus        NodeCertificateType = "Consensus"
+	NodeCertificateTypeClient           NodeCertificateType = "Client"
+)
+
+func (t NodeCertificateType) ToChinese() string {
+	switch t {
+	case NodeCertificateTypeInitialConsensus:
+		return "初始共识节点证书"
+	case NodeCertificateTypeInitialClient:
+		return "初始见证节点证书"
+	case NodeCertificateTypeConsensus:
+		return "共识节点证书"
+	case NodeCertificateTypeClient:
+		return "见证节点证书"
+	default:
+		return "未知类型证书"
+	}
+}

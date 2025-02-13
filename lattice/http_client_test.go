@@ -11,7 +11,7 @@ import (
 )
 
 func setupHttpClient() client.HttpApi {
-	connectingNodeConfig := &ConnectingNodeConfig{Ip: "192.168.3.51", HttpPort: 13000}
+	connectingNodeConfig := &ConnectingNodeConfig{Ip: "172.22.0.23", HttpPort: 10332}
 	initHttpClientArgs := &client.HttpApiInitParam{
 		NodeAddress:                fmt.Sprintf("%s:%d", connectingNodeConfig.Ip, connectingNodeConfig.HttpPort),
 		HttpUrl:                    connectingNodeConfig.GetHttpUrl(),
@@ -23,6 +23,20 @@ func setupHttpClient() client.HttpApi {
 	httpApi := client.NewHttpApi(initHttpClientArgs)
 
 	return httpApi
+}
+
+func TestHttpClientRequest(t *testing.T) {
+	httpApi := setupHttpClient()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+
+	t.Run("get node certificate", func(t *testing.T) {
+		wrappedCertificate, err := httpApi.GetNodeCertificate(ctx)
+		assert.NoError(t, err)
+		assert.NotNil(t, wrappedCertificate)
+		t.Log(wrappedCertificate.Type.ToChinese())
+		t.Log(wrappedCertificate.PEMCertificate)
+	})
 }
 
 func TestBlock(t *testing.T) {
