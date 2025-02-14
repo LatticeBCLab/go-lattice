@@ -8,7 +8,7 @@ import (
 
 func NewIdentityContract() IdentityContract {
 	return &identityContract{
-		abi: abi.NewAbi(PeekabooBuiltinContract.AbiString),
+		abi: abi.NewAbi(IdentityBuiltinContract.AbiString),
 	}
 }
 
