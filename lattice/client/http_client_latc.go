@@ -68,7 +68,7 @@ func (api *httpApi) GetPeerNodeCertificate(ctx context.Context, serialNumber str
 }
 
 func (api *httpApi) GetPeerNodeCertificateByAddress(ctx context.Context, nodeAddress string) (*types.NodeCertificate, error) {
-	peersMap, err := api.GetLatcPeers(ctx, nodeAddress)
+	peersMap, err := api.GetLatcPeers(ctx, emptyChainId)
 	if err != nil {
 		log.Error().Err(err)
 		return nil, err
@@ -79,7 +79,7 @@ func (api *httpApi) GetPeerNodeCertificateByAddress(ctx context.Context, nodeAdd
 		log.Error().Err(err)
 		return nil, fmt.Errorf("no peer found with address %s", nodeAddress)
 	}
-	
+
 	return api.GetPeerNodeCertificate(ctx, filtered[0].CertificateSN.String())
 }
 
