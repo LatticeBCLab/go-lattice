@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/wallet"
 	"math/big"
@@ -104,4 +105,15 @@ func (api *httpApi) GetSnapshot(ctx context.Context, chainId string, daemonBlock
 		return nil, response.Error.Error()
 	}
 	return response.Result, nil
+}
+
+func (api *httpApi) ConnectNodeAsync(ctx context.Context, inode string) error {
+	response, err := Post[json.RawMessage](ctx, api.NodeUrl, NewJsonRpcBody("node_connectNode", inode), api.newHeaders(emptyChainId), api.transport)
+	if err != nil {
+		return err
+	}
+	if response.Error != nil {
+		return response.Error.Error()
+	}
+	return nil
 }

@@ -536,6 +536,12 @@ type HttpApi interface {
 	GetSyncStatus(ctx context.Context) (*types.SyncStatus, error)
 	// GetLastBatchDBlockNumber 获取最近一次并行处理的守护区块高度
 	GetLastBatchDBlockNumber(ctx context.Context) (*big.Int, error)
+	// ConnectNodeAsync 连接新的节点，异步接口，是否连接成功需要借助node_peers判断
+	ConnectNodeAsync(ctx context.Context, inode string) error
+	// ConnectPeerAsync 连接新的链的对等节点，异步接口，是否连接成功需要借助latc_peers 判断
+	ConnectPeerAsync(ctx context.Context, nodeHash string) error
+	// DisconnectPeerAsync 断开对等节点，异步接口，是否断开连接成功需要借助latc_peers 判断
+	DisconnectPeerAsync(ctx context.Context, nodeHash string) error
 }
 
 type httpApi struct {
@@ -751,7 +757,7 @@ func Post[T any](ctx context.Context, url string, jsonRpcBody *JsonRpcBody, head
 	}
 
 	var t JsonRpcResponse[*T]
-	if err := json.Unmarshal(response, &t); err != nil {
+	if err = json.Unmarshal(response, &t); err != nil {
 		log.Error().Err(err).Msg("Failed to unmarshal response body")
 		return nil, err
 	}

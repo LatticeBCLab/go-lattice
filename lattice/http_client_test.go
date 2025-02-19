@@ -55,6 +55,24 @@ func TestHttpClientRequest(t *testing.T) {
 		t.Log(wrappedCertificate.Type.ToChinese())
 		t.Log(wrappedCertificate.PEMCertificate)
 	})
+
+	t.Run("connect node async", func(t *testing.T) {
+		inode := "/ip4/172.22.0.23/tcp/39901/p2p/16Uiu2HAkyXyfmor1mdzWR8qpH36GRppMHPyDJdNrRo7XQLXGZqyU"
+		err := httpApi.ConnectNodeAsync(ctx, inode)
+		assert.NoError(t, err)
+	})
+
+	t.Run("connect peer async", func(t *testing.T) {
+		id := "16Uiu2HAkyXyfmor1mdzWR8qpH36GRppMHPyDJdNrRo7XQLXGZqyU"
+		err := httpApi.ConnectPeerAsync(ctx, id)
+		assert.NoError(t, err)
+	})
+
+	t.Run("disconnect node async", func(t *testing.T) {
+		id := "16Uiu2HAkyXyfmor1mdzWR8qpH36GRppMHPyDJdNrRo7XQLXGZqyU"
+		err := httpApi.DisconnectPeerAsync(ctx, id)
+		assert.NoError(t, err)
+	})
 }
 
 func TestBlock(t *testing.T) {
