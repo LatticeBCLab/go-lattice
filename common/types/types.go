@@ -393,29 +393,30 @@ type NodeConfiguration struct {
 }
 
 type latcConfig struct {
-	NetworkIDGroup []int  `json:"NetworkIDGroup"`
-	Name           string `json:"Name"`
-	Desc           string `json:"Desc"`
-	LevelDB        struct {
-		OpenFilesCacheCapacity int `json:"OpenFilesCacheCapacity"`
-		MemoryCache            int `json:"MemoryCache"`
-	} `json:"LevelDB"`
-	AutoWitness        bool   `json:"AutoWitness"`
-	ResendSigInterval  int    `json:"ResendSigInterval"`
-	ViewChangeTimeout  int    `json:"ViewChangeTimeout"`
-	NoRecursion        bool   `json:"NoRecursion"`
-	TrieCleanLimit     int    `json:"TrieCleanLimit"`
-	MinReadySize       int    `json:"MinReadySize"`
-	StartInterval      int    `json:"StartInterval"`
-	ReadyInterval      int    `json:"ReadyInterval"`
-	StoreNeed          bool   `json:"StoreNeed"`
-	EviEnable          bool   `json:"EviEnable"`
-	EviLevel           int    `json:"EviLevel"`
-	WorldStateCompress bool   `json:"WorldStateCompress"`
-	TrieNumberLimit    int    `json:"TrieNumberLimit"`
-	RaftDebug          bool   `json:"RaftDebug"`
-	ConfigsDir         string `json:"ConfigsDir"`
-	DebugPWD           string `json:"DebugPWD"`
+	NetworkIDGroup  []int  `json:"NetworkIDGroup"`
+	Name            string `json:"Name"`
+	Desc            string `json:"Desc"`
+	ConfigsDir      string `json:"ConfigsDir"`
+	RaftDebug       bool   `json:"RaftDebug"`
+	ConsensusConfig struct {
+		ResendSigInterval int `json:"ResendSigInterval"`
+		ViewChangeTimeout int `json:"ViewChangeTimeout"`
+	} `json:"ConsensusConfig"`
+	TxPoolConfig struct {
+		MinReadySize  int  `json:"MinReadySize"`
+		StartInterval int  `json:"StartInterval"`
+		ReadyInterval int  `json:"ReadyInterval"`
+		StoreNeed     bool `json:"StoreNeed"`
+	} `json:"TxPoolConfig"`
+	StateConfig struct {
+		WorldStateCompress bool `json:"WorldStateCompress"`
+		TrieNumberLimit    int  `json:"TrieNumberLimit"`
+		TrieCleanLimit     int  `json:"TrieCleanLimit"`
+	} `json:"StateConfig"`
+	EvidenceConfig struct {
+		EviEnable bool `json:"EviEnable"`
+		EviLevel  int  `json:"EviLevel"`
+	} `json:"EvidenceConfig"`
 }
 
 type nodeConfig struct {
@@ -454,6 +455,16 @@ type nodeConfig struct {
 		JWTExpiryTimeout     int      `json:"JWTExpiryTimeout"`
 		JWTSecret            string   `json:"JWTSecret"`
 	} `json:"Network"`
+	DatabaseConfig struct {
+		DBType                 string `json:"DBType"`
+		OpenFilesCacheCapacity int    `json:"OpenFilesCacheCapacity"`
+		MemoryCache            int    `json:"MemoryCache"`
+		CouchDB                struct {
+			Address  string `json:"Address"`
+			Username string `json:"Username"`
+			Password string `json:"Password"`
+		} `json:"CouchDB"`
+	}
 	Log struct {
 		LogLevel        int  `json:"LogLevel"`
 		Console         bool `json:"Console"`
@@ -510,12 +521,6 @@ type nodeConfig struct {
 		MQNeedRelay          bool   `json:"MQNeedRelay"`
 		CanRelayToMQ         bool   `json:"CanRelayToMQ"`
 	} `json:"MessageQueue"`
-	CouchDB struct {
-		Enable   bool   `json:"Enable"`
-		Address  string `json:"Address"`
-		Username string `json:"Username"`
-		Password string `json:"Password"`
-	} `json:"CouchDB"`
 	PProfOn        bool   `json:"PProfOn"`
 	PProfPort      int    `json:"PProfPort"`
 	IPCPath        string `json:"IPCPath"`
