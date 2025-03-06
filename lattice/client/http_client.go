@@ -542,6 +542,10 @@ type HttpApi interface {
 	ConnectPeerAsync(ctx context.Context, nodeHash string) error
 	// DisconnectPeerAsync 断开对等节点，异步接口，是否断开连接成功需要借助latc_peers 判断
 	DisconnectPeerAsync(ctx context.Context, nodeHash string) error
+	// GetDBlockProof 获取守护区块签名
+	GetDBlockProof(ctx context.Context, chainId string, dblockNumber *big.Int) (*types.WitnessProof, error)
+	// GetTBlockProof 获取交易区块签名
+	GetTBlockProof(ctx context.Context, chainId string, accountAddress string, tblockNumber *big.Int) (*types.WitnessProof, error)
 }
 
 type httpApi struct {
