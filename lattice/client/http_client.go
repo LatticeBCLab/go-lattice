@@ -793,6 +793,7 @@ func rawPost(ctx context.Context, baseUrl string, jsonRpcBody *JsonRpcBody, head
 		log.Error().Err(err).Msg("Failed to read response body")
 		return nil, err
 	} else {
+		log.Debug().Msgf("收到JsonRpc响应，url: %s, body: %+v", baseUrl, res)
 		return res, nil
 	}
 }
