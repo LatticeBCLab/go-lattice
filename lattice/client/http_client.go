@@ -535,7 +535,7 @@ type HttpApi interface {
 	// GetSyncStatus 获取节点同步状态
 	GetSyncStatus(ctx context.Context) (*types.SyncStatus, error)
 	// GetLastBatchDBlockNumber 获取最近一次并行处理的守护区块高度
-	GetLastBatchDBlockNumber(ctx context.Context) (*big.Int, error)
+	GetLastBatchDBlockNumber(ctx context.Context, chainId string) (*big.Int, error)
 	// ConnectNodeAsync 连接新的节点，异步接口，是否连接成功需要借助node_peers判断
 	ConnectNodeAsync(ctx context.Context, inode string) error
 	// ConnectPeerAsync 连接新的链的对等节点，异步接口，是否连接成功需要借助latc_peers 判断
@@ -709,18 +709,6 @@ func (api *httpApi) GetElapsed(ctx context.Context) (map[string]int64, error) {
 // GetConsensus implements HttpApi.
 func (api *httpApi) GetConsensus(ctx context.Context) (*types.LatcConsensus, error) {
 	response, err := Post[types.LatcConsensus](ctx, api.NodeUrl, NewJsonRpcBody("latc_getConsensus"), api.newHeaders(emptyChainId), api.transport)
-	if err != nil {
-		return nil, err
-	}
-	if response.Error != nil {
-		return nil, response.Error.Error()
-	}
-	return response.Result, nil
-}
-
-// GetLastBatchDBlockNumber implements HttpApi.
-func (api *httpApi) GetLastBatchDBlockNumber(ctx context.Context) (*big.Int, error) {
-	response, err := Post[big.Int](ctx, api.NodeUrl, NewJsonRpcBody("latc_getLastedBatchDBNumber"), api.newHeaders(emptyChainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
