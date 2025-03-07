@@ -17,6 +17,7 @@ type PeekabooContract interface {
 	TogglePayload(hash string, visibility bool) (string, error)
 	ToggleHash(hash string, visibility bool) (string, error)
 	ToggleCode(hash string, visibility bool) (string, error)
+	BatchTogglePayload(hashes []string, visibility bool) (string, error)
 }
 
 type peekabooContract struct {
@@ -32,9 +33,11 @@ func (c *peekabooContract) ContractAddress() string {
 }
 
 func (c *peekabooContract) TogglePayload(hash string, visibility bool) (string, error) {
-	method := "delPayload"
+	// 进行隐藏
+	method := "addPayload"
 	if visibility {
-		method = "addPayload"
+		// 删除隐藏记录
+		method = "delPayload"
 	}
 
 	fn, err := c.abi.GetLatticeFunction(method, hash)
@@ -46,9 +49,9 @@ func (c *peekabooContract) TogglePayload(hash string, visibility bool) (string, 
 }
 
 func (c *peekabooContract) ToggleHash(hash string, visibility bool) (string, error) {
-	method := "delHash"
+	method := "addHash"
 	if visibility {
-		method = "addHash"
+		method = "delHash"
 	}
 
 	fn, err := c.abi.GetLatticeFunction(method, hash)
@@ -60,12 +63,26 @@ func (c *peekabooContract) ToggleHash(hash string, visibility bool) (string, err
 }
 
 func (c *peekabooContract) ToggleCode(hash string, visibility bool) (string, error) {
-	method := "delCode"
+	method := "addCode"
 	if visibility {
-		method = "addCode"
+		method = "delCode"
 	}
 
 	fn, err := c.abi.GetLatticeFunction(method, hash)
+	if err != nil {
+		return "", err
+	}
+
+	return fn.Encode()
+}
+
+func (c *peekabooContract) BatchTogglePayload(hashes []string, visibility bool) (string, error) {
+	method := "batchAddPayload"
+	if visibility {
+		method = "batchDelPayload"
+	}
+
+	fn, err := c.abi.GetLatticeFunction(method, hashes)
 	if err != nil {
 		return "", err
 	}
@@ -78,52 +95,6 @@ var PeekabooBuiltinContract = Contract{
 	Address:     "zltc_a8Nx2gcs2XHye7MKVWykdanumqDkWXqRH",
 	AbiString: `[
 		{
-			"constant": false,
-			"inputs": [
-				{
-					"internalType": "bytes32",
-					"name": "_hash",
-					"type": "bytes32"
-				}
-			],
-			"name": "addPayload",
-			"outputs": [],
-			"payable": false,
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"constant": false,
-			"inputs": [
-				{
-					"internalType": "bytes32",
-					"name": "_hash",
-					"type": "bytes32"
-				}
-			],
-			"name": "delPayload",
-			"outputs": [],
-			"payable": false,
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"constant": false,
-			"inputs": [
-				{
-					"internalType": "bytes32",
-					"name": "_hash",
-					"type": "bytes32"
-				}
-			],
-			"name": "addHash",
-			"outputs": [],
-			"payable": false,
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"constant": false,
 			"inputs": [
 				{
 					"internalType": "bytes32",
@@ -133,12 +104,10 @@ var PeekabooBuiltinContract = Contract{
 			],
 			"name": "addCode",
 			"outputs": [],
-			"payable": false,
 			"stateMutability": "nonpayable",
 			"type": "function"
 		},
 		{
-			"constant": false,
 			"inputs": [
 				{
 					"internalType": "bytes32",
@@ -146,14 +115,51 @@ var PeekabooBuiltinContract = Contract{
 					"type": "bytes32"
 				}
 			],
-			"name": "delHash",
+			"name": "addHash",
 			"outputs": [],
-			"payable": false,
 			"stateMutability": "nonpayable",
 			"type": "function"
 		},
 		{
-			"constant": false,
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "_hash",
+					"type": "bytes32"
+				}
+			],
+			"name": "addPayload",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32[]",
+					"name": "_hash",
+					"type": "bytes32[]"
+				}
+			],
+			"name": "batchAddPayload",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32[]",
+					"name": "_hash",
+					"type": "bytes32[]"
+				}
+			],
+			"name": "batchDelPayload",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
 			"inputs": [
 				{
 					"internalType": "bytes32",
@@ -163,7 +169,32 @@ var PeekabooBuiltinContract = Contract{
 			],
 			"name": "delCode",
 			"outputs": [],
-			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "_hash",
+					"type": "bytes32"
+				}
+			],
+			"name": "delHash",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "_hash",
+					"type": "bytes32"
+				}
+			],
+			"name": "delPayload",
+			"outputs": [],
 			"stateMutability": "nonpayable",
 			"type": "function"
 		}

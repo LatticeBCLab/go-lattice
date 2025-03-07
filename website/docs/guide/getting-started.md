@@ -22,45 +22,46 @@ go install github.com/LatticeBCLab/go-lattice
 现在你可以初始化一个新的 ZLattice 客户端，如下所示：
 
 ```go
+package main
 import (
-    zlattice "github.com/LatticeBCLab/go-lattice/lattice"
-    "github.com/LatticeBCLab/go-lattice/lattice/client"
+	"context"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"github.com/LatticeBCLab/go-lattice/abi"
+	"github.com/LatticeBCLab/go-lattice/common/types"
+	"github.com/LatticeBCLab/go-lattice/crypto"
+	zlattice "github.com/LatticeBCLab/go-lattice/lattice"
+	"github.com/LatticeBCLab/go-lattice/lattice/client"
+	"github.com/LatticeBCLab/go-lattice/wallet"
+	"github.com/rs/zerolog/log"
+	"github.com/stretchr/testify/assert"
+	"time"
 )
-
-type Curve string
-
-const (
-    Secp256k1 Curve = "secp256k1"
-	Sm2p256v1 Curve = "sm2p256v1"
-)
-
 type Config struct {
-    Node struct {
-        IP string
-        HttpPort int
-        WebsocketPort int
-        SecureConfiguration struct {
-            JwtSecret string
-            JwtExpirationDuration time.Duration
-        }
-        Curve Curve
-    }
+	Node struct {
+		IP                  string
+		HttpPort            int
+		WebsocketPort       int
+		SecureConfiguration struct {
+			JwtSecret             string
+			JwtExpirationDuration time.Duration
+		}
+		Curve types.Curve
+	}
 }
-
 func New(config *Config) *ZLatticeClient {
-    return &ZLatticeClient{
-        config: config,
-        client: initZLatticeClient(config),
-    }
+	return &ZLatticeClient{
+		config: config,
+		client: initZLatticeClient(config),
+	}
 }
-
 type ZLatticeClient struct {
-    config *Config
-    client zlattice.Lattice
+	config *Config
+	client zlattice.Lattice
 }
-
-func initZLatticeClient(config *Config) *ZLatticeClient {
-    return zlattice.NewLattice(
+func initZLatticeClient(config *Config) zlattice.Lattice {
+	return zlattice.NewLattice(
 		&zlattice.ChainConfig{
 			Curve: config.Node.Curve,
 		},
@@ -75,15 +76,13 @@ func initZLatticeClient(config *Config) *ZLatticeClient {
 		&zlattice.Options{MaxIdleConnsPerHost: 200},
 	)
 }
-
-// 晶格链节点的客户端
+// Client 晶格链节点的客户端
 func (c *ZLatticeClient) Client() zlattice.Lattice {
-    return c.client
+	return c.client
 }
-
-// 晶格链节点的 HTTP API 客户端
+// HttpApi 晶格链节点的 HTTP API 客户端
 func (c *ZLatticeClient) HttpApi() client.HttpApi {
-    return c.client.HttpApi()
+	return c.client.HttpApi()
 }
 ```
 
@@ -95,8 +94,9 @@ import (
 )
 
 const (
+    chainId    = "1"
     passphrase = "9snjka823njk"
-    fileKey = `{
+    fileKey    = `{
         "uuid": "bb889ee6-5d1d-474e-9514-5bbf412a42ec",
         "address": "zltc_iEUCcfMhVYy3zcpp8zLjoaTAeN6PZfMBL",
         "cipher": {
@@ -119,26 +119,26 @@ const (
         },
         "isGM": true
     }`
-    accountAddress = "0x0000000000000000000000000000000000000000"
-    privateKey = "0x23d5b2a2eb0a9c8b86d62cbc3955cfd1fb26ec576ecc379f402d0f5d2b27a7bb"
+    accountAddress = "zltc_iEUCcfMhVYy3zcpp8zLjoaTAeN6PZfMBL"
+    linkerAddress  = "zltc_jF4U7umzNpiE8uU35RCBp9f2qf53H5CZZ"
+    privateKey     = "0x23d5b2a2eb0a9c8b86d62cbc3955cfd1fb26ec576ecc379f402d0f5d2b27a7bb"
 )
 
-// 推荐
+// NewCredentials 推荐
 func NewCredentials() *zlattice.Credentials {
     return &zlattice.Credentials{
         AccountAddress: accountAddress,
-        PrivateKey: privateKey,
+        PrivateKey:     privateKey,
     }
 }
 
 func NewCredentialsWithPassphrase() *zlattice.Credentials {
     return &zlattice.Credentials{
         AccountAddress: accountAddress,
-        FileKey: fileKey,
-        Passphrase: passphrase,
+        FileKey:        fileKey,
+        Passphrase:     passphrase,
     }
 }
-
 ```
 
 ## 3.转账
@@ -150,35 +150,29 @@ func NewCredentialsWithPassphrase() *zlattice.Credentials {
 
 
 ### 3.1 异步转账
-
 ```go
-zlatticeClient := initZLatticeClient(cfg).Client()
-credentials := NewCredentials()
-chainId := "1"
-to := "zltc_Z1pnS94bP4hQSYLs4aP4UwBP9pH8bEvhi"
-payload := "0x" // hex string
-amount := 100
-joule := 1
-
-cancelCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-defer cancel()
-hash, err := zlatticeClient.Transfer(cancelCtx, credentials, chainId, to, payload, amount, joule)
-if err != nil {
-    log.Fatal(err)
+func (c *ZLatticeClient) Transfer() {
+    payload := "0x01"
+    hash, err := c.Client().Transfer(context.Background(), NewCredentials(), chainId, linkerAddress, payload, 0, 0)
+    if err != nil {
+        log.Fatal().Err(err)
+    }
+    log.Info().Msgf("转账交易哈希: %s", hash.String())
 }
-fmt.Println(hash)
 ```
 
 ### 3.2 同步转账
 
 ```go
-cancelCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-defer cancel()
-hash, receipt, err := latticeClient.TransferWaitReceipt(cancelCtx, credentials, chainId, to, payload, amount, joule, zlattice.DefaultFixedRetryStrategy())
-if err != nil {
-    log.Fatal(err)
+func (c *ZLatticeClient) TransferWaitReceipt() {
+    payload := "0x01"
+    hash, receipt, err := c.Client().TransferWaitReceipt(context.Background(), NewCredentials(), chainId, linkerAddress, payload, 0, 0, zlattice.DefaultBackOffRetryStrategy())
+    if err != nil {
+        log.Fatal().Err(err)
+    }
+    log.Info().Msgf("转账交易哈希: %s", hash.String())
+    log.Error().Msgf("转账交易回执：%v", receipt)
 }
-fmt.Println(hash)
 ```
 
 ## 4.智能合约
@@ -187,49 +181,232 @@ fmt.Println(hash)
 :::
 
 ### 4.1 部署合约
-#### 同步部署
 ```go
-zlatticeClient := initZLatticeClient(cfg).Client()
-credentials := NewCredentials()
-chainId := "1"
-to := "zltc_Z1pnS94bP4hQSYLs4aP4UwBP9pH8bEvhi"
-payload := "0x" // hex string
-amount := 0
-joule := 0
-payload := "0x"
-abi := "你的合约ABI"
-
-// 编码
-
-cancelCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-defer cancel()
-hash, receipt, err := zlatticeClient.DeployContractWaitReceipt(cancelCtx, credentials, chainId, data, payload, amount, joule, zlattice.DefaultFixedRetryStrategy())
-if err != nil {
-    log.Fatal(err)
+func (c *ZLatticeClient) Deploy() {
+    abiString := `[
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_oldAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_newAddress",
+                "type": "address"
+            }
+        ],
+        "name": "changeAddress",
+        "outputs": [],
+        "stateMutability": "pure",
+        "type": "function"
+    }
+]`
+    bytecode := "0x01091821020128128108201281"
+    latticeAbi := abi.NewAbi(abiString)
+    method := latticeAbi.GetConstructor()
+    if err != nil {
+        log.Fatal().Err(err)
+    }
+    data, err := method.Encode()
+    if err != nil {
+        log.Fatal().Err(err).Msgf("编码合约参数错误")
+    }
+    hash, receipt, err := c.Client().DeployContractWaitReceipt(context.Background(), NewCredentials(), chainId, bytecode+data, "0x", 0, 0, zlattice.DefaultBackOffRetryStrategy())
+    if err != nil {
+        log.Fatal().Err(err).Msg("部署合约失败")
+    }
+    if !receipt.Success {
+        log.Fatal().Str("错误", receipt.ContractRet).Msgf("部署合约失败")
+    }
+    log.Info().Msgf("转账交易哈希: %s", hash.String())
+    log.Error().Msgf("转账交易回执：%v", receipt)
 }
-fmt.Println("合约地址", receipt.ContractAddress)
 ```
 
-#### 异步部署
+### 4.2 调用合约
+#### 4.2.1 异步调用
 ```go
-cancelCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-defer cancel()
-hash, err := zlatticeClient.DeployContract(cancelCtx, credentials, chainId, data, payload, amount, joule)
-if err != nil {
-    log.Fatal(err)
+func (c *ZLatticeClient) CallContract() {
+    contractAddress := "zltc_YBomBNykwMqxm719giBL3VtYV4ABT9a8D"
+    abiString := `[
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_oldAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_newAddress",
+                "type": "address"
+            }
+        ],
+        "name": "changeAddress",
+        "outputs": [],
+        "stateMutability": "pure",
+        "type": "function"
+    }
+]`
+    oldAddress := "zltc_YBomBNykwMqxm719giBL3VtYV4ABT9a8D"
+    newAddress := "zltc_VmGey8EMn7MdyXMoPx9a3sJhhkaJykv3Z"
+    latticeAbi := abi.NewAbi(abiString)
+    method, err := latticeAbi.GetLatticeFunction("changeAddress", oldAddress, newAddress)
+    if err != nil {
+        log.Fatal().Err(err)
+    }
+    data, err := method.Encode()
+    if err != nil {
+        log.Fatal().Err(err).Msgf("编码合约参数错误")
+    }
+    hash, err := c.Client().CallContract(context.Background(), NewCredentials(), chainId, contractAddress, data, "0x", 0, 0)
+    if err != nil {
+        log.Fatal().Err(err)
+    }
+    log.Info().Msgf("调用合约交易哈希: %s", hash.String())
 }
-fmt.Println("交易哈希", hash)
 ```
-
-### 调用合约
+### 4.2.2 同步调用
+```go
+func (c *ZLatticeClient) CallContractWaitReceipt() {
+    contractAddress := "zltc_YBomBNykwMqxm719giBL3VtYV4ABT9a8D"
+    abiString := `[
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_oldAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_newAddress",
+                "type": "address"
+            }
+        ],
+        "name": "changeAddress",
+        "outputs": [],
+        "stateMutability": "pure",
+        "type": "function"
+    }
+]`
+    oldAddress := "zltc_YBomBNykwMqxm719giBL3VtYV4ABT9a8D"
+    newAddress := "zltc_VmGey8EMn7MdyXMoPx9a3sJhhkaJykv3Z"
+    latticeAbi := abi.NewAbi(abiString)
+    method, err := latticeAbi.GetLatticeFunction("changeAddress", oldAddress, newAddress)
+    if err != nil {
+        log.Fatal().Err(err)
+    }
+    data, err := method.Encode()
+    if err != nil {
+        log.Fatal().Err(err).Msgf("编码合约参数错误")
+    }
+    hash, receipt, err := c.Client().CallContractWaitReceipt(context.Background(), NewCredentials(), chainId, contractAddress, data, "0x", 0, 0, zlattice.DefaultBackOffRetryStrategy())
+    if err != nil {
+        log.Fatal().Err(err)
+    }
+    if !receipt.Success {
+        log.Fatal().Str("错误", receipt.ContractRet).Msgf("执行合约失败")
+    }
+    log.Info().Msgf("调用合约交易哈希: %s", hash.String())
+    log.Error().Msgf("调用交易回执：%v", receipt)
+}
+```
 
 ### 预调用合约
+```go
+func (c *ZLatticeClient) PreCallContract() {
+    contractAddress := "zltc_YBomBNykwMqxm719giBL3VtYV4ABT9a8D"
+    abiString := `[
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_oldAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_newAddress",
+                "type": "address"
+            }
+        ],
+        "name": "changeAddress",
+        "outputs": [],
+        "stateMutability": "pure",
+        "type": "function"
+    }
+]`
+    oldAddress := "zltc_YBomBNykwMqxm719giBL3VtYV4ABT9a8D"
+    newAddress := "zltc_VmGey8EMn7MdyXMoPx9a3sJhhkaJykv3Z"
+    latticeAbi := abi.NewAbi(abiString)
+    method, err := latticeAbi.GetLatticeFunction("changeAddress", oldAddress, newAddress)
+    if err != nil {
+        log.Fatal().Err(err)
+    }
+    data, err := method.Encode()
+    if err != nil {
+        log.Fatal().Err(err).Msgf("编码合约参数错误")
+    }
+    receipt, err := c.Client().PreCallContract(context.Background(), chainId, accountAddress, contractAddress, data, "0x")
+    if err != nil {
+        log.Fatal().Err(err)
+    }
+    if !receipt.Success {
+        log.Fatal().Str("错误", receipt.ContractRet).Msgf("预执行合约失败")
+    }
+    log.Error().Msgf("预调用交易回执：%v", receipt)
+}
+```
 
-### 内置合约
+## 5.账户
+### 5.1 生成私钥、账户
+```go
+func GenerateAccount() {
+    c := crypto.NewCrypto(types.Sm2p256v1)
+    priKey, err := c.GenerateKeyPair()
+    if err != nil {
+        log.Fatal().Msgf("生成密钥对错误")
+    }
+    privateKeyHexString, _ := c.SKToHexString(priKey)
+    publicKeyHexString, _ := c.PKToHexString(&priKey.PublicKey)
+    account, _ := c.PKToAddress(&priKey.PublicKey)
+    log.Info().Str("私钥", privateKeyHexString)
+    log.Info().Str("公钥", publicKeyHexString)
+    log.Info().Str("账户地址", account.String())
+}
+```
 
-## 5.HTTP Client
+### 5.2 生成FileKey
+```go
+func GenerateFileKey() {
+    fk, err := wallet.GenerateFileKey(privateKey, passphrase, types.Sm2p256v1)
+    log.Fatal().Err(err)
+    bytes, err := json.Marshal(fk)
+    log.Fatal().Err(err)
+    fileKeyString := string(bytes)
+    log.Info().Str("生成FileKey", fileKeyString)
+}
+```
 
-### 5.1 获取收据
+### 5.3 解密FileKey
+```go
+func DecryptFileKey() {
+    fileKeyString := `{"uuid":"bb889ee6-5d1d-474e-9514-5bbf412a42ec","address":"zltc_iEUCcfMhVYy3zcpp8zLjoaTAeN6PZfMBL","cipher":{"aes":{"cipher":"aes-128-ctr","iv":"23b4ddcd8cfea7e37b3c69bbb600934f"},"kdf":{"kdf":"scrypt","kdfParams":{"DKLen":32,"n":262144,"p":1,"r":8,"salt":"87cf307be225ce2eaf255d602233852200195d838b5d98c4078ceb6235ec46e4"}},"cipherText":"672b3de4784fc0d17941ae257908672dd4984a43c616147366a42bc2e9ef2d8a","mac":"bd6ac051c41f4d0238464a66df004de357baf2f3f03ced8ccba0a497e14044bd"},"isGM":true}`
+    password := "Aa123456"
+    sk, err := wallet.NewFileKey(fileKeyString).Decrypt(password)
+    log.Fatal().Err(err)
+    skString, err := crypto.NewCrypto(types.Sm2p256v1).SKToHexString(sk)
+    log.Fatal().Err(err)
+    log.Info().Str("解密获取私钥", skString)
+}
+```
+
+## 6.HTTP Client
+
+### 6.1 获取收据
 ```go
 chainId := "1"
 hash := "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
@@ -241,7 +418,7 @@ if err != nil {
 fmt.Println(receipt)
 ```
 
-### 5.2 获取交易块
+### 6.2 获取交易块
 ```go
 chainId := "1"
 hash := "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
@@ -253,7 +430,7 @@ if err != nil {
 fmt.Println(block)
 ```
 
-### 5.3 获取守护块
+### 6.3 获取守护块
 ```go
 chainId := "1"
 daemonBlockHash := "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"

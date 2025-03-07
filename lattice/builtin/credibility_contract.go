@@ -25,6 +25,14 @@ type WriteLedgerRequest struct {
 	Address     common.Address `json:"address"`     // businessContractAddress:业务合约地址
 }
 
+// ToggleVisibilityParam 切换存证数据可见性的参数
+//   - Hash    data id
+//   - Address business address
+type ToggleVisibilityParam struct {
+	Hash    string         `json:"hash"`
+	Address common.Address `json:"address"` //address
+}
+
 // CreateProtocolRequest 创建协议的结构体
 //
 //   - ProtocolSuite 协议簇（行业号）
@@ -164,6 +172,8 @@ type CredibilityContract interface {
 	// ToggleVisibility Toggle data visibility
 	// First invoke, hidden data. Second invoke, display
 	ToggleVisibility(dataId, businessContractAddress string) (data string, err error)
+	// BatchToggleVisibility Batch toggle data visibility
+	BatchToggleVisibility(params []ToggleVisibilityParam) (data string, err error)
 }
 
 type credibilityContract struct {
@@ -310,6 +320,15 @@ func (c *credibilityContract) ToggleVisibility(dataId, businessContractAddress s
 	}
 
 	return fn.Encode()
+}
+
+func (c *credibilityContract) BatchToggleVisibility(params []ToggleVisibilityParam) (data string, err error) {
+	code, err := c.abi.RawAbi().Pack("setManyDataSecret", params)
+	if err != nil {
+		return "", err
+	}
+
+	return hexutil.Encode(code), nil
 }
 
 var CredibilityBuiltinContract = Contract{
@@ -564,6 +583,37 @@ var CredibilityBuiltinContract = Contract{
 			],
 			"name": "setDataSecret",
 			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"components": [
+						{
+							"internalType": "string",
+							"name": "hash",
+							"type": "string"
+						},
+						{
+							"internalType": "address",
+							"name": "address",
+							"type": "address"
+						}
+					],
+					"internalType": "struct EvidenceSecret[]",
+					"name": "evis",
+					"type": "tuple[]"
+				}
+			],
+			"name": "setManyDataSecret",
+			"outputs": [
+				{
+					"internalType": "uint64",
+					"name": "",
+					"type": "uint64"
+				}
+			],
 			"stateMutability": "nonpayable",
 			"type": "function"
 		},
