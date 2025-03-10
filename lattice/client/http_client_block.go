@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"math/big"
 
 	"github.com/LatticeBCLab/go-lattice/common/types"
 )
@@ -92,4 +93,40 @@ func (api *httpApi) GetTBlockState(ctx context.Context, chainId, hash string) (t
 		return types.TBlockStateEMPTY, response.Error.Error()
 	}
 	return *response.Result, nil
+}
+
+// GetLastBatchDBlockNumber implements HttpApi.
+func (api *httpApi) GetLastBatchDBlockNumber(ctx context.Context, chainId string) (*big.Int, error) {
+	response, err := Post[big.Int](ctx, api.NodeUrl, NewJsonRpcBody("latc_getLastedBatchDBNumber"), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
+}
+
+// GetDBlockProof implements HttpApi.
+func (api *httpApi) GetDBlockProof(ctx context.Context, chainId string, dblockNumber *big.Int) (*types.WitnessProof, error) {
+	response, err := Post[types.WitnessProof](ctx, api.NodeUrl, NewJsonRpcBody("latc_getDBlockProof", dblockNumber), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
+}
+
+// GetTBlockProof implements HttpApi.
+func (api *httpApi) GetTBlockProof(ctx context.Context, chainId string, accountAddress string, tblockNumber *big.Int) (*types.WitnessProof, error) {
+	response, err := Post[types.WitnessProof](ctx, api.NodeUrl, NewJsonRpcBody("latc_getTBlockProof", accountAddress, tblockNumber), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
 }

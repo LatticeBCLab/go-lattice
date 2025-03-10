@@ -98,3 +98,22 @@ type TransactionsPagination struct {
 	Count              uint32              `json:"count"`
 	Transactions       []*TransactionBlock `json:"tBlocks"`
 }
+
+type Signature struct {
+	From   string      `json:"from"`
+	Owner  string      `json:"owner"`
+	Hash   common.Hash `json:"hash"`
+	Number *big.Int    `json:"number"`
+	Status uint        `json:"status"`
+	Sign   []byte      `json:"sign"`
+}
+
+type WitnessProof struct {
+	Hash         common.Hash  `json:"Hash"`
+	Owner        string       `json:"Owner"`
+	DaemonHash   common.Hash  `json:"DaemonHash"`
+	Number       *big.Int     `json:"Number"`
+	EndNumber    *big.Int     `json:"EndNumber"`
+	ExpectNumber *big.Int     `json:"Expect"` //预料中有其证明的DBlock高度
+	Signers      []*Signature `json:"Signers"`
+}
