@@ -135,6 +135,9 @@ func (r *workflowResult) Read() (*any, error) {
 
 // Workflow implements WebSocketApi.
 func (w *webSocketApi) Workflow(ctx context.Context, cond *types.WorkflowSubscribeCondition) (Subscribe[any], error) {
+	if cond == nil {
+		cond = &types.WorkflowSubscribeCondition{}
+	}
 	r, err := w.subscribe(ctx, "node_subscribe", "workflow", cond)
 	if err != nil {
 		return nil, err
@@ -257,7 +260,8 @@ func (w *webSocketApi) subscribe(ctx context.Context, method string, params ...a
 	}
 	// 发送订阅请求
 	req := NewJsonRpcBody(method, params...)
-	log.Debug().Msgf("Subscribe:开始订阅, req=%v", req)
+	debugReq, _ := json.Marshal(req)
+	log.Debug().Msgf("Subscribe:开始订阅, req=%s", debugReq)
 	err = conn.WriteJSON(req)
 	if err != nil {
 		conn.Close()
