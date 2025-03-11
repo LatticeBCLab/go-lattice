@@ -16,11 +16,25 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type SubscriptionResult struct {
+	ID     string          `json:"subapi,omitempty"` // id
+	Result json.RawMessage `json:"result,omitempty"` // 数据
+}
+
+// 订阅消息
+type SubscribeResponse struct {
+	JsonRpc string             `json:"jsonrpc,omitempty"`
+	Method  string             `json:"method,omitempty"` // 方法名, latc_subscription, node_subscription
+	Params  SubscriptionResult `json:"params,omitempty"` // 返回结果
+}
+
 // 订阅结果，支持读取订阅数据和主动结束订阅
 type Subscribe[T any] interface {
-	// Read: 读取一条订阅数据
+	// ID 返回订阅ID
+	ID() string
+	// Read 读取一条订阅数据
 	Read() (*T, error)
-	// Close: 主动结束订阅
+	// Close 主动结束订阅
 	Close() error
 }
 
@@ -68,16 +82,6 @@ func NewWebSocketApi(args *WebSocketApiInitParam) WebSocketApi {
 			WriteBufferSize:  args.WriteBufferSize,
 		},
 	}
-}
-
-// 订阅消息
-type SubscribeResponse struct {
-	JsonRpc string `json:"jsonrpc,omitempty"`
-	Method  string `json:"method,omitempty"` // 方法名, latc_subscription, node_subscription
-	Params  struct {
-		SubApi string          `json:"subapi,omitempty"` // subapi
-		Result json.RawMessage `json:"result,omitempty"` // 订阅数据
-	} `json:"params,omitempty"` // 返回结果
 }
 
 type webSocketApi struct {
@@ -131,7 +135,6 @@ func (r *workflowResult) Read() (*types.WorkflowCommon, error) {
 	if err != nil {
 		return nil, err
 	}
-	result.SubApi = raw.Params.SubApi
 	return result, nil
 }
 
@@ -239,6 +242,11 @@ func (w *webSocketApi) Subscribe(ctx context.Context, method string, params ...a
 
 type subscribeRawResult struct {
 	conn *websocket.Conn
+	id   string
+}
+
+func (r *subscribeRawResult) ID() string {
+	return r.id
 }
 
 func (r *subscribeRawResult) Read() (*SubscribeResponse, error) {
@@ -246,6 +254,10 @@ func (r *subscribeRawResult) Read() (*SubscribeResponse, error) {
 	err := r.conn.ReadJSON(&resp)
 	if err != nil {
 		return nil, err
+	}
+	// 检验订阅ID是否匹配
+	if resp.Params.ID != r.id {
+		return nil, fmt.Errorf("订阅ID不匹配，got %s, expect %s", resp.Params.ID, r.id)
 	}
 	return &resp, nil
 }
@@ -280,6 +292,7 @@ func (w *webSocketApi) subscribe(ctx context.Context, method string, params ...a
 	// 开始读取订阅数据
 	output := subscribeRawResult{
 		conn: conn,
+		id:   resp.Result,
 	}
 	return &output, nil
 }
