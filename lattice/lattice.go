@@ -319,6 +319,14 @@ type Lattice interface {
 	//   - client.HttpApi
 	HttpApi() client.HttpApi
 
+	// WebsocketApi return the websocket api
+	//
+	// Parameters:
+	//
+	// Returns:
+	//   - client.WebsocketApi
+	WebsocketApi() client.WebSocketApi
+
 	// Transfer 发起转账交易
 	//
 	// Parameters:
@@ -510,6 +518,10 @@ type Lattice interface {
 
 func (svc *lattice) HttpApi() client.HttpApi {
 	return svc.httpApi
+}
+
+func (svc *lattice) WebsocketApi() client.WebSocketApi {
+	return svc.websocketApi
 }
 
 // Start handle transaction, contains
