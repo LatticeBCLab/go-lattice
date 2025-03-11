@@ -59,6 +59,11 @@ func NewLattice(chainConfig *ChainConfig, connectingNodeConfig *ConnectingNodeCo
 	}
 	httpApi := client.NewHttpApi(initHttpClientArgs)
 
+	initWebsocketClientArgs := &client.WebSocketApiInitParam{
+		WebSocketUrl: connectingNodeConfig.GetWebsocketUrl(),
+	}
+	webSocketApi := client.NewWebSocketApi(initWebsocketClientArgs)
+
 	if blockCache == nil {
 		blockCache = newDisabledMemoryBlockCache(httpApi)
 	} else {
@@ -74,6 +79,7 @@ func NewLattice(chainConfig *ChainConfig, connectingNodeConfig *ConnectingNodeCo
 		connectingNodeConfig: connectingNodeConfig,
 		options:              options,
 		httpApi:              httpApi,
+		websocketApi:         webSocketApi,
 		blockCache:           blockCache,
 		accountLock:          accountLock,
 	}
@@ -81,6 +87,7 @@ func NewLattice(chainConfig *ChainConfig, connectingNodeConfig *ConnectingNodeCo
 
 type lattice struct {
 	httpApi              client.HttpApi        // 节点的http客户端
+	websocketApi         client.WebSocketApi   // 节点的websocket客户端
 	chainConfig          *ChainConfig          // 链信息配置
 	connectingNodeConfig *ConnectingNodeConfig // 节点的连接信息配置
 	blockCache           BlockCache            // 区块缓存接口
