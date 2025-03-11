@@ -29,7 +29,7 @@ type WebSocketApi interface {
 	Subscribe(ctx context.Context, method string, params ...any) (Subscribe[map[string]any], error)
 
 	// Workflow 订阅工作流
-	Workflow(ctx context.Context, cond *types.WorkflowSubscribeCondition) (Subscribe[any], error)
+	Workflow(ctx context.Context, cond *types.WorkflowSubscribeCondition) (Subscribe[types.WorkflowCommon], error)
 	// WorkflowApi 订阅工作流-接口调用
 	WorkflowApi(ctx context.Context, level types.WorkflowLevel, chainId *big.Int, apiScope string) (Subscribe[types.WorkflowApi], error)
 	// WorkflowNodeConnect 订阅工作流-节点连接
@@ -90,51 +90,53 @@ type workflowResult struct {
 	subscribeRawResult
 }
 
-func unmarshalJSON[T any](b []byte) (any, error) {
+func unmarshalWorkflow[T any](b []byte) (*types.WorkflowCommon, error) {
 	var result T
 	err := json.Unmarshal(b, &result)
 	if err != nil {
 		return nil, err
 	}
-	return &result, nil
+	return (any)(&result).(*types.WorkflowCommon), nil
 }
 
-func (r *workflowResult) Read() (*any, error) {
-	b, err := r.subscribeRawResult.Read()
+func (r *workflowResult) Read() (*types.WorkflowCommon, error) {
+	raw, err := r.subscribeRawResult.Read()
 	if err != nil {
 		return nil, err
 	}
+	b := raw.Params.Result
 	t, err := jsonparser.GetInt(b, "flowType")
 	if err != nil {
 		return nil, err
 	}
-	var result any
+	var result *types.WorkflowCommon
 	switch types.WorkflowType(t) {
 	case types.WorkflowType_API:
-		result, err = unmarshalJSON[types.WorkflowApi](b)
+		result, err = unmarshalWorkflow[types.WorkflowApi](b)
 	case types.WorkflowType_CHAIN_BY_CHAIN:
-		result, err = unmarshalJSON[types.WorkflowChainByChain](b)
+		result, err = unmarshalWorkflow[types.WorkflowChainByChain](b)
 	case types.WorkflowType_CONSENSUS:
-		result, err = unmarshalJSON[types.WorkflowConsensus](b)
+		result, err = unmarshalWorkflow[types.WorkflowConsensus](b)
 	case types.WorkflowType_DAEMON_BLOCK:
-		result, err = unmarshalJSON[types.WorkflowDaemonBlock](b)
+		result, err = unmarshalWorkflow[types.WorkflowDaemonBlock](b)
 	case types.WorkflowType_HANDSHAKE:
-		result, err = unmarshalJSON[types.WorkflowHandshake](b)
+		result, err = unmarshalWorkflow[types.WorkflowHandshake](b)
 	case types.WorkflowType_NODE_CONNECT:
-		result, err = unmarshalJSON[types.WorkflowNodeConnect](b)
+		result, err = unmarshalWorkflow[types.WorkflowNodeConnect](b)
 	case types.WorkflowType_TRANSACTION:
-		result, err = unmarshalJSON[types.WorkflowTransaction](b)
+		result, err = unmarshalWorkflow[types.WorkflowTransaction](b)
 	default:
 		return nil, fmt.Errorf("unknown workflow type %d", t)
 	}
 	if err != nil {
 		return nil, err
 	}
-	return &result, nil
+	result.SubApi = raw.Params.SubApi
+	return result, nil
 }
 
 // Workflow implements WebSocketApi.
-func (w *webSocketApi) Workflow(ctx context.Context, cond *types.WorkflowSubscribeCondition) (Subscribe[any], error) {
+func (w *webSocketApi) Workflow(ctx context.Context, cond *types.WorkflowSubscribeCondition) (Subscribe[types.WorkflowCommon], error) {
 	if cond == nil {
 		cond = &types.WorkflowSubscribeCondition{}
 	}
@@ -155,7 +157,7 @@ func (r *workflowCheckResult[T]) Read() (*T, error) {
 	if err != nil {
 		return nil, err
 	}
-	checkResult, ok := (*result).(*T)
+	checkResult, ok := (any)(&result).(*T)
 	if !ok {
 		return nil, fmt.Errorf("workflow type error, can not convert %s to %s", reflect.TypeOf(*result).Name(), reflect.TypeOf((*T)(nil)).Name())
 	}
@@ -215,7 +217,7 @@ func (r *subscribeResult[T]) Read() (*T, error) {
 		return nil, err
 	}
 	var result T
-	err = json.Unmarshal(b, &result)
+	err = json.Unmarshal(b.Params.Result, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -239,13 +241,13 @@ type subscribeRawResult struct {
 	conn *websocket.Conn
 }
 
-func (r *subscribeRawResult) Read() ([]byte, error) {
+func (r *subscribeRawResult) Read() (*SubscribeResponse, error) {
 	var resp SubscribeResponse
 	err := r.conn.ReadJSON(&resp)
 	if err != nil {
 		return nil, err
 	}
-	return resp.Params.Result, nil
+	return &resp, nil
 }
 
 func (r *subscribeRawResult) Close() error {

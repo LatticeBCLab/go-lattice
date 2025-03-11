@@ -22,6 +22,8 @@ type WorkflowSubscribeCondition struct {
 
 // 工作流订阅推送的信息（公有）
 type WorkflowCommon struct {
+	// subapi
+	SubApi string `json:"subapi,omitempty"`
 	// 工作流类型
 	Type WorkflowType `json:"flowType,omitempty"`
 	// 工作流级别
