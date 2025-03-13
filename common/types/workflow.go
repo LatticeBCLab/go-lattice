@@ -20,6 +20,24 @@ type WorkflowSubscribeCondition struct {
 	Hash *common.Hash `json:"hash,omitempty"`
 }
 
+// 定义工作流接口
+type Workflow interface {
+	// Type 工作流类型
+	GetType() WorkflowType
+	// Level 工作流级别
+	GetLevel() WorkflowLevel
+	// 链ID，当工作流跟链无关时可能为空
+	GetChainId() *big.Int
+	// Info 信息，一般级别时的信息
+	GetInfo() string
+	// Error 错误信息，错误级别时的信息
+	GetError() string
+	// Timestamp 时间戳
+	GetTimestamp() int64
+	// Phase 短暂的订阅的结束标志
+	GetPhase() WorkflowPhase
+}
+
 // 工作流订阅推送的信息（公有）
 type WorkflowCommon struct {
 	// 工作流类型
@@ -36,6 +54,29 @@ type WorkflowCommon struct {
 	Timestamp int64
 	// 短暂的订阅的结束标志
 	Phase WorkflowPhase `json:"phase,omitempty"`
+}
+
+// 实现工作流接口
+func (w *WorkflowCommon) GetType() WorkflowType {
+	return w.Type
+}
+func (w *WorkflowCommon) GetLevel() WorkflowLevel {
+	return w.Level
+}
+func (w *WorkflowCommon) GetChainId() *big.Int {
+	return w.ChainId
+}
+func (w *WorkflowCommon) GetInfo() string {
+	return w.Info
+}
+func (w *WorkflowCommon) GetError() string {
+	return w.Error
+}
+func (w *WorkflowCommon) GetTimestamp() int64 {
+	return w.Timestamp
+}
+func (w *WorkflowCommon) GetPhase() WorkflowPhase {
+	return w.Phase
 }
 
 // 工作流级别

@@ -46,26 +46,24 @@ func TestWorkflow(t *testing.T) {
 		subWorkflow, err := wsApi.Workflow(ctx, nil)
 		assert.Nil(t, err)
 		assert.NotNil(t, subWorkflow)
-		for i := 0; i < 5; i++ { // 读5条数据然后关闭
+		for i := range 5 { // 读5条数据然后关闭
 			workflow, err := subWorkflow.Read()
 			assert.NoError(t, err)
 			assert.NotNil(t, workflow)
-			assert.NotNil(t, *workflow)
-			t.Logf("%d: %#v", i, *workflow)
+			t.Logf("%d: %#v", i, workflow)
 		}
 		err = subWorkflow.Close()
 		assert.NoError(t, err)
 	})
 	t.Run("subscribe workflow daemon block", func(t *testing.T) {
-		subWorkflow, err := wsApi.WorkflowDaemonBlock(ctx, types.WorkflowLevel_NONE, nil)
+		subWorkflow, err := wsApi.Workflow(ctx, &types.WorkflowSubscribeCondition{Type: types.WorkflowType_DAEMON_BLOCK})
 		assert.Nil(t, err)
 		assert.NotNil(t, subWorkflow)
-		for i := 0; i < 5; i++ { // 读5条数据然后关闭
+		for i := range 5 { // 读5条数据然后关闭
 			workflow, err := subWorkflow.Read()
 			assert.NoError(t, err)
 			assert.NotNil(t, workflow)
-			assert.NotNil(t, *workflow)
-			t.Logf("%d: %#v", i, *workflow)
+			t.Logf("%d: %#v", i, workflow)
 		}
 		err = subWorkflow.Close()
 		assert.NoError(t, err)

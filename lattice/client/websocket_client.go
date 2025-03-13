@@ -4,14 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"net/http"
-	"reflect"
 	"time"
 
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/buger/jsonparser"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
 )
@@ -33,7 +30,7 @@ type Subscribe[T any] interface {
 	// ID 返回订阅ID
 	ID() string
 	// Read 读取一条订阅数据
-	Read() (*T, error)
+	Read() (T, error)
 	// Close 主动结束订阅
 	Close() error
 }
@@ -43,21 +40,7 @@ type WebSocketApi interface {
 	Subscribe(ctx context.Context, method string, params ...any) (Subscribe[map[string]any], error)
 
 	// Workflow 订阅工作流
-	Workflow(ctx context.Context, cond *types.WorkflowSubscribeCondition) (Subscribe[types.WorkflowCommon], error)
-	// WorkflowApi 订阅工作流-接口调用
-	WorkflowApi(ctx context.Context, level types.WorkflowLevel, chainId *big.Int, apiScope string) (Subscribe[types.WorkflowApi], error)
-	// WorkflowNodeConnect 订阅工作流-节点连接
-	WorkflowNodeConnect(ctx context.Context, level types.WorkflowLevel) (Subscribe[types.WorkflowNodeConnect], error)
-	// WorkflowHandshake 订阅工作流-节点握手
-	WorkflowHandshake(ctx context.Context, level types.WorkflowLevel) (Subscribe[types.WorkflowHandshake], error)
-	// WorkflowTransaction 订阅工作流-交易执行
-	WorkflowTransaction(ctx context.Context, level types.WorkflowLevel, chainId *big.Int, hash *common.Hash) (Subscribe[types.WorkflowTransaction], error)
-	// WorkflowDaemonBlock 订阅工作流-守护区块
-	WorkflowDaemonBlock(ctx context.Context, level types.WorkflowLevel, chainId *big.Int) (Subscribe[types.WorkflowDaemonBlock], error)
-	// WorkflowConsensus 订阅工作流-参与共识
-	WorkflowConsensus(ctx context.Context, level types.WorkflowLevel, chainId *big.Int) (Subscribe[types.WorkflowConsensus], error)
-	// WorkflowChainByChain 订阅工作流-通道管理
-	WorkflowChainByChain(ctx context.Context, level types.WorkflowLevel, chainId *big.Int) (Subscribe[types.WorkflowChainByChain], error)
+	Workflow(ctx context.Context, cond *types.WorkflowSubscribeCondition) (Subscribe[types.Workflow], error)
 }
 
 type WebSocketApiInitParam struct {
@@ -94,16 +77,16 @@ type workflowResult struct {
 	subscribeRawResult
 }
 
-func unmarshalWorkflow[T any](b []byte) (*types.WorkflowCommon, error) {
+func unmarshalWorkflow[T any](b []byte) (*T, error) {
 	var result T
 	err := json.Unmarshal(b, &result)
 	if err != nil {
 		return nil, err
 	}
-	return (any)(&result).(*types.WorkflowCommon), nil
+	return &result, nil
 }
 
-func (r *workflowResult) Read() (*types.WorkflowCommon, error) {
+func (r workflowResult) Read() (types.Workflow, error) {
 	raw, err := r.subscribeRawResult.Read()
 	if err != nil {
 		return nil, err
@@ -113,7 +96,7 @@ func (r *workflowResult) Read() (*types.WorkflowCommon, error) {
 	if err != nil {
 		return nil, err
 	}
-	var result *types.WorkflowCommon
+	var result types.Workflow
 	switch types.WorkflowType(t) {
 	case types.WorkflowType_API:
 		result, err = unmarshalWorkflow[types.WorkflowApi](b)
@@ -139,7 +122,7 @@ func (r *workflowResult) Read() (*types.WorkflowCommon, error) {
 }
 
 // Workflow implements WebSocketApi.
-func (w *webSocketApi) Workflow(ctx context.Context, cond *types.WorkflowSubscribeCondition) (Subscribe[types.WorkflowCommon], error) {
+func (w *webSocketApi) Workflow(ctx context.Context, cond *types.WorkflowSubscribeCondition) (Subscribe[types.Workflow], error) {
 	if cond == nil {
 		cond = &types.WorkflowSubscribeCondition{}
 	}
@@ -147,84 +130,23 @@ func (w *webSocketApi) Workflow(ctx context.Context, cond *types.WorkflowSubscri
 	if err != nil {
 		return nil, err
 	}
-	return &workflowResult{*r}, nil
-}
-
-// 订阅具体类型的工作流时检查返回的工作流类型是否与订阅的工作流类型相同
-type workflowCheckResult[T any] struct {
-	workflowResult
-}
-
-func (r *workflowCheckResult[T]) Read() (*T, error) {
-	result, err := r.workflowResult.Read()
-	if err != nil {
-		return nil, err
-	}
-	checkResult, ok := (any)(&result).(*T)
-	if !ok {
-		return nil, fmt.Errorf("workflow type error, can not convert %s to %s", reflect.TypeOf(*result).Name(), reflect.TypeOf((*T)(nil)).Name())
-	}
-	return checkResult, nil
-}
-
-func workflow[T any](w *webSocketApi, ctx context.Context, cond *types.WorkflowSubscribeCondition) (Subscribe[T], error) {
-	r, err := w.Workflow(ctx, cond)
-	if err != nil {
-		return nil, err
-	}
-	return &workflowCheckResult[T]{*(r.(*workflowResult))}, nil
-}
-
-// WorkflowApi implements WebSocketApi.
-func (w *webSocketApi) WorkflowApi(ctx context.Context, level types.WorkflowLevel, chainId *big.Int, apiScope string) (Subscribe[types.WorkflowApi], error) {
-	return workflow[types.WorkflowApi](w, ctx, &types.WorkflowSubscribeCondition{Type: types.WorkflowType_API, Level: level, ChainId: chainId, ApiScope: apiScope})
-}
-
-// WorkflowChainByChain implements WebSocketApi.
-func (w *webSocketApi) WorkflowChainByChain(ctx context.Context, level types.WorkflowLevel, chainId *big.Int) (Subscribe[types.WorkflowChainByChain], error) {
-	return workflow[types.WorkflowChainByChain](w, ctx, &types.WorkflowSubscribeCondition{Type: types.WorkflowType_CHAIN_BY_CHAIN, Level: level, ChainId: chainId})
-}
-
-// WorkflowConsensus implements WebSocketApi.
-func (w *webSocketApi) WorkflowConsensus(ctx context.Context, level types.WorkflowLevel, chainId *big.Int) (Subscribe[types.WorkflowConsensus], error) {
-	return workflow[types.WorkflowConsensus](w, ctx, &types.WorkflowSubscribeCondition{Type: types.WorkflowType_CONSENSUS, Level: level, ChainId: chainId})
-}
-
-// WorkflowDaemonBlock implements WebSocketApi.
-func (w *webSocketApi) WorkflowDaemonBlock(ctx context.Context, level types.WorkflowLevel, chainId *big.Int) (Subscribe[types.WorkflowDaemonBlock], error) {
-	return workflow[types.WorkflowDaemonBlock](w, ctx, &types.WorkflowSubscribeCondition{Type: types.WorkflowType_DAEMON_BLOCK, Level: level, ChainId: chainId})
-}
-
-// WorkflowHandshake implements WebSocketApi.
-func (w *webSocketApi) WorkflowHandshake(ctx context.Context, level types.WorkflowLevel) (Subscribe[types.WorkflowHandshake], error) {
-	return workflow[types.WorkflowHandshake](w, ctx, &types.WorkflowSubscribeCondition{Type: types.WorkflowType_HANDSHAKE, Level: level})
-}
-
-// WorkflowNodeConnect implements WebSocketApi.
-func (w *webSocketApi) WorkflowNodeConnect(ctx context.Context, level types.WorkflowLevel) (Subscribe[types.WorkflowNodeConnect], error) {
-	return workflow[types.WorkflowNodeConnect](w, ctx, &types.WorkflowSubscribeCondition{Type: types.WorkflowType_NODE_CONNECT, Level: level})
-}
-
-// WorkflowTransaction implements WebSocketApi.
-func (w *webSocketApi) WorkflowTransaction(ctx context.Context, level types.WorkflowLevel, chainId *big.Int, hash *common.Hash) (Subscribe[types.WorkflowTransaction], error) {
-	return workflow[types.WorkflowTransaction](w, ctx, &types.WorkflowSubscribeCondition{Type: types.WorkflowType_TRANSACTION, Level: level, ChainId: chainId, Hash: hash})
+	return &workflowResult{r}, nil
 }
 
 type subscribeResult[T any] struct {
 	subscribeRawResult
 }
 
-func (r *subscribeResult[T]) Read() (*T, error) {
+func (r subscribeResult[T]) Read() (result T, err error) {
 	b, err := r.subscribeRawResult.Read()
 	if err != nil {
-		return nil, err
+		return
 	}
-	var result T
 	err = json.Unmarshal(b.Params.Result, &result)
 	if err != nil {
-		return nil, err
+		return
 	}
-	return &result, nil
+	return
 }
 
 func subscribe[T any](w *webSocketApi, ctx context.Context, method string, params ...any) (Subscribe[T], error) {
@@ -232,7 +154,7 @@ func subscribe[T any](w *webSocketApi, ctx context.Context, method string, param
 	if err != nil {
 		return nil, err
 	}
-	return &subscribeResult[T]{*raw}, nil
+	return &subscribeResult[T]{raw}, nil
 }
 
 // Subscribe implements WebSocketApi.
@@ -245,11 +167,11 @@ type subscribeRawResult struct {
 	id   string
 }
 
-func (r *subscribeRawResult) ID() string {
+func (r subscribeRawResult) ID() string {
 	return r.id
 }
 
-func (r *subscribeRawResult) Read() (*SubscribeResponse, error) {
+func (r subscribeRawResult) Read() (*SubscribeResponse, error) {
 	var resp SubscribeResponse
 	err := r.conn.ReadJSON(&resp)
 	if err != nil {
@@ -262,15 +184,15 @@ func (r *subscribeRawResult) Read() (*SubscribeResponse, error) {
 	return &resp, nil
 }
 
-func (r *subscribeRawResult) Close() error {
+func (r subscribeRawResult) Close() error {
 	return r.conn.Close()
 }
 
-func (w *webSocketApi) subscribe(ctx context.Context, method string, params ...any) (*subscribeRawResult, error) {
+func (w *webSocketApi) subscribe(ctx context.Context, method string, params ...any) (result subscribeRawResult, err error) {
 	// 建立连接
 	conn, _, err := w.dialer.DialContext(ctx, w.webSocketUrl, nil)
 	if err != nil {
-		return nil, err
+		return
 	}
 	// 发送订阅请求
 	req := NewJsonRpcBody(method, params...)
@@ -279,7 +201,7 @@ func (w *webSocketApi) subscribe(ctx context.Context, method string, params ...a
 	err = conn.WriteJSON(req)
 	if err != nil {
 		conn.Close()
-		return nil, err
+		return
 	}
 	// 读取订阅请求响应
 	var resp JsonRpcResponse[string]
@@ -287,12 +209,12 @@ func (w *webSocketApi) subscribe(ctx context.Context, method string, params ...a
 	if err != nil {
 		log.Error().Err(err).Msgf("Subscribe:订阅失败, req=%v", req)
 		conn.Close()
-		return nil, err
+		return
 	}
 	// 开始读取订阅数据
-	output := subscribeRawResult{
+	result = subscribeRawResult{
 		conn: conn,
 		id:   resp.Result,
 	}
-	return &output, nil
+	return
 }
