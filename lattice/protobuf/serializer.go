@@ -1,7 +1,9 @@
 package protobuf
 
 import (
+	"google.golang.org/protobuf/reflect/protoregistry"
 	"io"
+	"strings"
 
 	"github.com/bufbuild/protocompile/parser"
 	"github.com/bufbuild/protocompile/reporter"
@@ -22,6 +24,34 @@ import (
 func MakeFileDescriptor(reader io.Reader) pref.FileDescriptor {
 	errHandler := reporter.NewHandler(nil)
 	ast, err := parser.Parse("example.proto", reader, errHandler)
+	if err != nil {
+		panic(err)
+	}
+
+	result, err := parser.ResultFromAST(ast, true, errHandler)
+	if err != nil {
+		panic(err)
+	}
+
+	fdp := result.FileDescriptorProto()
+
+	resolver := protoregistry.GlobalFiles
+	if err = resolver.RegisterFile(MakeWrapperProtoFileDescriptor()); err != nil {
+		panic(err)
+	}
+
+	// get FileDescriptor
+	fd, err := protodesc.NewFile(fdp, resolver)
+	if err != nil {
+		panic(err)
+	}
+	return fd
+}
+
+func MakeWrapperProtoFileDescriptor() pref.FileDescriptor {
+	reader := strings.NewReader(wrapperProto)
+	errHandler := reporter.NewHandler(nil)
+	ast, err := parser.Parse("google/protobuf/wrappers.proto", reader, errHandler)
 	if err != nil {
 		panic(err)
 	}
@@ -94,3 +124,85 @@ func UnmarshallMessage(fd pref.FileDescriptor, data []byte) (string, error) {
 	}
 	return string(jsonBytes), nil
 }
+
+const wrapperProto = `syntax = "proto3";
+
+package google.protobuf;
+
+option cc_enable_arenas = true;
+option go_package = "google.golang.org/protobuf/types/known/wrapperspb";
+option java_package = "com.google.protobuf";
+option java_outer_classname = "WrappersProto";
+option java_multiple_files = true;
+option objc_class_prefix = "GPB";
+option csharp_namespace = "Google.Protobuf.WellKnownTypes";
+
+message DoubleValue {
+    // The double value.
+    double value = 1;
+}
+
+// Wrapper message for float.
+//
+// The JSON representation for FloatValue is JSON number.
+message FloatValue {
+    // The float value.
+    float value = 1;
+}
+
+// Wrapper message for int64.
+//
+// The JSON representation for Int64Value is JSON string.
+message Int64Value {
+    // The int64 value.
+    int64 value = 1;
+}
+
+// Wrapper message for uint64.
+//
+// The JSON representation for UInt64Value is JSON string.
+message UInt64Value {
+    // The uint64 value.
+    uint64 value = 1;
+}
+
+// Wrapper message for int32.
+//
+// The JSON representation for Int32Value is JSON number.
+message Int32Value {
+    // The int32 value.
+    int32 value = 1;
+}
+
+// Wrapper message for uint32.
+//
+// The JSON representation for UInt32Value is JSON number.
+message UInt32Value {
+    // The uint32 value.
+    uint32 value = 1;
+}
+
+// Wrapper message for bool.
+//
+// The JSON representation for BoolValue is JSON true and false.
+message BoolValue {
+    // The bool value.
+    bool value = 1;
+}
+
+// Wrapper message for string.
+//
+// The JSON representation for StringValue is JSON string.
+message StringValue {
+    // The string value.
+    string value = 1;
+}
+
+// Wrapper message for bytes.
+//
+// The JSON representation for BytesValue is JSON string.
+message BytesValue {
+    // The bytes value.
+    bytes value = 1;
+}
+`

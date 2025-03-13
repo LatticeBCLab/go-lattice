@@ -29,8 +29,8 @@ type WriteLedgerRequest struct {
 //   - Hash    data id
 //   - Address business address
 type ToggleVisibilityParam struct {
-	Hash    string         `json:"hash"`
-	Address common.Address `json:"address"` //address
+	Hash    string         `json:"Hash"`
+	Address common.Address `json:"Address"` //address
 }
 
 // CreateProtocolRequest 创建协议的结构体
@@ -173,7 +173,8 @@ type CredibilityContract interface {
 	// First invoke, hidden data. Second invoke, display
 	ToggleVisibility(dataId, businessContractAddress string) (data string, err error)
 	// BatchToggleVisibility Batch toggle data visibility
-	BatchToggleVisibility(params []ToggleVisibilityParam) (data string, err error)
+	// isSecret, true-hidden, false-show
+	BatchToggleVisibility(isSecret bool, params []ToggleVisibilityParam) (data string, err error)
 }
 
 type credibilityContract struct {
@@ -322,8 +323,8 @@ func (c *credibilityContract) ToggleVisibility(dataId, businessContractAddress s
 	return fn.Encode()
 }
 
-func (c *credibilityContract) BatchToggleVisibility(params []ToggleVisibilityParam) (data string, err error) {
-	code, err := c.abi.RawAbi().Pack("setManyDataSecret", params)
+func (c *credibilityContract) BatchToggleVisibility(isSecret bool, params []ToggleVisibilityParam) (data string, err error) {
+	code, err := c.abi.RawAbi().Pack("setManyDataSecret", isSecret, params)
 	if err != nil {
 		return "", err
 	}
@@ -589,20 +590,25 @@ var CredibilityBuiltinContract = Contract{
 		{
 			"inputs": [
 				{
+					"internalType": "bool",
+					"name": "IsSecret",
+					"type": "bool"
+				},
+				{
 					"components": [
 						{
 							"internalType": "string",
-							"name": "hash",
+							"name": "Hash",
 							"type": "string"
 						},
 						{
 							"internalType": "address",
-							"name": "address",
+							"name": "Address",
 							"type": "address"
 						}
 					],
 					"internalType": "struct EvidenceSecret[]",
-					"name": "evis",
+					"name": "Secrets",
 					"type": "tuple[]"
 				}
 			],
