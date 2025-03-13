@@ -22,7 +22,7 @@ func TestFileKey(t *testing.T) {
 	})
 
 	t.Run("Decrypt file key", func(t *testing.T) {
-		fileKeyString := `{"uuid":"bb889ee6-5d1d-474e-9514-5bbf412a42ec","address":"zltc_iEUCcfMhVYy3zcpp8zLjoaTAeN6PZfMBL","cipher":{"aes":{"cipher":"aes-128-ctr","iv":"23b4ddcd8cfea7e37b3c69bbb600934f"},"kdf":{"kdf":"scrypt","kdfParams":{"DKLen":32,"n":262144,"p":1,"r":8,"salt":"87cf307be225ce2eaf255d602233852200195d838b5d98c4078ceb6235ec46e4"}},"cipherText":"672b3de4784fc0d17941ae257908672dd4984a43c616147366a42bc2e9ef2d8a","mac":"bd6ac051c41f4d0238464a66df004de357baf2f3f03ced8ccba0a497e14044bd"},"isGM":true}`
+		fileKeyString := `{"uuid":"bd50b183-cc93-4d12-b820-0980d26f5de5","address":"zltc_j5yLhxm8fkwJkuhapqmqmJ1vYY2gLfPLy","cipher":{"aes":{"cipher":"aes-128-ctr","iv":"d5dfd36bd6447d5b9ce4875e5f13abd8"},"kdf":{"kdf":"scrypt","kdfParams":{"DKLen":32,"n":262144,"p":1,"r":8,"salt":"838286b54f1c5a3be40e94bcae5211f75d8128d72aec7b0953c8127b3bfd0e08"}},"cipherText":"86153ac036fd29858fffdf2d3fc2b2b05d35e2d6c38f15c4ccf6efd3122f8a6a","mac":"3377046f1a81aad71d9944b61430d253e22d2ba6435296ee3cfa0b9a1d1d6574"},"isGM":true}`
 		password := "Root1234"
 		sk, err := NewFileKey(fileKeyString).Decrypt(password)
 		assert.Nil(t, err)

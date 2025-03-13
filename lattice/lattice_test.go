@@ -25,15 +25,15 @@ const (
 
 var latticeApi = NewLattice(
 	&ChainConfig{Curve: types.Sm2p256v1},
-	&ConnectingNodeConfig{Ip: "192.168.1.185", HttpPort: 13000},
+	&ConnectingNodeConfig{Ip: "192.168.3.51", HttpPort: 13000},
 	NewMemoryBlockCache(10*time.Second, time.Minute, time.Minute),
 	NewAccountLock(),
 	&Options{MaxIdleConnsPerHost: 200},
 )
 
 var credentials = &Credentials{
-	AccountAddress: "zltc_Z1pnS94bP4hQSYLs4aP4UwBP9pH8bEvhi",
-	PrivateKey:     "0x23d5b2a2eb0a9c8b86d62cbc3955cfd1fb26ec576ecc379f402d0f5d2b27a7bb",
+	AccountAddress: "zltc_j5yLhxm8fkwJkuhapqmqmJ1vYY2gLfPLy",
+	PrivateKey:     "0x88d80c38a8a10e03b54c2c2234e90d9809030a78e4fd2f99a6a189629b530f90",
 }
 
 func TestAttestation(t *testing.T) {
@@ -120,8 +120,8 @@ func TestAttestation(t *testing.T) {
 
 func TestLattice_Peekaboo(t *testing.T) {
 	peekabooContract := builtin.NewPeekabooContract()
-	t.Run("hidden payload", func(t *testing.T) {
-		code, err := peekabooContract.TogglePayload("0x8f9ae75e4fbdd89e9b4ef918c951f02d2d0280353e8caf779b63b2286b4d1ed1", true)
+	t.Run("Hidden payload", func(t *testing.T) {
+		code, err := peekabooContract.TogglePayload("0x6d5191f752ccc991ba033007e7afaeb624e4b726a7632ba26966e267ebac68e5", false)
 		assert.NoError(t, err)
 
 		hash, receipt, err := latticeApi.CallContractWaitReceipt(context.Background(), credentials, chainId, peekabooContract.ContractAddress(), code, constant.ZeroPayload, 0, 0, DefaultBackOffRetryStrategy())
@@ -131,8 +131,19 @@ func TestLattice_Peekaboo(t *testing.T) {
 		t.Log(receipt)
 	})
 
-	t.Run("hidden code", func(t *testing.T) {
-		code, err := peekabooContract.ToggleCode("0x47b9f90c8a77c67e710f5dfd35f5d7b3ec48931192a58a4bf33ae10e031c1bcb", true)
+	t.Run("Hidden code", func(t *testing.T) {
+		code, err := peekabooContract.ToggleCode("0x6d5191f752ccc991ba033007e7afaeb624e4b726a7632ba26966e267ebac68e5", false)
+		assert.NoError(t, err)
+
+		hash, receipt, err := latticeApi.CallContractWaitReceipt(context.Background(), credentials, chainId, peekabooContract.ContractAddress(), code, constant.ZeroPayload, 0, 0, DefaultBackOffRetryStrategy())
+		assert.NoError(t, err)
+
+		t.Log(hash)
+		t.Log(receipt)
+	})
+
+	t.Run("Hidden hash", func(t *testing.T) {
+		code, err := peekabooContract.ToggleHash("0x6d5191f752ccc991ba033007e7afaeb624e4b726a7632ba26966e267ebac68e5", true)
 		assert.NoError(t, err)
 
 		hash, receipt, err := latticeApi.CallContractWaitReceipt(context.Background(), credentials, chainId, peekabooContract.ContractAddress(), code, constant.ZeroPayload, 0, 0, DefaultBackOffRetryStrategy())
