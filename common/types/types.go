@@ -176,39 +176,6 @@ type SubchainPeer struct {
 	INode             string   `json:"inode,omitempty"`
 }
 
-// NodeConfig 节点配置信息
-type NodeConfig struct {
-	Lattice struct {
-		NetworkIDGroup []int `json:"networkIDGroup"`
-	} `json:"latc"`
-	Node struct {
-		Name    string `json:"name"`
-		DataDir string `json:"dataDir"`
-		Network struct {
-			Host      string   `json:"host,omitempty"`
-			HTTPPort  int      `json:"HTTPPort,omitempty"`
-			WSPort    int      `json:"WSPort,omitempty"`
-			P2PPort   int      `json:"P2PPort,omitempty"`
-			Bootstrap []string `json:"bootstrap"`
-			JWTEnable bool     `json:"JWTEnable"`
-			JWTSecret string   `json:"JWTSecret"`
-		}
-		DistributedStorage struct {
-			Enable      bool `json:"Enable,omitempty"`
-			GinHTTPPort int  `json:"GinHTTPPort,omitempty"`
-		}
-		Freeze struct {
-			Enable   bool `json:"Enable,omitempty"`
-			Interval int  `json:"FreezeInterval,omitempty"`
-		}
-		NVM struct {
-			MultilingualContractFileStoragePath     string `json:"ContractFileDir,omitempty"`
-			MultilingualContractPattern             string `json:"Pattern,omitempty"`    // 生成合约执行路径pattern
-			MultilingualContractRedundantDeployment bool   `json:"Redundancy,omitempty"` // 是否支持冗余部署，即对一个合约文件部署多次，生成多个合约地址
-		} `json:"Nvm,omitempty"`
-	}
-}
-
 // ContractInformation 合约信息
 //
 //   - ContractAddress 合约地址
@@ -388,143 +355,143 @@ type NodeVersion struct {
 
 // NodeConfiguration 节点配置信息
 type NodeConfiguration struct {
-	Latc latcConfig `json:"Latc"` //Lattice config
-	Node nodeConfig `json:"Node"` //Node config
+	Latc LatcConfig `json:"Latc" yaml:"latc"` //Lattice config
+	Node NodeConfig `json:"Node" yaml:"node"` //Node config
 }
-
-type latcConfig struct {
-	NetworkIDGroup  []int  `json:"NetworkIDGroup"`
-	Name            string `json:"Name"`
-	Desc            string `json:"Desc"`
-	ConfigsDir      string `json:"ConfigsDir"`
-	RaftDebug       bool   `json:"RaftDebug"`
-	ConsensusConfig struct {
-		ResendSigInterval int `json:"ResendSigInterval"`
-		ViewChangeTimeout int `json:"ViewChangeTimeout"`
-	} `json:"ConsensusConfig"`
-	TxPoolConfig struct {
-		MinReadySize  int  `json:"MinReadySize"`
-		StartInterval int  `json:"StartInterval"`
-		ReadyInterval int  `json:"ReadyInterval"`
-		StoreNeed     bool `json:"StoreNeed"`
-	} `json:"TxPoolConfig"`
-	StateConfig struct {
-		WorldStateCompress bool `json:"WorldStateCompress"`
-		TrieNumberLimit    int  `json:"TrieNumberLimit"`
-		TrieCleanLimit     int  `json:"TrieCleanLimit"`
-	} `json:"StateConfig"`
-	EvidenceConfig struct {
-		EviEnable bool `json:"EviEnable"`
-		EviLevel  int  `json:"EviLevel"`
-	} `json:"EvidenceConfig"`
+type LatcConfig struct {
+	NetworkIDGroup  []int           `json:"NetworkIDGroup" yaml:"networkIDGroup"`
+	Name            string          `json:"Name" yaml:"name"`
+	Desc            string          `json:"Desc" yaml:"desc"`
+	ConfigsDir      string          `json:"ConfigsDir" yaml:"configsDir"`
+	RaftDebug       bool            `json:"RaftDebug" yaml:"raftDebug"`
+	ConsensusConfig ConsensusConfig `json:"ConsensusConfig" yaml:"consensus"`
+	TxPoolConfig    TxPoolConfig    `json:"TxPoolConfig" yaml:"txPool"`
+	StateConfig     StateConfig     `json:"StateConfig" yaml:"state"`
+	EvidenceConfig  EvidenceConfig  `json:"EvidenceConfig" yaml:"evidence"`
 }
-
-type nodeConfig struct {
-	DebugPWD        string `json:"DebugPWD"`
-	DebugDB         bool   `json:"DebugDB"`
-	Name            string `json:"Name"`
-	Version         string `json:"Version"`
-	IteratorVersion int    `json:"IteratorVersion"`
-	DataDir         string `json:"DataDir"`
-	OffChainDir     string `json:"OffChainDir"`  // 业务目录，目前是 存证溯源业务 的数据库
-	TransientDir    string `json:"TransientDir"` // 非必要数据目录，可删除的数据目录
-	FileKeyDir      string `json:"FileKeyDir"`
-	ConfigsDir      string `json:"ConfigsDir"`
+type ConsensusConfig struct {
+	ResendSigInterval int `json:"ResendSigInterval" yaml:"resendsiginterval"`
+	ViewChangeTimeout int `json:"ViewChangeTimeout" yaml:"viewchangetimeout"`
+}
+type TxPoolConfig struct {
+	MinReadySize  int  `json:"MinReadySize" yaml:"minReadySize"`
+	StartInterval int  `json:"StartInterval" yaml:"startInterval"`
+	ReadyInterval int  `json:"ReadyInterval" yaml:"readyInterval"`
+	StoreNeed     bool `json:"StoreNeed" yaml:"storeNeed"`
+}
+type StateConfig struct {
+	WorldStateCompress bool `json:"WorldStateCompress" yaml:"worldStateCompress"`
+	TrieNumberLimit    int  `json:"TrieNumberLimit" yaml:"trieNumberLimit"`
+	TrieCleanLimit     int  `json:"TrieCleanLimit" yaml:"trieCleanLimit"`
+}
+type EvidenceConfig struct {
+	EviEnable bool `json:"EviEnable" yaml:"evienable"`
+	EviLevel  int  `json:"EviLevel" yaml:"evilevel"`
+}
+type NodeConfig struct {
+	DebugPWD        string `json:"DebugPWD" yaml:"debugPWD"`
+	DebugDB         bool   `json:"DebugDB" yaml:"debugDB"`
+	Name            string `json:"Name" yaml:"name"`
+	Version         string `json:"Version" yaml:"version"`
+	IteratorVersion int    `json:"IteratorVersion" yaml:"iteratorVersion"`
+	DataDir         string `json:"DataDir" yaml:"dataDir"`
+	OffChainDir     string `json:"OffChainDir" yaml:"offChainDir"`   // 业务目录，目前是 存证溯源业务 的数据库
+	TransientDir    string `json:"TransientDir" yaml:"transientDir"` // 非必要数据目录，可删除的数据目录
+	FileKeyDir      string `json:"FileKeyDir" yaml:"fileKeyDir"`
+	ConfigsDir      string `json:"ConfigsDir" yaml:"configsDir"`
 	Network         struct {
-		Host                 string   `json:"Host"`
-		AuthVirtualHosts     []string `json:"AuthVirtualHosts"`
-		AuthPort             int      `json:"AuthPort"`
-		HTTPPort             int      `json:"HTTPPort"`
-		HTTPCors             []string `json:"HTTPCors"`
-		HTTPVirtualHosts     []string `json:"HTTPVirtualHosts"`
-		HTTPModules          []string `json:"HTTPModules"`
-		HTTPPathPrefix       string   `json:"HTTPPathPrefix"`
-		BatchRequestLimit    int      `json:"BatchRequestLimit"`
-		BatchResponseMaxSize int      `json:"BatchResponseMaxSize"`
-		WSPort               int      `json:"WSPort"`
-		WSPathPrefix         string   `json:"WSPathPrefix"`
-		WSOrigins            []string `json:"WSOrigins"`
-		WSModules            []string `json:"WSModules"`
-		P2PPort              int      `json:"P2PPort"`
-		Bootstrap            []string `json:"Bootstrap"`
-		NoDiscovery          bool     `json:"NoDiscovery"`
-		MaxPeers             int      `json:"MaxPeers"`
-		StartNTP             bool     `json:"StartNTP"`
-		NTPHost              string   `json:"NTPHost"`
-		JWTEnable            bool     `json:"JWTEnable"`
-		JWTExpiryTimeout     int      `json:"JWTExpiryTimeout"`
-		JWTSecret            string   `json:"JWTSecret"`
-	} `json:"Network"`
+		Host                 string   `json:"Host" yaml:"host"`
+		AuthVirtualHosts     []string `json:"AuthVirtualHosts" yaml:"authVirtualHosts"`
+		AuthPort             int      `json:"AuthPort" yaml:"authPort"`
+		HTTPPort             int      `json:"HTTPPort" yaml:"HTTPPort"`
+		HTTPCors             []string `json:"HTTPCors" yaml:"HTTPCors"`
+		HTTPVirtualHosts     []string `json:"HTTPVirtualHosts" yaml:"HTTPVirtualHosts"`
+		HTTPModules          []string `json:"HTTPModules" yaml:"HTTPModules"`
+		HTTPPathPrefix       string   `json:"HTTPPathPrefix" yaml:"HTTPPathPrefix"`
+		BatchRequestLimit    int      `json:"BatchRequestLimit" yaml:"batchRequestLimit"`
+		BatchResponseMaxSize int      `json:"BatchResponseMaxSize" yaml:"batchResponseMaxSize"`
+		WSPort               int      `json:"WSPort" yaml:"WSPort"`
+		WSPathPrefix         string   `json:"WSPathPrefix" yaml:"WSPathPrefix"`
+		WSOrigins            []string `json:"WSOrigins" yaml:"WSOrigins"`
+		WSModules            []string `json:"WSModules" yaml:"WSModules"`
+		P2PPort              int      `json:"P2PPort" yaml:"P2PPort"`
+		Bootstrap            []string `json:"Bootstrap" yaml:"bootstrap"`
+		NoDiscovery          bool     `json:"NoDiscovery" yaml:"noDiscovery"`
+		MaxPeers             int      `json:"MaxPeers" yaml:"maxPeers"`
+		StartNTP             bool     `json:"StartNTP" yaml:"startNTP"`
+		NTPHost              string   `json:"NTPHost" yaml:"NTPHost"`
+		JWTEnable            bool     `json:"JWTEnable" yaml:"JWTEnable"`
+		JWTExpiryTimeout     int      `json:"JWTExpiryTimeout" yaml:"JWTExpiryTimeout"`
+		JWTSecret            string   `json:"JWTSecret" yaml:"JWTSecret"`
+	} `json:"Network" yaml:"network"`
 	DatabaseConfig struct {
-		DBType                 string `json:"DBType"`
-		OpenFilesCacheCapacity int    `json:"OpenFilesCacheCapacity"`
-		MemoryCache            int    `json:"MemoryCache"`
+		DBType                 string `json:"DBType" yaml:"dbType"`
+		OpenFilesCacheCapacity int    `json:"OpenFilesCacheCapacity" yaml:"openFilesCacheCapacity"`
+		MemoryCache            int    `json:"MemoryCache" yaml:"memoryCache"`
 		CouchDB                struct {
-			Address  string `json:"Address"`
-			Username string `json:"Username"`
-			Password string `json:"Password"`
-		} `json:"CouchDB"`
-	}
+			Address  string `json:"Address" yaml:"address"`
+			Username string `json:"Username" yaml:"username"`
+			Password string `json:"Password" yaml:"password"`
+		} `json:"CouchDB" yaml:"couchDB"`
+	} `json:"DatabaseConfig" yaml:"database"`
 	Log struct {
-		LogLevel        int  `json:"LogLevel"`
-		Console         bool `json:"Console"`
-		LogKeep         int  `json:"LogKeep"`
-		LogMaxSize      int  `json:"LogMaxSize"`
-		UseZhLog        bool `json:"UseZhLog"`
-		FileSliceSize   int  `json:"FileSliceSize"`
-		RetryChannelNum int  `json:"RetryChannelNum"`
-		UploadTimeout   int  `json:"UploadTimeout"`
-		GoroutineMax    int  `json:"GoroutineMax"`
-	} `json:"Log"`
+		LogLevel        int  `json:"LogLevel" yaml:"logLevel"`
+		Console         bool `json:"Console" yaml:"console"`
+		LogKeep         int  `json:"LogKeep" yaml:"logKeep"`
+		LogMaxSize      int  `json:"LogMaxSize" yaml:"logMaxSize"`
+		UseZhLog        bool `json:"UseZhLog" yaml:"useZLLog"`
+		FileSliceSize   int  `json:"FileSliceSize" yaml:"fileSliceSize"`
+		RetryChannelNum int  `json:"RetryChannelNum" yaml:"retryChannelNum"`
+		UploadTimeout   int  `json:"UploadTimeout" yaml:"uploadTimeout"`
+		GoroutineMax    int  `json:"GoroutineMax" yaml:"goroutineMax"`
+	} `json:"Log" yaml:"log"`
 	Nvm struct {
-		BaseDir         string `json:"BaseDir"`
-		Pattern         string `json:"Pattern"`
-		ContractFileDir string `json:"ContractFileDir"`
-		ContractConfig  string `json:"ContractConfig"`
-		Redundancy      bool   `json:"Redundancy"`
+		BaseDir         string `json:"BaseDir" yaml:"baseDir"`
+		Pattern         string `json:"Pattern" yaml:"pattern"`
+		ContractFileDir string `json:"ContractFileDir" yaml:"contractFileDir"`
+		Redundancy      bool   `json:"Redundancy" yaml:"redundancy"`
 		VM              struct {
-			EnableUpgrade bool `json:"EnableUpgrade"`
-			Native        struct {
-				Enable      bool `json:"Enable"`
-				StopTimeout int  `json:"StopTimeout"`
+			Native struct {
+				StopTimeout int `json:"StopTimeout" yaml:"stopTimeout"`
 				Docker      struct {
-					Enable    bool    `json:"Enable"`
-					ImageName string  `json:"ImageName"`
-					Cpus      float64 `json:"Cpus"`
-					Memory    string  `json:"Memory"`
-				} `json:"Docker"`
-			} `json:"Native"`
-		} `json:"VM"`
-	} `json:"Nvm"`
+					Enable    bool    `json:"Enable" yaml:"enable"`
+					ImageName string  `json:"ImageName" yaml:"imageName"`
+					Cpus      float64 `json:"Cpus" yaml:"cpus"`
+					Memory    string  `json:"Memory" yaml:"memory"`
+				} `json:"Docker" yaml:"docker"`
+			} `json:"Native" yaml:"native"`
+		} `json:"VM" yaml:"vm"`
+	} `json:"Nvm" yaml:"nvm"`
 	DistributedStorage struct {
-		Enable      bool `json:"Enable"`
-		GinHTTPPort int  `json:"GinHTTPPort"`
-		ChunkSize   int  `json:"ChunkSize"`
-		NodeAmount  int  `json:"NodeAmount"`
-	} `json:"DistributedStorage"`
+		Enable      bool `json:"Enable" yaml:"enable"`
+		GinHTTPPort int  `json:"GinHTTPPort" yaml:"ginHTTPPort"`
+		ChunkSize   int  `json:"ChunkSize" yaml:"chunkSize"`
+		NodeAmount  int  `json:"NodeAmount" yaml:"nodeAmount"`
+	} `json:"DistributedStorage" yaml:"distributedStorage"`
 	Freeze struct {
-		Enable         bool `json:"Enable"`
-		FreezeInterval int  `json:"FreezeInterval"`
-		Threshold      int  `json:"Threshold"`
-		OneHand        int  `json:"OneHand"`
-	} `json:"Freeze"`
+		Enable         bool `json:"Enable" yaml:"enable"`
+		FreezeInterval int  `json:"FreezeInterval" yaml:"freezeInterval"`
+		Threshold      int  `json:"Threshold" yaml:"threshold"`
+		OneHand        int  `json:"OneHand" yaml:"oneHand"`
+	} `json:"Freeze" yaml:"freeze"`
 	MessageQueue struct {
-		Enable               bool   `json:"Enable"`
-		KafkaIP              string `json:"KafkaIP"`
-		KafkaPort            int    `json:"KafkaPort"`
-		DBlockWithDeposit    bool   `json:"DBlockWithDeposit"`
-		DBlockWithReceipts   bool   `json:"DBlockWithReceipts"`
-		SASL                 bool   `json:"SASL"`
-		SASLUser             string `json:"SASLUser"`
-		SASLPassword         string `json:"SASLPassword"`
-		MQTopicNumPartitions int    `json:"MQTopicNumPartitions"`
-		MQNeedRelay          bool   `json:"MQNeedRelay"`
-		CanRelayToMQ         bool   `json:"CanRelayToMQ"`
-	} `json:"MessageQueue"`
-	PProfOn        bool   `json:"PProfOn"`
-	PProfPort      int    `json:"PProfPort"`
-	IPCPath        string `json:"IPCPath"`
-	NetworkIDGroup []int  `json:"NetworkIDGroup"`
+		Enable               bool     `json:"Enable" yaml:"enable"`
+		KafkaIP              string   `json:"KafkaIP" yaml:"kafkaIP"`
+		KafkaPort            int      `json:"KafkaPort" yaml:"kafkaPort"`
+		KafkaBrokers         []string `json:"KafkaBrokers" yaml:"KafkaBrokers"`
+		DBlockWithDeposit    bool     `json:"DBlockWithDeposit" yaml:"DBlockWithDeposit"`
+		DBlockWithReceipts   bool     `json:"DBlockWithReceipts" yaml:"DBlockWithReceipts"`
+		SASL                 bool     `json:"SASL" yaml:"SASL"`
+		SASLUser             string   `json:"SASLUser" yaml:"SASLUser"`
+		SASLPassword         string   `json:"SASLPassword" yaml:"SASLPassword"`
+		MQTopicNumPartitions int      `json:"MQTopicNumPartitions" yaml:"MQTopicNumPartitions"`
+		MQNeedRelay          bool     `json:"MQNeedRelay" yaml:"MQNeedRelay"`
+		CanRelayToMQ         bool     `json:"CanRelayToMQ" yaml:"canRelayToMQ"`
+	} `json:"MessageQueue" yaml:"messageQueue"`
+	PProfOn        bool   `json:"PProfOn" yaml:"pProfOn"`
+	PProfPort      int    `json:"PProfPort" yaml:"pProfPort"`
+	IPCPath        string `json:"IPCPath" yaml:"iPCPath"`
+	NetworkIDGroup []int  `json:"NetworkIDGroup" yaml:"networkIDGroup"`
 }
 
 // FreezeSaveSpace 区块压缩节省的空间
