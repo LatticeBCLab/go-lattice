@@ -5,10 +5,11 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"strconv"
+
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
-	"strconv"
 )
 
 func (api *httpApi) GetLatcInfo(ctx context.Context, chainId string) (*types.NodeProtocolConfig, error) {
@@ -116,8 +117,8 @@ func (api *httpApi) GetNodeProtocol(ctx context.Context, chainId string) (*types
 	return response.Result, nil
 }
 
-func (api *httpApi) GetNodeConfig(ctx context.Context, chainID string) (*types.NodeConfig, error) {
-	response, err := Post[types.NodeConfig](ctx, api.NodeUrl, NewJsonRpcBody("latc_getConfig"), api.newHeaders(chainID), api.transport)
+func (api *httpApi) GetNodeConfig(ctx context.Context, chainID string) (*types.NodeConfiguration, error) {
+	response, err := Post[types.NodeConfiguration](ctx, api.NodeUrl, NewJsonRpcBody("latc_getConfig"), api.newHeaders(chainID), api.transport)
 	if err != nil {
 		return nil, err
 	}

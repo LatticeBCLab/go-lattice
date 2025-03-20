@@ -3,11 +3,12 @@ package lattice
 import (
 	"context"
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/lattice/client"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func setupHttpClient() client.HttpApi {
@@ -72,6 +73,17 @@ func TestHttpClientRequest(t *testing.T) {
 		id := "16Uiu2HAkyXyfmor1mdzWR8qpH36GRppMHPyDJdNrRo7XQLXGZqyU"
 		err := httpApi.DisconnectPeerAsync(ctx, id)
 		assert.NoError(t, err)
+	})
+}
+
+func TestConfig(t *testing.T) {
+	httpApi := setupHttpClient()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+	t.Run("get node configuration", func(t *testing.T) {
+		config, err := httpApi.GetNodeConfig(ctx, "")
+		assert.Nil(t, err)
+		t.Logf("%+v", config)
 	})
 }
 

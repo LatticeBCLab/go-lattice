@@ -406,7 +406,7 @@ type HttpApi interface {
 	// Returns:
 	//   - *types.NodeConfig
 	//   - error
-	GetNodeConfig(ctx context.Context, chainID string) (*types.NodeConfig, error)
+	GetNodeConfig(ctx context.Context, chainID string) (*types.NodeConfiguration, error)
 
 	// GetContractInformation 获取合约的信息
 	//
