@@ -130,3 +130,36 @@ func (api *httpApi) GetTBlockProof(ctx context.Context, chainId string, accountA
 	}
 	return response.Result, nil
 }
+
+func (api *httpApi) GetCurrentTBlock(ctx context.Context, chainId string, accountAddress string) (*types.TransactionBlock, error) {
+	response, err := Post[types.TransactionBlock](ctx, api.NodeUrl, NewJsonRpcBody("latc_getCurrentTBlock", accountAddress), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
+}
+
+func (api *httpApi) GetTBlockByHeight(ctx context.Context, chainId, accountAddress string, height uint64) (*types.TransactionBlock, error) {
+	response, err := Post[types.TransactionBlock](ctx, api.NodeUrl, NewJsonRpcBody("latc_getTBlockByNumber", accountAddress, height), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
+}
+
+func (api *httpApi) GetGenesisBlock(ctx context.Context, chainId string) (*types.TransactionBlock, error) {
+	response, err := Post[types.TransactionBlock](ctx, api.NodeUrl, NewJsonRpcBody("latc_getGenesis"), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
+}

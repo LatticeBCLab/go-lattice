@@ -546,6 +546,14 @@ type HttpApi interface {
 	GetDBlockProof(ctx context.Context, chainId string, dblockNumber *big.Int) (*types.WitnessProof, error)
 	// GetTBlockProof 获取交易区块签名
 	GetTBlockProof(ctx context.Context, chainId string, accountAddress string, tblockNumber *big.Int) (*types.WitnessProof, error)
+	// GetCurrentTBlock 获取当前账户最新的区块信息
+	GetCurrentTBlock(ctx context.Context, chainId string, accountAddress string) (*types.TransactionBlock, error)
+	// GetTBlockByHeight 查询当前账户指定高度的区块信息
+	GetTBlockByHeight(ctx context.Context, chainId, accountAddress string, height uint64) (*types.TransactionBlock, error)
+	// GetBalanceWithPending 获取账户余额
+	GetBalanceWithPending(ctx context.Context, chainId, accountAddress string) (*types.Balance, error)
+	// GetGenesisBlock 获取创世区块信息
+	GetGenesisBlock(ctx context.Context, chainId string) (*types.TransactionBlock, error)
 }
 
 type httpApi struct {

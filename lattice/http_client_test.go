@@ -12,7 +12,7 @@ import (
 )
 
 func setupHttpClient() client.HttpApi {
-	connectingNodeConfig := &ConnectingNodeConfig{Ip: "172.22.0.23", HttpPort: 10332}
+	connectingNodeConfig := &ConnectingNodeConfig{Ip: "192.168.3.51", HttpPort: 13000}
 	initHttpClientArgs := &client.HttpApiInitParam{
 		NodeAddress:                fmt.Sprintf("%s:%d", connectingNodeConfig.Ip, connectingNodeConfig.HttpPort),
 		HttpUrl:                    connectingNodeConfig.GetHttpUrl(),
@@ -73,6 +73,33 @@ func TestHttpClientRequest(t *testing.T) {
 		id := "16Uiu2HAkyXyfmor1mdzWR8qpH36GRppMHPyDJdNrRo7XQLXGZqyU"
 		err := httpApi.DisconnectPeerAsync(ctx, id)
 		assert.NoError(t, err)
+	})
+
+	t.Run("get current transaction block", func(t *testing.T) {
+		accountAddress := "zltc_j5yLhxm8fkwJkuhapqmqmJ1vYY2gLfPLy"
+		block, err := httpApi.GetCurrentTBlock(ctx, chainId, accountAddress)
+		assert.NoError(t, err)
+		t.Log(block)
+	})
+
+	t.Run("get tblock by height", func(t *testing.T) {
+		accountAddress := "zltc_j5yLhxm8fkwJkuhapqmqmJ1vYY2gLfPLy"
+		block, err := httpApi.GetTBlockByHeight(ctx, chainId, accountAddress, 1)
+		assert.NoError(t, err)
+		t.Log(block)
+	})
+
+	t.Run("get balance with pending", func(t *testing.T) {
+		accountAddress := "zltc_j5yLhxm8fkwJkuhapqmqmJ1vYY2gLfPLy"
+		balance, err := httpApi.GetBalanceWithPending(ctx, chainId, accountAddress)
+		assert.NoError(t, err)
+		t.Log(balance)
+	})
+
+	t.Run("get genesis block", func(t *testing.T) {
+		block, err := httpApi.GetGenesisBlock(ctx, chainId)
+		assert.NoError(t, err)
+		t.Log(block)
 	})
 }
 

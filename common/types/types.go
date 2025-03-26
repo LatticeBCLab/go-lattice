@@ -531,3 +531,9 @@ type SyncStatus struct {
 	Syncing   int  `json:"syncing"`
 	Reconnect bool `json:"reconnect"`
 }
+
+type Balance struct {
+	Balance string `json:"balance,omitempty"`
+	Pending string `json:"pending,omitempty"`
+	Total   string `json:"total,omitempty"`
+}
