@@ -551,7 +551,7 @@ type HttpApi interface {
 	// GetTBlockByHeight 查询当前账户指定高度的区块信息
 	GetTBlockByHeight(ctx context.Context, chainId, accountAddress string, height uint64) (*types.TransactionBlock, error)
 	// GetBalanceWithPending 获取账户余额
-	GetBalanceWithPending(ctx context.Context, chainId, accountAddress string) (*types.Balance, error)
+	GetBalanceWithPending(ctx context.Context, chainId, accountAddress string) (*types.AccountBalance, error)
 	// GetGenesisBlock 获取创世区块信息
 	GetGenesisBlock(ctx context.Context, chainId string) (*types.TransactionBlock, error)
 }

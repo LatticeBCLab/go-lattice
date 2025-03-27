@@ -139,8 +139,8 @@ func (api *httpApi) GetLatcPeers(ctx context.Context, subchainId string) (map[st
 	return *response.Result, nil
 }
 
-func (api *httpApi) GetBalanceWithPending(ctx context.Context, chainId, accountAddress string) (*types.Balance, error) {
-	response, err := Post[types.Balance](ctx, api.NodeUrl, NewJsonRpcBody("latc_getBalanceWithPending", accountAddress), api.newHeaders(chainId), api.transport)
+func (api *httpApi) GetBalanceWithPending(ctx context.Context, chainId, accountAddress string) (*types.AccountBalance, error) {
+	response, err := Post[types.AccountBalance](ctx, api.NodeUrl, NewJsonRpcBody("latc_getBalanceWithPending", accountAddress), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
