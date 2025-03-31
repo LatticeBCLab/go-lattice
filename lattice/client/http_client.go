@@ -262,16 +262,9 @@ type HttpApi interface {
 	PreCallContract(ctx context.Context, chainId string, unsignedTX *block.Transaction) (*types.Receipt, error)
 
 	// GetReceipt 获取交易回执
-	//
-	// Parameters:
-	//    - ctx context.Context
-	//    - chainId string
-	//    - hash string
-	//
-	// Returns:
-	//    - types.Receipt
-	//    - error
 	GetReceipt(ctx context.Context, chainId, hash string) (*types.Receipt, error)
+	// GetReceipts 批量查询回执
+	GetReceipts(ctx context.Context, chainId string, hashes []string) ([]*types.Receipt, error)
 
 	// GetContractLifecycleProposal 获取合约生命周期提案
 	//
@@ -554,6 +547,10 @@ type HttpApi interface {
 	GetBalanceWithPending(ctx context.Context, chainId, accountAddress string) (*types.AccountBalance, error)
 	// GetGenesisBlock 获取创世区块信息
 	GetGenesisBlock(ctx context.Context, chainId string) (*types.TransactionBlock, error)
+	// GetTBlocksByHeightRange 根据账户高度区间查询交易
+	GetTBlocksByHeightRange(ctx context.Context, chainId string, accountAddress string, startHeight, endHeight uint64) ([]*types.TransactionBlock, error)
+	// GetDBlocksByHeightRange 根据守护区块高度区间查询守护区块
+	GetDBlocksByHeightRange(ctx context.Context, chainId string, startHeight, endHeight uint64) ([]*types.DaemonBlock, error)
 }
 
 type httpApi struct {
@@ -668,6 +665,17 @@ func (api *httpApi) GetReceipt(ctx context.Context, chainId, hash string) (*type
 		return nil, response.Error.Error()
 	}
 	return response.Result, nil
+}
+
+func (api *httpApi) GetReceipts(ctx context.Context, chainId string, hashes []string) ([]*types.Receipt, error) {
+	response, err := Post[[]*types.Receipt](ctx, api.NodeUrl, NewJsonRpcBody("latc_getTBlockReceipts", hashes), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return *response.Result, nil
 }
 
 func (api *httpApi) ExistsBusinessContractAddress(ctx context.Context, chainId, address string) (bool, error) {

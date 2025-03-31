@@ -163,3 +163,25 @@ func (api *httpApi) GetGenesisBlock(ctx context.Context, chainId string) (*types
 	}
 	return response.Result, nil
 }
+
+func (api *httpApi) GetTBlocksByHeightRange(ctx context.Context, chainId string, accountAddress string, startHeight, endHeight uint64) ([]*types.TransactionBlock, error) {
+	response, err := Post[[]*types.TransactionBlock](ctx, api.NodeUrl, NewJsonRpcBody("latc_getTBlockByNumberRange", accountAddress, startHeight, endHeight), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return *response.Result, nil
+}
+
+func (api *httpApi) GetDBlocksByHeightRange(ctx context.Context, chainId string, startHeight, endHeight uint64) ([]*types.DaemonBlock, error) {
+	response, err := Post[[]*types.DaemonBlock](ctx, api.NodeUrl, NewJsonRpcBody("GetDBlockByNumberRange", startHeight, endHeight), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return *response.Result, nil
+}
