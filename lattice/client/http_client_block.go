@@ -164,8 +164,8 @@ func (api *httpApi) GetGenesisBlock(ctx context.Context, chainId string) (*types
 	return response.Result, nil
 }
 
-func (api *httpApi) GetTBlocksByHeightRange(ctx context.Context, chainId string, accountAddress string, startHeight, endHeight uint64) ([]*types.TransactionBlock, error) {
-	response, err := Post[[]*types.TransactionBlock](ctx, api.NodeUrl, NewJsonRpcBody("latc_getTBlockByNumberRange", accountAddress, startHeight, endHeight), api.newHeaders(chainId), api.transport)
+func (api *httpApi) GetTBlocksByHeights(ctx context.Context, chainId string, accountAddress string, heights []uint64) ([]*types.TransactionBlock, error) {
+	response, err := Post[[]*types.TransactionBlock](ctx, api.NodeUrl, NewJsonRpcBody("latc_getTBlockByNumberRange", accountAddress, heights), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
@@ -175,8 +175,8 @@ func (api *httpApi) GetTBlocksByHeightRange(ctx context.Context, chainId string,
 	return *response.Result, nil
 }
 
-func (api *httpApi) GetDBlocksByHeightRange(ctx context.Context, chainId string, startHeight, endHeight uint64) ([]*types.DaemonBlock, error) {
-	response, err := Post[[]*types.DaemonBlock](ctx, api.NodeUrl, NewJsonRpcBody("GetDBlockByNumberRange", startHeight, endHeight), api.newHeaders(chainId), api.transport)
+func (api *httpApi) GetDBlocksByHeights(ctx context.Context, chainId string, heights []uint64) ([]*types.DaemonBlock, error) {
+	response, err := Post[[]*types.DaemonBlock](ctx, api.NodeUrl, NewJsonRpcBody("GetDBlockByNumberRange", heights), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}

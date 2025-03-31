@@ -547,10 +547,10 @@ type HttpApi interface {
 	GetBalanceWithPending(ctx context.Context, chainId, accountAddress string) (*types.AccountBalance, error)
 	// GetGenesisBlock 获取创世区块信息
 	GetGenesisBlock(ctx context.Context, chainId string) (*types.TransactionBlock, error)
-	// GetTBlocksByHeightRange 根据账户高度区间查询交易
-	GetTBlocksByHeightRange(ctx context.Context, chainId string, accountAddress string, startHeight, endHeight uint64) ([]*types.TransactionBlock, error)
-	// GetDBlocksByHeightRange 根据守护区块高度区间查询守护区块
-	GetDBlocksByHeightRange(ctx context.Context, chainId string, startHeight, endHeight uint64) ([]*types.DaemonBlock, error)
+	// GetTBlocksByHeights 根据账户高度区间查询交易
+	GetTBlocksByHeights(ctx context.Context, chainId string, accountAddress string, heights []uint64) ([]*types.TransactionBlock, error)
+	// GetDBlocksByHeights 根据守护区块高度区间查询守护区块
+	GetDBlocksByHeights(ctx context.Context, chainId string, heights []uint64) ([]*types.DaemonBlock, error)
 }
 
 type httpApi struct {
