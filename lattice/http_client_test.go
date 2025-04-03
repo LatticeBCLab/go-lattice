@@ -12,7 +12,7 @@ import (
 )
 
 func setupHttpClient() client.HttpApi {
-	connectingNodeConfig := &ConnectingNodeConfig{Ip: "192.168.3.51", HttpPort: 13000}
+	connectingNodeConfig := &ConnectingNodeConfig{Ip: "192.168.2.40", HttpPort: 10086}
 	initHttpClientArgs := &client.HttpApiInitParam{
 		NodeAddress:                fmt.Sprintf("%s:%d", connectingNodeConfig.Ip, connectingNodeConfig.HttpPort),
 		HttpUrl:                    connectingNodeConfig.GetHttpUrl(),
@@ -97,6 +97,30 @@ func TestHttpClientRequest(t *testing.T) {
 	})
 
 	t.Run("get genesis block", func(t *testing.T) {
+		block, err := httpApi.GetGenesisBlock(ctx, chainId)
+		assert.NoError(t, err)
+		t.Log(block)
+	})
+
+	t.Run("get tblocks by heights", func(t *testing.T) {
+		txs, err := httpApi.GetTBlocksByHeights(ctx, chainId, "zltc_oLW2u5m7zLVYRhipEtqix1aRkPn18ommF", []uint64{1})
+		assert.NoError(t, err)
+		t.Log(txs)
+	})
+
+	t.Run("get dblocks by heights", func(t *testing.T) {
+		blocks, err := httpApi.GetDBlocksByHeights(ctx, chainId, []uint64{1})
+		assert.NoError(t, err)
+		t.Log(blocks)
+	})
+
+	t.Run("get receipts", func(t *testing.T) {
+		receipts, err := httpApi.GetReceipts(ctx, chainId, []string{"0xc043e226b626580cf0fa9d2245999f6cd9ae669ab1443caf7bffe94e6019530e"})
+		assert.NoError(t, err)
+		t.Log(receipts)
+	})
+
+	t.Run("get genesis", func(t *testing.T) {
 		block, err := httpApi.GetGenesisBlock(ctx, chainId)
 		assert.NoError(t, err)
 		t.Log(block)

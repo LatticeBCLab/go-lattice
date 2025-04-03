@@ -176,7 +176,7 @@ func (api *httpApi) GetTBlocksByHeights(ctx context.Context, chainId string, acc
 }
 
 func (api *httpApi) GetDBlocksByHeights(ctx context.Context, chainId string, heights []uint64) ([]*types.DaemonBlock, error) {
-	response, err := Post[[]*types.DaemonBlock](ctx, api.NodeUrl, NewJsonRpcBody("GetDBlockByNumberRange", heights), api.newHeaders(chainId), api.transport)
+	response, err := Post[[]*types.DaemonBlock](ctx, api.NodeUrl, NewJsonRpcBody("latc_getDBlockByNumberRange", heights), api.newHeaders(chainId), api.transport)
 	if err != nil {
 		return nil, err
 	}
