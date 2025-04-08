@@ -51,6 +51,14 @@ type UpdateProtocolRequest struct {
 	Data        [][32]byte `json:"data"`
 }
 
+type UniqueWriteLedgerRequest struct {
+	ProtocolUri uint64         `json:"protocolUri"` // uri:协议号
+	Hash        string         `json:"hash"`        // dataId:数据ID
+	Data        [][32]byte     `json:"data"`        // data:存证的数据
+	Address     common.Address `json:"address"`     // businessContractAddress:业务合约地址
+	Unique      string         `json:"unique"`      // 每个数据的unique，dataId:unique:data = 1:N:N, unique:data = 1:1
+}
+
 type CredibilityContract interface {
 
 	// MyAbi 返回存证合约的ABI对象
@@ -72,103 +80,42 @@ type CredibilityContract interface {
 	GetCreateBusinessContractAddress() string
 
 	// CreateBusiness 创建业务合约地址
-	//
-	// Returns:
-	//   - data string
-	//   - err error
 	CreateBusiness() (data string, err error)
 
 	// CreateProtocol 创建协议
-	//
-	// Parameters:
-	//   - tradeNumber uint64
-	//   - message []byte
-	//
-	// Returns:
-	//   - data string
-	//   - err error
 	CreateProtocol(tradeNumber uint64, message []byte) (data string, err error)
 
 	// BatchCreateProtocol 批量创建协议
-	//
-	// Parameters:
-	//   - request []CreateProtocolRequest
-	//
-	// Returns:
-	//   - data string
-	//   - err error
 	BatchCreateProtocol(request []CreateProtocolRequest) (data string, err error)
 
 	// ReadProtocol 读取协议
-	//
-	// Parameters:
-	//   - uri uint64
-	//
-	// Returns:
-	//   - data string
-	//   - err error
 	ReadProtocol(uri uint64) (data string, err error)
 
 	// UpdateProtocol 更新协议
-	//
-	// Parameters:
-	//   - uri uint64
-	//   - message []byte
-	//
-	// Returns:
-	//   - data string
-	//   - err error
 	UpdateProtocol(uri uint64, message []byte) (data string, err error)
 
 	// BatchUpdateProtocol 批量更新协议
-	//
-	// Parameters:
-	//   - request []UpdateProtocolRequest
-	//
-	// Returns:
-	//   - data string
-	//   - err error
 	BatchUpdateProtocol(request []UpdateProtocolRequest) (data string, err error)
 
 	// Write 写入存证数据
-	//
-	// Parameters:
-	//   - request *WriteLedgerRequest
-	//
-	// Returns:
-	//   - data string
-	//   - err error
 	Write(request *WriteLedgerRequest) (data string, err error)
 	UnsafeWrite(request *WriteLedgerRequest) (data string, err error)
 	// UnsafeWriteWithStatus the differences between UnsafeWrite and UnsafeWriteWithStatus is that you can
 	// tell whether the data is new or updated through the events of the latter.
 	UnsafeWriteWithStatus(request *WriteLedgerRequest) (data string, err error)
-
 	// BatchWrite 批量写入存证数据
-	//
-	// Parameters:
-	//   - request []*WriteLedgerRequest
-	//
-	// Returns:
-	//   - data string
-	//   - err error
 	BatchWrite(request []WriteLedgerRequest) (data string, err error)
 	UnsafeBatchWrite(request []WriteLedgerRequest) (data string, err error)
+	// UnsafeBatchWriteWithStatus with status, the Receipt log will show whether the data is modified or added
 	UnsafeBatchWriteWithStatus(request []WriteLedgerRequest) (data string, err error)
+	UniqueBatchWriteWithStatus(request []UniqueWriteLedgerRequest) (data string, err error)
 
 	// Read 读取存证数据
-	//
-	// Parameters:
-	//   - dataId string
-	//   - businessContractAddress string
-	//
-	// Returns:
-	//   - data string
-	//   - err error
 	Read(dataId, businessContractAddress string) (data string, err error)
 	// UnsafeRead equals the Read method, the differences is that the unsafe read method
 	// reads data stored in levelDB but not in the MPT tree.
 	UnsafeRead(dataId, businessContractAddress string) (data string, err error)
+	UniqueRead(dataId, businessContractAddress, uniqueId string) (data string, err error)
 	// ToggleVisibility Toggle data visibility
 	// First invoke, hidden data. Second invoke, display
 	ToggleVisibility(dataId, businessContractAddress string) (data string, err error)
@@ -296,6 +243,15 @@ func (c *credibilityContract) UnsafeBatchWriteWithStatus(request []WriteLedgerRe
 	return hexutil.Encode(code), nil
 }
 
+func (c *credibilityContract) UniqueBatchWriteWithStatus(request []UniqueWriteLedgerRequest) (data string, err error) {
+	code, err := c.abi.RawAbi().Pack("writeTraceabilityWithStatusUniqueBatch", request)
+	if err != nil {
+		return "", err
+	}
+
+	return hexutil.Encode(code), nil
+}
+
 func (c *credibilityContract) Read(dataId, businessContractAddress string) (data string, err error) {
 	fn, err := c.abi.GetLatticeFunction("getTraceability", dataId, businessContractAddress)
 	if err != nil {
@@ -307,6 +263,15 @@ func (c *credibilityContract) Read(dataId, businessContractAddress string) (data
 
 func (c *credibilityContract) UnsafeRead(dataId, businessContractAddress string) (data string, err error) {
 	fn, err := c.abi.GetLatticeFunction("getTraceabilityUnsafe", dataId, businessContractAddress)
+	if err != nil {
+		return "", err
+	}
+
+	return fn.Encode()
+}
+
+func (c *credibilityContract) UniqueRead(dataId, businessContractAddress, uniqueId string) (data string, err error) {
+	fn, err := c.abi.GetLatticeFunction("getTraceabilityUnique", dataId, businessContractAddress, uniqueId)
 	if err != nil {
 		return "", err
 	}
@@ -897,6 +862,102 @@ var CredibilityBuiltinContract = Contract{
 				}
 			],
 			"name": "getQuickTraceability",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "string",
+					"name": "hash",
+					"type": "string"
+				},
+				{
+					"internalType": "address",
+					"name": "address",
+					"type": "address"
+				},
+				{
+					"internalType": "string",
+					"name": "unique",
+					"type": "string"
+				}
+			],
+			"name": "getTraceabilityUnique",
+			"outputs": [
+				{
+					"components": [
+						{
+							"internalType": "uint64",
+							"name": "number",
+							"type": "uint64"
+						},
+						{
+							"internalType": "uint64",
+							"name": "protocol",
+							"type": "uint64"
+						},
+						{
+							"internalType": "address",
+							"name": "updater",
+							"type": "address"
+						},
+						{
+							"internalType": "bytes32[]",
+							"name": "data",
+							"type": "bytes32[]"
+						},
+						{
+							"internalType": "string",
+							"name": "unique",
+							"type": "string"
+						}
+					],
+					"internalType": "struct credibilidity.Evidence[]",
+					"name": "evi",
+					"type": "tuple[]"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"components": [
+						{
+							"internalType": "uint64",
+							"name": "protocolUri",
+							"type": "uint64"
+						},
+						{
+							"internalType": "string",
+							"name": "hash",
+							"type": "string"
+						},
+						{
+							"internalType": "bytes32[]",
+							"name": "data",
+							"type": "bytes32[]"
+						},
+						{
+							"internalType": "address",
+							"name": "address",
+							"type": "address"
+						},
+						{
+							"internalType": "string",
+							"name": "unique",
+							"type": "string"
+						}
+					],
+					"internalType": "struct Business.batch[]",
+					"name": "bt",
+					"type": "tuple[]"
+				}
+			],
+			"name": "writeTraceabilityWithStatusUniqueBatch",
 			"outputs": [],
 			"stateMutability": "nonpayable",
 			"type": "function"
