@@ -875,19 +875,26 @@ var CredibilityBuiltinContract = Contract{
 		{
 			"inputs": [
 				{
-					"internalType": "string",
-					"name": "hash",
-					"type": "string"
-				},
-				{
-					"internalType": "address",
-					"name": "address",
-					"type": "address"
-				},
-				{
-					"internalType": "string",
-					"name": "unique",
-					"type": "string"
+					"components": [
+						{
+							"internalType": "string",
+							"name": "hash",
+							"type": "string"
+						},
+						{
+							"internalType": "address",
+							"name": "address",
+							"type": "address"
+						},
+						{
+							"internalType": "string",
+							"name": "unique",
+							"type": "string"
+						}
+					],
+					"internalType": "struct Business.batch[]",
+					"name": "bt",
+					"type": "tuple[]"
 				}
 			],
 			"name": "getTraceabilityUnique",
