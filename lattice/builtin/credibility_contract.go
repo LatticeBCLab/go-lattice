@@ -59,6 +59,12 @@ type UniqueWriteLedgerRequest struct {
 	Unique      string         `json:"unique"`      // 每个数据的unique，dataId:unique:data = 1:N:N, unique:data = 1:1
 }
 
+type UniqueReadLedgerRequest struct {
+	Hash    string         `json:"hash"`    // dataId
+	Address common.Address `json:"address"` // address
+	Unique  string         `json:"unique"`  // uniqueId
+}
+
 type CredibilityContract interface {
 
 	// MyAbi 返回存证合约的ABI对象
@@ -115,7 +121,7 @@ type CredibilityContract interface {
 	// UnsafeRead equals the Read method, the differences is that the unsafe read method
 	// reads data stored in levelDB but not in the MPT tree.
 	UnsafeRead(dataId, businessContractAddress string) (data string, err error)
-	UniqueRead(dataId, businessContractAddress, uniqueId string) (data string, err error)
+	UniqueRead(request []UniqueReadLedgerRequest) (data string, err error)
 	// ToggleVisibility Toggle data visibility
 	// First invoke, hidden data. Second invoke, display
 	ToggleVisibility(dataId, businessContractAddress string) (data string, err error)
@@ -270,13 +276,13 @@ func (c *credibilityContract) UnsafeRead(dataId, businessContractAddress string)
 	return fn.Encode()
 }
 
-func (c *credibilityContract) UniqueRead(dataId, businessContractAddress, uniqueId string) (data string, err error) {
-	fn, err := c.abi.GetLatticeFunction("getTraceabilityUnique", dataId, businessContractAddress, uniqueId)
+func (c *credibilityContract) UniqueRead(request []UniqueReadLedgerRequest) (data string, err error) {
+	code, err := c.abi.RawAbi().Pack("getTraceabilityUnique", request)
 	if err != nil {
 		return "", err
 	}
 
-	return fn.Encode()
+	return hexutil.Encode(code), nil
 }
 
 func (c *credibilityContract) ToggleVisibility(dataId, businessContractAddress string) (data string, err error) {
