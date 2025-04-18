@@ -6,3 +6,8 @@ type Contract struct {
 	Address     string `json:"address,omitempty"`
 	Description string `json:"description,omitempty"`
 }
+
+type UploadKeyParam struct {
+	PublicKey []byte `json:"publicKey,omitempty"`
+	Address   string
+}

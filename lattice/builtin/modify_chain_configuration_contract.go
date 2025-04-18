@@ -22,13 +22,13 @@ type ModifyChainConfigurationContract interface {
 	// AddConsensusNodes 添加共识节点
 	AddConsensusNodes(nodes []string) (string, error)
 	// AddConsensusNodesNew 添加共识节点(新版本)
-	AddConsensusNodesNew(pubKeys []string) (string, error)
+	AddConsensusNodesNew(nodes []UploadKeyParam) (string, error)
 	// DeleteConsensusNodes 删除共识节点
 	DeleteConsensusNodes(nodes []string) (string, error)
 	// ReplaceConsensusNodes 替换共识节点
 	ReplaceConsensusNodes(oldNode, newNode string) (string, error)
 	// ReplaceConsensusNodesNew 替换共识节点(新版本)
-	ReplaceConsensusNodesNew(oldNode string, newPubKey string) (string, error)
+	ReplaceConsensusNodesNew(oldNode string, newNode UploadKeyParam) (string, error)
 	// EnableContractLifecycleVotingDictatorship 是否开启合约生命周期投票的盟主独裁机制，否则为共识投票
 	EnableContractLifecycleVotingDictatorship(enable bool) (string, error)
 	// UpdateConsensus 更新链的共识机制
@@ -79,8 +79,8 @@ func (c *modifyChainConfigurationContract) AddConsensusNodes(nodes []string) (st
 	return fn.Encode()
 }
 
-func (c *modifyChainConfigurationContract) AddConsensusNodesNew(pubKeys []string) (string, error) {
-	fn, err := c.abi.GetLatticeFunction("addLatcSaintNew", pubKeys)
+func (c *modifyChainConfigurationContract) AddConsensusNodesNew(nodes []UploadKeyParam) (string, error) {
+	fn, err := c.abi.GetLatticeFunction("addLatcSaintNew", nodes)
 	if err != nil {
 		return "", err
 	}
@@ -103,8 +103,8 @@ func (c *modifyChainConfigurationContract) ReplaceConsensusNodes(oldNode, newNod
 	return fn.Encode()
 }
 
-func (c *modifyChainConfigurationContract) ReplaceConsensusNodesNew(oldNode string, newPubKey string) (string, error) {
-	fn, err := c.abi.GetLatticeFunction("replaceLatcSaintNew", oldNode, newPubKey)
+func (c *modifyChainConfigurationContract) ReplaceConsensusNodesNew(oldNode string, newNode UploadKeyParam) (string, error) {
+	fn, err := c.abi.GetLatticeFunction("replaceLatcSaintNew", oldNode, newNode)
 	if err != nil {
 		return "", err
 	}
