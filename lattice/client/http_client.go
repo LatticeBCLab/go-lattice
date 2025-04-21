@@ -551,6 +551,8 @@ type HttpApi interface {
 	GetTBlocksByHeights(ctx context.Context, chainId string, accountAddress string, heights []uint64) ([]*types.TransactionBlock, error)
 	// GetDBlocksByHeights 根据守护区块高度区间查询守护区块
 	GetDBlocksByHeights(ctx context.Context, chainId string, heights []uint64) ([]*types.DaemonBlock, error)
+	// PublishCert 根据节点的公钥发布证书，返回证书序列号
+	PublishCert(ctx context.Context, chainId string, pubKey []string) ([]string, error)
 }
 
 type httpApi struct {
