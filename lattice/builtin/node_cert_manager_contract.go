@@ -14,6 +14,10 @@ func NewNodeCertManagerContract() NodeCertManagerContract {
 type NodeCertManagerContract interface {
 	MyAbi() *myabi.ABI
 	ContractAddress() string
+	// Apply 申请证书
+	Apply(certType uint8, orgName string, addresses []string) (string, error)
+	// UploadKey 上传公钥
+	UploadKey(pubKeys []string) (string, error)
 	// Revoke witness node cert
 	Revoke(serialNumbers []string) (string, error)
 }
