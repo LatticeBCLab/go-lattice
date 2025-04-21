@@ -208,6 +208,21 @@ const (
 	NodeCertificateTypeClient           NodeCertificateType = "Client"
 )
 
+func (t NodeCertificateType) ToUint() uint8 {
+	switch t {
+	case NodeCertificateTypeInitialConsensus:
+		return 1
+	case NodeCertificateTypeInitialClient:
+		return 2
+	case NodeCertificateTypeConsensus:
+		return 3
+	case NodeCertificateTypeClient:
+		return 4
+	default:
+		return 0
+	}
+}
+
 func (t NodeCertificateType) ToChinese() string {
 	switch t {
 	case NodeCertificateTypeInitialConsensus:

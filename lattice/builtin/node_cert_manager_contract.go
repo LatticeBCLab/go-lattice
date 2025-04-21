@@ -14,6 +14,10 @@ func NewNodeCertManagerContract() NodeCertManagerContract {
 type NodeCertManagerContract interface {
 	MyAbi() *myabi.ABI
 	ContractAddress() string
+	// Apply 申请证书
+	Apply(certType uint8, orgName string, addresses []string) (string, error)
+	// UploadKey 上传公钥
+	UploadKey(pubKeys []string) (string, error)
 	// Revoke witness node cert
 	Revoke(serialNumbers []string) (string, error)
 }
@@ -36,6 +40,34 @@ func (c *nodeCertManagerContract) Revoke(serialNumbers []string) (string, error)
 		return "", err
 	}
 
+	return fn.Encode()
+}
+
+func (c *nodeCertManagerContract) UploadKey(pubKeys []string) (string, error) {
+	params := make([]interface{}, len(pubKeys))
+	for i, nodePubKey := range pubKeys {
+		param := make([]interface{}, 1)
+		param[0] = nodePubKey
+		params[i] = param
+	}
+	fn, err := c.abi.GetLatticeFunction("uploadKey", params)
+	if err != nil {
+		return "", err
+	}
+	return fn.Encode()
+}
+
+func (c *nodeCertManagerContract) Apply(certType uint8, orgName string, addresses []string) (string, error) {
+	params := make([]interface{}, len(addresses))
+	for i, node := range addresses {
+		param := make([]interface{}, 1)
+		param[0] = node
+		params[i] = param
+	}
+	fn, err := c.abi.GetLatticeFunction("apply", certType, orgName, params)
+	if err != nil {
+		return "", err
+	}
 	return fn.Encode()
 }
 

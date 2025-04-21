@@ -4,6 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
+	"math/big"
+	"reflect"
+	"strconv"
+	"strings"
+
 	"github.com/LatticeBCLab/go-lattice/common/constant"
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	abi2 "github.com/defiweb/go-eth/abi"
@@ -11,11 +17,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/rs/zerolog/log"
-	"math"
-	"math/big"
-	"reflect"
-	"strconv"
-	"strings"
 )
 
 func NewLatticeFunction(
@@ -1039,14 +1040,17 @@ func convertUnsignedInt(size int, i *big.Int) (interface{}, error) {
 // Returns
 //   - bool: false-不包含，true-包含
 func (f *latticeFunction) inputsContainsTuple() bool {
-	contains := false
 	for _, arg := range f.method.Inputs {
+		if arg.Type.T == abi.SliceTy || arg.Type.T == abi.ArrayTy {
+			if arg.Type.Elem.T == abi.TupleTy {
+				return true
+			}
+		}
 		if len(arg.Type.TupleElems) > 0 {
-			contains = true
-			break
+			return true
 		}
 	}
-	return contains
+	return false
 }
 
 // 检查合约的入参是否包含切片和数组

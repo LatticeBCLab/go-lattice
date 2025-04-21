@@ -149,3 +149,14 @@ func (api *httpApi) GetBalanceWithPending(ctx context.Context, chainId, accountA
 	}
 	return response.Result, nil
 }
+
+func (api *httpApi) PublishCert(ctx context.Context, chainId string, pubKey []string) ([]string, error) {
+	response, err := Post[[]string](ctx, api.NodeUrl, NewJsonRpcBody("latc_publishCert", pubKey), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return *response.Result, nil
+}
