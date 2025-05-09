@@ -4,6 +4,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"io"
 	"strings"
+	"sync"
 
 	"github.com/bufbuild/protocompile/parser"
 	"github.com/bufbuild/protocompile/reporter"
@@ -13,6 +14,8 @@ import (
 	pref "google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"
 )
+
+var registerWrapperOnce sync.Once
 
 // MakeFileDescriptor 生成proto的文件描述
 //
@@ -36,9 +39,11 @@ func MakeFileDescriptor(reader io.Reader) pref.FileDescriptor {
 	fdp := result.FileDescriptorProto()
 
 	resolver := protoregistry.GlobalFiles
-	if err = resolver.RegisterFile(MakeWrapperProtoFileDescriptor()); err != nil {
-		panic(err)
-	}
+	registerWrapperOnce.Do(func() {
+		if err = resolver.RegisterFile(MakeWrapperProtoFileDescriptor()); err != nil {
+			panic(err)
+		}
+	})
 
 	// get FileDescriptor
 	fd, err := protodesc.NewFile(fdp, resolver)
