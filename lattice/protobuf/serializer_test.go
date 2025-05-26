@@ -15,6 +15,12 @@ func TestSerializer(t *testing.T) {
 		google.protobuf.StringValue name = 2;
 		google.protobuf.Int32Value age = 3;
 		google.protobuf.DoubleValue balance = 4;
+		Address address = 5;
+	}
+
+	message Address {
+		google.protobuf.StringValue city = 1;
+		google.protobuf.StringValue street = 2;
 	}
 	`
 
@@ -27,13 +33,14 @@ func TestSerializer(t *testing.T) {
 	})
 
 	t.Run("Marshal message", func(t *testing.T) {
-		json := `{"name": "Jack", "age": null}`
+		json := `{"name": "Jack", "age": null, "address": {"city": "Beijing", "street": "Chaoyang"}}`
 		bs, err := MarshallMessage(fd, json)
 		assert.Nil(t, err)
 		t.Log(string(bs))
 	})
 
 	t.Run("Unmarshal message", func(t *testing.T) {
+		//json := `{"name": "Jack", "age": null, "address": null}`
 		json := `{"name": "Jack", "age": null}`
 		bs, err := MarshallMessage(fd, json)
 		assert.Nil(t, err)
