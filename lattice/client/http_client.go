@@ -553,6 +553,7 @@ type HttpApi interface {
 	GetDBlocksByHeights(ctx context.Context, chainId string, heights []uint64) ([]*types.DaemonBlock, error)
 	// PublishCert 根据节点的公钥发布证书，返回证书序列号
 	PublishCert(ctx context.Context, chainId string, pubKey []string) ([]string, error)
+	ProxyReEncryption(ctx context.Context, chainId string, ciphertext, businessAddress, initiator, whitelist string) (string, error)
 }
 
 type httpApi struct {

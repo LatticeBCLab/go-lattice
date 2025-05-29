@@ -12,7 +12,7 @@ import (
 )
 
 func setupHttpClient() client.HttpApi {
-	connectingNodeConfig := &ConnectingNodeConfig{Ip: "192.168.2.40", HttpPort: 10086}
+	connectingNodeConfig := &ConnectingNodeConfig{Ip: "192.168.3.51", HttpPort: 13000}
 	initHttpClientArgs := &client.HttpApiInitParam{
 		NodeAddress:                fmt.Sprintf("%s:%d", connectingNodeConfig.Ip, connectingNodeConfig.HttpPort),
 		HttpUrl:                    connectingNodeConfig.GetHttpUrl(),
@@ -124,6 +124,19 @@ func TestHttpClientRequest(t *testing.T) {
 		block, err := httpApi.GetGenesisBlock(ctx, chainId)
 		assert.NoError(t, err)
 		t.Log(block)
+	})
+
+	t.Run("proxy re-encryption", func(t *testing.T) {
+		result, err := httpApi.ProxyReEncryption(
+			ctx,
+			chainId,
+			"0102",
+			"zltc_Vsv3TDAxHpiKQxZAS2ctaJr6UnGkp7mkT",
+			"zltc_Z1pnS94bP4hQSYLs4aP4UwBP9pH8bEvhi",
+			"zltc_Z1pnS94bP4hQSYLs4aP4UwBP9pH8bEvhi",
+		)
+		assert.NoError(t, err)
+		t.Log(result)
 	})
 }
 
