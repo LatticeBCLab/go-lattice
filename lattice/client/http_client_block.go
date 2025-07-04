@@ -185,3 +185,14 @@ func (api *httpApi) GetDBlocksByHeights(ctx context.Context, chainId string, hei
 	}
 	return *response.Result, nil
 }
+
+func (api *httpApi) GetRecentDBlocks(ctx context.Context, chainId string, limit uint32) ([]*types.DaemonBlock, error) {
+	response, err := Post[[]*types.DaemonBlock](ctx, api.NodeUrl, NewJsonRpcBody("latc_getRecentDBlocks", limit), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		return nil, response.Error.Error()
+	}
+	return *response.Result, nil
+}

@@ -25,7 +25,7 @@ const (
 
 var latticeApi = NewLattice(
 	&ChainConfig{Curve: types.Sm2p256v1},
-	&ConnectingNodeConfig{Ip: "192.168.3.51", HttpPort: 13000},
+	&ConnectingNodeConfig{Ip: "172.22.0.23", HttpPort: 13000},
 	NewMemoryBlockCache(10*time.Second, time.Minute, time.Minute),
 	NewAccountLock(),
 	&Options{MaxIdleConnsPerHost: 200},
@@ -223,11 +223,21 @@ func TestContract(t *testing.T) {
 }
 
 func TestLattice_JsonRpc(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-	subchainBriefInfos, err := latticeApi.HttpApi().GetSubchainBriefInfo(ctx, "-1")
-	assert.NoError(t, err)
-	t.Log(subchainBriefInfos[0])
+	t.Run("Get subchain brief info", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+		subchainBriefInfos, err := latticeApi.HttpApi().GetSubchainBriefInfo(ctx, "-1")
+		assert.NoError(t, err)
+		t.Log(subchainBriefInfos[0])
+	})
+
+	t.Run("Get recent daemon blocks", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+		dBlocks, err := latticeApi.HttpApi().GetRecentDBlocks(ctx, "1", 10)
+		assert.NoError(t, err)
+		t.Log(dBlocks)
+	})
 }
 
 func TestLattice_CanDial(t *testing.T) {

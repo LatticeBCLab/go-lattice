@@ -554,6 +554,7 @@ type HttpApi interface {
 	// PublishCert 根据节点的公钥发布证书，返回证书序列号
 	PublishCert(ctx context.Context, chainId string, pubKey []string) ([]string, error)
 	ProxyReEncryption(ctx context.Context, chainId string, ciphertext, businessAddress, initiator, whitelist string) (string, error)
+	GetRecentDBlocks(ctx context.Context, chainId string, limit uint32) ([]*types.DaemonBlock, error)
 }
 
 type httpApi struct {
