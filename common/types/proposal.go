@@ -1,27 +1,55 @@
 package types
 
+import (
+	"fmt"
+	"github.com/samber/lo"
+)
+
 type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | SubchainProposal] struct {
-	Type    uint8 `json:"proposalType,omitempty"`
-	Content *T    `json:"proposalContent,omitempty"`
+	Type    ProposalType `json:"proposalType,omitempty"`
+	Content *T           `json:"proposalContent,omitempty"`
 }
 
 // ContractLifecycleProposal 合约生命周期提案
 // State      ProposalState
-// IsRevoke   0-吊销、1-冻结、2-解冻
-// Period     0-部署、1-升级、2-吊销、3-冻结、4-解冻
+// IsRevoke   0-吊销、1-冻结、2-解冻. 【已废弃】
+// Period     0-部署、1-升级、2-吊销、3-冻结、4-解冻. 【已废弃】
 // CreatedAt  提案创建时间戳
 // ModifiedAt 提案修改时间戳
-// DBHeight   提案结束时的守护区块高度,
+// DBHeight   提案结束时的守护区块高度
+// ContractManagerBits 合约状态state：合约信息中ContractManagerBits[0] 的值，freezeState: 合约信息中ContractManagerBits[1] 的值
 type ContractLifecycleProposal struct {
-	Id              string                  `json:"proposalId"`
-	State           ProposalState           `json:"proposalState"`
-	Nonce           uint64                  `json:"nonce"`
-	ContractAddress string                  `json:"contractAddress"`
-	IsRevoke        uint32                  `json:"isRevoke"`
-	Period          ContractLifecyclePeriod `json:"period"`
-	CreatedAt       int64                   `json:"createAt,omitempty"`
-	ModifiedAt      int64                   `json:"modifiedAt,omitempty"`
-	DBHeight        uint64                  `json:"dbNumber"`
+	Id                  string        `json:"proposalId"`
+	State               ProposalState `json:"proposalState"`
+	Nonce               uint64        `json:"nonce"`
+	Launcher            string        `json:"launcher"`
+	TxHash              string        `json:"txHash"`
+	ContractAddress     string        `json:"contractAddress"`
+	CreatedAt           int64         `json:"createAt,omitempty"`
+	ModifiedAt          int64         `json:"modifiedAt,omitempty"`
+	DBHeight            uint64        `json:"dbNumber"`
+	ContractManagerBits []byte        `json:"contractManagerBits"`
+}
+
+// GetContractStates 获取合约状态集合
+func (c *ContractLifecycleProposal) GetContractStates() []ContractLifecycleState {
+	var states []ContractLifecycleState
+	part := fmt.Sprintf("%08b", c.ContractManagerBits[0])
+	freezeBit := part[5]
+	upgradeBit := part[6]
+	deployBit := part[7]
+
+	if freezeBit == '1' {
+		states = append(states, ContractLifecycleStateFREEZE)
+	}
+	if upgradeBit == '1' {
+		states = append(states, ContractLifecycleStateUPGRADE)
+	}
+	if deployBit == '1' {
+		states = append(states, ContractLifecycleStateDEPLOY)
+	}
+
+	return lo.Ternary(len(states) == 0, []ContractLifecycleState{ContractLifecycleStateUNSPECIFIED}, states)
 }
 
 // ModifyChainConfigProposal 修改链配置提案

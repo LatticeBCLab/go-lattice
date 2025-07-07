@@ -3,6 +3,7 @@ package lattice
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -25,7 +26,7 @@ const (
 
 var latticeApi = NewLattice(
 	&ChainConfig{Curve: types.Sm2p256v1},
-	&ConnectingNodeConfig{Ip: "172.22.0.23", HttpPort: 13000},
+	&ConnectingNodeConfig{Ip: "172.22.0.25", HttpPort: 31015, JwtSecret: "4EWRP6LZ", JwtTokenExpirationDuration: 10 * time.Hour},
 	NewMemoryBlockCache(10*time.Second, time.Minute, time.Minute),
 	NewAccountLock(),
 	&Options{MaxIdleConnsPerHost: 200},
@@ -231,12 +232,28 @@ func TestLattice_JsonRpc(t *testing.T) {
 		t.Log(subchainBriefInfos[0])
 	})
 
-	t.Run("Get recent daemon blocks", func(t *testing.T) {
+	t.Run("Get contract information", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 		defer cancel()
-		dBlocks, err := latticeApi.HttpApi().GetRecentDBlocks(ctx, "1", 10)
+		info, err := latticeApi.HttpApi().GetContractInformation(ctx, "17", "zltc_n7jX7sTsPFpqEjuVUWD8sBskEB384o5cp")
 		assert.NoError(t, err)
-		t.Log(dBlocks)
+		states := info.GetContractStates()
+		fmt.Println(states)
+		t.Log(info)
+	})
+
+	t.Run("Get contract lifecycle proposal", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+		proposal, err := latticeApi.HttpApi().GetContractLifecycleProposal(ctx, "17", "zltc_n7jX7sTsPFpqEjuVUWD8sBskEB384o5cp", types.ProposalStateINITIAL, "20250703", "20250703")
+		assert.NoError(t, err)
+		t.Log(proposal)
+	})
+
+	t.Run("Get recent daemon blocks", func(t *testing.T) {
+		var b byte = 2
+		a := fmt.Sprintf("%08b", b)
+		fmt.Println(a)
 	})
 }
 

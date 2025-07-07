@@ -172,6 +172,16 @@ const (
 	ContractLifecyclePeriodUNFREEZE
 )
 
+// ContractLifecycleState 合约生命周期阶段
+type ContractLifecycleState uint8
+
+const (
+	ContractLifecycleStateUNSPECIFIED ContractLifecycleState = iota
+	ContractLifecycleStateDEPLOY
+	ContractLifecycleStateUPGRADE
+	ContractLifecycleStateFREEZE
+)
+
 type TBlockState string
 
 // TBlockState 账户区块状态

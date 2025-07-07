@@ -5,7 +5,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/samber/lo"
 	"math/big"
+	"strings"
 
 	"github.com/LatticeBCLab/go-lattice/common/constant"
 )
@@ -186,13 +188,39 @@ type SubchainPeer struct {
 //   - CreatedAt       合约的部署时间戳(s)
 //   - UpdatedAt       合约的修改时间戳(s)
 type ContractInformation struct {
-	ContractAddress string        `json:"address"`
-	Owner           string        `json:"deploymentAddress"`
-	State           ContractState `json:"state"`
-	Version         uint8         `json:"version"`
-	ProposalId      string        `json:"votingProposalId,omitempty"`
-	CreatedAt       int64         `json:"createAt"`
-	UpdatedAt       int64         `json:"modifiedAt"`
+	ContractAddress string `json:"address"`
+	Owner           string `json:"deploymentAddress"`
+	// State           ContractState `json:"state"`
+	State       string   `json:"state"` //
+	Version     uint8    `json:"version"`
+	ProposalIds []string `json:"votingProposalId,omitempty"`
+	CreatedAt   int64    `json:"createAt"`
+	UpdatedAt   int64    `json:"modifiedAt"`
+}
+
+func (c *ContractInformation) GetContractStates() []ContractLifecycleState {
+	parts := strings.Split(c.State, ",")
+	var states []ContractLifecycleState
+	if len(parts) == 0 || len(parts[0]) < 8 {
+		return []ContractLifecycleState{ContractLifecycleStateUNSPECIFIED}
+	}
+
+	part := parts[0]
+	freezeBit := part[5]
+	upgradeBit := part[6]
+	deployBit := part[7]
+
+	if freezeBit == '1' {
+		states = append(states, ContractLifecycleStateFREEZE)
+	}
+	if upgradeBit == '1' {
+		states = append(states, ContractLifecycleStateUPGRADE)
+	}
+	if deployBit == '1' {
+		states = append(states, ContractLifecycleStateDEPLOY)
+	}
+
+	return lo.Ternary(len(states) == 0, []ContractLifecycleState{ContractLifecycleStateUNSPECIFIED}, states)
 }
 
 // ContractManagement 合约管理信息
