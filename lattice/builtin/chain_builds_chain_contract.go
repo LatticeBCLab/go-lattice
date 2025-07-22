@@ -22,8 +22,8 @@ type NewSubchainRequest struct {
 	Period                        uint64           `json:"period,omitempty"`               // 出块间隔
 	NoEmptyAnchor                 bool             `json:"noEmptyAnchor,omitempty"`        // 不允许无交易时快速出空块
 	EmptyAnchorPeriodMul          uint64           `json:"emptyAnchorPeriodMul,omitempty"` // 空块等待次数
-	EnableContractLifecycle       bool             `json:"isContractVote,omitempty"`       // 开启合约生命周期
-	EnableVotingDictatorship      bool             `json:"isDictatorship,omitempty"`       // 开启盟主独裁(生命周期规则: 盟主投票, 共识投票)
+	ContractLifecycleVotingRule   types.VotingRule `json:"contractLifecycleRule"`          // 合约生命周期投票规则
+	ContractFreezeVotingRule      types.VotingRule `json:"contractFreezeRule"`             // 合约冻结投票规则
 	ContractDeploymentVotingRule  types.VotingRule `json:"deployRule,omitempty"`           // 合约部署规则(无需投票, 盟主投票, 共识投票)
 	ChannelName                   string           `json:"name,omitempty"`                 // 通道名称
 	ChannelId                     *big.Int         `json:"chainId,omitempty"`              // 通道id
