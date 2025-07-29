@@ -350,6 +350,7 @@ type NodeProtocolConfig struct {
 //   - ContractDeploymentVotingRule    合约部署的投票规则
 //   - EnableContractManagement		   是否开启合约管理
 //   - ChainVote
+//   - EnableCert					   节点授权的证书，如节点加入时需要
 type NodeConfirmedConfiguration struct {
 	LatcId                          uint32     `json:"latcId"`
 	LatcGod                         string     `json:"latcGod"`
@@ -367,6 +368,7 @@ type NodeConfirmedConfiguration struct {
 	ContractDeploymentVotingRule    VotingRule `json:"deployRule"`
 	EnableContractManagement        bool       `json:"contractPermission"`
 	ChainVote                       bool       `json:"chainVote"`
+	EnableCert                      bool       `json:"enableCert"`
 }
 
 // NodeVersion 节点的版本信息
