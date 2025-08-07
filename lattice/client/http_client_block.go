@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"github.com/rs/zerolog/log"
 	"math/big"
 
 	"github.com/LatticeBCLab/go-lattice/common/types"
@@ -195,4 +196,16 @@ func (api *httpApi) GetRecentDBlocks(ctx context.Context, chainId string, limit 
 		return nil, response.Error.Error()
 	}
 	return *response.Result, nil
+}
+
+func (api *httpApi) GetTBlockCount(ctx context.Context, chainId string) (*types.TBlockCount, error) {
+	response, err := Post[types.TBlockCount](ctx, api.NodeUrl, NewJsonRpcBody("latc_getTBlockCount"), api.newHeaders(chainId), api.transport)
+	if err != nil {
+		return nil, err
+	}
+	if response.Error != nil {
+		log.Error().Err(err).Msgf("Failed to get tblock count")
+		return nil, response.Error.Error()
+	}
+	return response.Result, nil
 }

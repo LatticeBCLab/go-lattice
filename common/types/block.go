@@ -117,3 +117,8 @@ type WitnessProof struct {
 	ExpectNumber *big.Int     `json:"Expect"` //预料中有其证明的DBlock高度
 	Signers      []*Signature `json:"Signers"`
 }
+
+type TBlockCount struct {
+	Accepted  string `json:"accepted,omitempty"` // 已接收的交易数量
+	Confirmed string `json:"confirm,omitempty"`  // 已确认的交易数量
+}

@@ -555,6 +555,7 @@ type HttpApi interface {
 	PublishCert(ctx context.Context, chainId string, pubKey []string) ([]string, error)
 	ProxyReEncryption(ctx context.Context, chainId string, ciphertext, businessAddress, initiator, whitelist string) (string, error)
 	GetRecentDBlocks(ctx context.Context, chainId string, limit uint32) ([]*types.DaemonBlock, error)
+	GetTBlockCount(ctx context.Context, chainId string) (*types.TBlockCount, error)
 }
 
 type httpApi struct {
