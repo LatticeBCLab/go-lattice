@@ -378,7 +378,7 @@ type HttpApi interface {
 	ProxyReEncryption(ctx context.Context, chainId string, ciphertext, businessAddress, initiator, whitelist string) (string, error)
 	GetRecentDBlocks(ctx context.Context, chainId string, limit uint32) ([]*types.DaemonBlock, error)
 	GetTBlockCount(ctx context.Context, chainId string) (*types.TBlockCount, error)
-	ImportCertificate(ctx context.Context, chainId string, pemCertificates []string) ([]string, error)
+	ImportCertificate(ctx context.Context, chainId string, pemCertificates []string) error
 }
 
 type httpApi struct {

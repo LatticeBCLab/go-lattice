@@ -63,8 +63,8 @@ func (api *httpApi) ProxyReEncryption(ctx context.Context, chainId string, ciphe
 }
 
 // ImportCertificate 导入证书
-func (api *httpApi) ImportCertificate(ctx context.Context, chainId string, pemCertificates []string) ([]string, error) {
-	response, err := Post[[]string](
+func (api *httpApi) ImportCertificate(ctx context.Context, chainId string, pemCertificates []string) error {
+	response, err := Post[any](
 		ctx,
 		api.NodeUrl,
 		NewJsonRpcBody("wallet_importCert", pemCertificates),
@@ -72,10 +72,10 @@ func (api *httpApi) ImportCertificate(ctx context.Context, chainId string, pemCe
 		api.transport,
 	)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if response.Error != nil {
-		return nil, response.Error.Error()
+		return response.Error.Error()
 	}
-	return *response.Result, nil
+	return nil
 }
