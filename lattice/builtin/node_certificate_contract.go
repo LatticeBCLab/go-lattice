@@ -24,7 +24,7 @@ const (
 	Client
 )
 
-type RevokeParam struct {
+type RevokeNodeCertificateParam struct {
 	SerialNumber uint32 `json:"serialNumber"`
 	Client       string `json:"client"`
 }
@@ -41,7 +41,7 @@ type NodeCertificateContract interface {
 	// Apply 申请证书
 	Apply(certificateType NodeCertificateType, orgName string, nodes []string) (string, error)
 	// Revoke 吊销证书
-	Revoke(params []*RevokeParam) (string, error)
+	Revoke(params []*RevokeNodeCertificateParam) (string, error)
 	// UploadPublicKey 上传公钥
 	UploadPublicKey(publicKeys []string) (string, error)
 	// UploadPublicKeyAndApplyCertificate 上传公钥并申请证书
@@ -69,12 +69,12 @@ func (c *nodeCertificateContract) Apply(certificateType NodeCertificateType, org
 	return hexutil.Encode(code), nil
 }
 
-func (c *nodeCertificateContract) Revoke(params []*RevokeParam) (string, error) {
+func (c *nodeCertificateContract) Revoke(params []*RevokeNodeCertificateParam) (string, error) {
 	fn, err := c.abi.GetLatticeFunction("revoke",
-		lo.Map(params, func(param *RevokeParam, index int) uint32 {
+		lo.Map(params, func(param *RevokeNodeCertificateParam, index int) uint32 {
 			return param.SerialNumber
 		}),
-		lo.Map(params, func(param *RevokeParam, index int) string {
+		lo.Map(params, func(param *RevokeNodeCertificateParam, index int) string {
 			return param.Client
 		}),
 	)
