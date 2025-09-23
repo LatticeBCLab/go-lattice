@@ -2,7 +2,6 @@ package abi
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"math"
 	"math/big"
@@ -80,7 +79,7 @@ func (f *latticeFunction) Encode() (string, error) {
 		}
 		m, ok := contract.Methods[f.methodName]
 		if !ok {
-			return "", errors.New(fmt.Sprintf("合约方法【%s】不存在", f.methodName))
+			return "", fmt.Errorf("合约方法【%s】不存在", f.methodName)
 		}
 		if data, err = m.EncodeArgs(convertedArgs...); err != nil {
 			return "", err
@@ -981,9 +980,9 @@ func convertSignedInt(size int, i *big.Int) (interface{}, error) {
 	int64Val := i.Int64()
 	switch {
 	case size > 32:
-		if int64Val > math.MaxInt64 || int64Val < math.MinInt64 {
+		/* if int64Val > math.MaxInt64 || int64Val < math.MinInt64 {
 			return nil, fmt.Errorf("integer overflows int64: %s", i)
-		}
+		} */
 		return int64Val, nil
 	case size > 16:
 		if int64Val > math.MaxInt32 || int64Val < math.MinInt32 {
@@ -1012,9 +1011,9 @@ func convertUnsignedInt(size int, i *big.Int) (interface{}, error) {
 	case size > 64:
 		return i, nil
 	case size > 32:
-		if uint64Val > math.MaxUint64 {
+		/* if uint64Val > math.MaxUint64 {
 			return nil, fmt.Errorf("integer overflows uint64: %s", i)
-		}
+		} */
 		return uint64Val, nil
 	case size > 16:
 		if uint64Val > math.MaxUint32 {

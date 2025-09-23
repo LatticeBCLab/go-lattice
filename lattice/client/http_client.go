@@ -197,121 +197,31 @@ func NewHttpApi(args *HttpApiInitParam) HttpApi {
 // HttpApi This is the interface for the HTTP API of the Lattice node.
 type HttpApi interface {
 	// CanDial 测试是否可以连接到节点
-	//
-	// Parameters:
-	//   - timeout time.Duration
-	//
-	// Returns:
-	//   - error
 	CanDial(timeout time.Duration) error
-
 	// Forward 转发原始的http请求
-	//
-	// Parameters:
-	//   - w *http.ResponseWriter
-	//   - r *http.Request
 	Forward(w http.ResponseWriter, r *http.Request)
-
 	// GetLatestBlock 获取当前账户的最新的区块信息，不包括pending中的交易
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - chainId string
-	//   - accountAddress string: 账户地址，zltc_Z1pnS94bP4hQSYLs4aP4UwBP9pH8bEvhi
-	//
-	// Returns:
-	//   - types.LatestBlock
-	//   - error
 	GetLatestBlock(ctx context.Context, chainId, accountAddress string) (*types.LatestBlock, error)
-
 	// GetLatestBlockWithPending 获取当前账户的最新的区块信息，包括pending中的交易
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - chainId string
-	//   - accountAddress string: 账户地址，zltc_Z1pnS94bP4hQSYLs4aP4UwBP9pH8bEvhi
-	//
-	// Returns:
-	//   - types.LatestBlock
-	//   - error
 	GetLatestBlockWithPending(ctx context.Context, chainId, accountAddress string) (*types.LatestBlock, error)
-
 	// SendSignedTransaction 发送已签名的交易
-	//
-	// Parameters:
-	//    - ctx context.Context
-	//    - chainId string
-	//    - signedTX *block.Transaction
-	//
-	// Returns:
-	//    - o
 	SendSignedTransaction(ctx context.Context, chainId string, signedTX *block.Transaction) (*common.Hash, error)
 	// SendSignedTransactions batch send transactions
 	SendSignedTransactions(ctx context.Context, chainId string, signedTXs []*block.Transaction) ([]*common.Hash, error)
-
 	// PreCallContract 预执行合约
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - chainId string
-	//   - unsignedTX *block.Transaction: 未签名的交易
-	//
-	// Returns:
-	//   - *types.Receipt
-	//   - error
 	PreCallContract(ctx context.Context, chainId string, unsignedTX *block.Transaction) (*types.Receipt, error)
-
 	// GetReceipt 获取交易回执
 	GetReceipt(ctx context.Context, chainId, hash string) (*types.Receipt, error)
 	// GetReceipts 批量查询回执
 	GetReceipts(ctx context.Context, chainId string, hashes []string) ([]*types.Receipt, error)
-
 	// GetContractLifecycleProposal 获取合约生命周期提案
-	//
-	// Parameters:
-	//    - ctx context.Context
-	//    - chainId string: 链ID
-	//    - contractAddress string: 合约地址
-	//    - state types.ProposalState: 提案状态
-	//
-	// Returns:
-	//    - types.Proposal[types.ContractLifecycleProposal]
-	//    - error
 	GetContractLifecycleProposal(ctx context.Context, chainId, contractAddress string, state types.ProposalState, startDate, endDate string) ([]types.Proposal[types.ContractLifecycleProposal], error)
-
 	// UploadFile 上传文件到链上
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - chainId string: 链ID
-	//   - filePath string: 文件路径
-	//
-	// Returns:
-	//   - *types.UploadFileResponse
-	//   - error
 	UploadFile(ctx context.Context, chainId, filePath string) (*types.UploadFileResponse, error)
-
 	// DownloadFile 从链上下载文件
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - cid string: 要下载文件的cid
-	//   - filePath string: 指定的临时存储路径
-	//
-	// Returns:
-	//   - error
 	DownloadFile(ctx context.Context, cid, filePath string) error
-
 	// GetNodeInfo 获取节点信息
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//
-	// Returns:
-	//   - *types.NodeInfo,
-	//   - error
 	GetNodeInfo(ctx context.Context) (*types.NodeInfo, error)
-
 	// JoinSubchain 让当前节点加入子链（通道）
 	//
 	// Parameters:
@@ -338,93 +248,23 @@ type HttpApi interface {
 	// If subchainID is empty, return all subchains brief info, otherwise return the subchain brief info of the specified subchainID
 	GetSubchainBriefInfo(ctx context.Context, subchainID string) ([]*types.SubchainBriefInfo, error)
 	// GetConsensusNodesStatus 查询共识节点的状态
-	//
-	// Returns:
-	//   - []*types.ConsensusNodeStatus
-	//   - error
 	GetConsensusNodesStatus(ctx context.Context, chainID string) ([]*types.ConsensusNodeStatus, error)
-
 	// GetGenesisNodeAddress 获取共识节点地址
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - chainID string
-	//
-	// Returns:
-	//   - string
-	//   - error
 	GetGenesisNodeAddress(ctx context.Context, chainID string) (string, error)
-
 	// GetLatestDaemonBlock 获取最新的守护区块信息
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - chainID string
-	//
-	// Returns:
-	//   - *types.DaemonBlock
-	//   - error
 	GetLatestDaemonBlock(ctx context.Context, chainID string) (*types.DaemonBlock, error)
-
 	// GetNodePeers 获取在主链上的节点的对等节点信息
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//
-	// Returns:
-	//   - []*types.NodePeer
-	//   - error
 	GetNodePeers(ctx context.Context) ([]*types.NodePeer, error)
-
 	// GetSubchainPeers 获取子链（通道）的节点对等节点信息
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - subchainId string
-	//
-	// Returns:
-	//   - map[string]*types.SubchainPeer
-	//   - error
 	GetSubchainPeers(ctx context.Context, subchainId string) (map[string]*types.SubchainPeer, error)
 	// GetLatcPeers 查询peer节点
-	// namespace: latc
 	GetLatcPeers(ctx context.Context, chainId string) (map[string]*types.SubchainPeer, error)
-
 	// GetNodeConfig 查询节点的配置信息
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - chainID string
-	//
-	// Returns:
-	//   - *types.NodeConfig
-	//   - error
 	GetNodeConfig(ctx context.Context, chainID string) (*types.NodeConfiguration, error)
-
 	// GetContractInformation 获取合约的信息
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - chainID string
-	//   - contractAddress string
-	//
-	// Returns:
-	//   - *types.ContractInformation
-	//   - error
 	GetContractInformation(ctx context.Context, chainID, contractAddress string) (*types.ContractInformation, error)
-
 	// GetContractManagement 获取合约管理信息
-	//
-	// Parameters:
-	//   - ctx context.Context
-	//   - chainID string: 合约所在链的ID
-	//   - contractAddress string: 合约地址
-	//
-	// Returns:
-	//   - *types.ContractManagement
-	//   - error
 	GetContractManagement(ctx context.Context, chainID, contractAddress string, daemonBlockHeight *big.Int) (*types.ContractManagement, error)
-
 	// GetDaemonBlockByHash 根据守护区块哈希查询守护区块信息
 	GetDaemonBlockByHash(ctx context.Context, chainId, hash string) (*types.DaemonBlock, error)
 	// GetDaemonBlockByHeight 根据守护区块高度查询守护区块信息
@@ -443,20 +283,8 @@ type HttpApi interface {
 	GetRawProposal(ctx context.Context, chainId, proposalId string, ty types.ProposalType, state types.ProposalState, proposalAddress, contractAddress, startDate, endDate string) (json.RawMessage, error)
 	// GetTransactionsPagination 根据守护区块高度分页查询交易
 	GetTransactionsPagination(ctx context.Context, chainId string, startDaemonBlockHeight uint64, pageSize uint16) (*types.TransactionsPagination, error)
-
-	// GetEvidences 获取留痕信息
-	//
-	// Parameters:
-	//   - chainId string
-	//   - date string: 格式20240511
-	//   - evidenceType string
-	//   - page int
-	//   - pageSize int
-	//
-	// Returns:
-	//   - o
+	// GetEvidences 获取留痕信息，date string: 格式20240511
 	GetEvidences(ctx context.Context, chainId, date string, evidenceType types.EvidenceType, page, pageSize int) (*types.Evidences, error)
-
 	// GetErrorEvidences 获取错误留痕
 	//
 	// Parameters:
@@ -464,11 +292,6 @@ type HttpApi interface {
 	//   - date string: 格式20240511
 	//   - level string: 日志级别, "none":执行日志, "error":error级别的错误日志, "crit":crit级别的错误日志, 不填则默认为执行日志
 	//   - eviType string: 日志类型, "vote":投票, "tblock":账户交易, "dblock":守护区块, "sign":签名, "pre":预执行合约, "onChain":发布合约交易, "execute":执行合约交易, "update":合约升级, "upgrade":升级合约的账户交易, "deploy":合约部署, "call":合约调用, "revoke":合约吊销, "freeze":合约冻结, "release":合约解冻, "error":error错误, "crit":crit错误, "add":增加账户, "del":删除账户, "lock":锁定账户, "unlock":解锁账户, "oracle":预言机
-	//   - page int
-	//   - pageSize int
-	//
-	// Returns:
-	//   - o
 	GetErrorEvidences(ctx context.Context, chainId, date string, evidenceLevel types.EvidenceLevel, evidenceType types.EvidenceType, page, pageSize int) (*types.Evidences, error)
 	// GetNodeConfirmedConfiguration 获取节点确认的配置信息
 	GetNodeConfirmedConfiguration(ctx context.Context, chainId string) (*types.NodeConfirmedConfiguration, error)
@@ -489,7 +312,6 @@ type HttpApi interface {
 	GetProposalById(ctx context.Context, chainId, proposalId string, result interface{}) error
 	// GetSubchainIdByProposalId get subchain id by proposal id
 	GetSubchainIdByProposalId(ctx context.Context, chainId, proposalId string) (uint32, error)
-
 	// Freeze 立即压缩区块
 	Freeze(ctx context.Context, chainId string, dblockNumber *big.Int) (uint64, error)
 	// GetFreezeDBlockByHash 通过区块哈希查询压缩的区块
@@ -556,6 +378,7 @@ type HttpApi interface {
 	ProxyReEncryption(ctx context.Context, chainId string, ciphertext, businessAddress, initiator, whitelist string) (string, error)
 	GetRecentDBlocks(ctx context.Context, chainId string, limit uint32) ([]*types.DaemonBlock, error)
 	GetTBlockCount(ctx context.Context, chainId string) (*types.TBlockCount, error)
+	ImportCertificate(ctx context.Context, chainId string, pemCertificates []string) ([]string, error)
 }
 
 type httpApi struct {
@@ -566,7 +389,7 @@ type httpApi struct {
 	jwtApi       Jwt               // jwt api
 }
 
-func (api *httpApi) forwardErrorHandler(rw http.ResponseWriter, req *http.Request, err error) {
+func (api *httpApi) forwardErrorHandler(rw http.ResponseWriter, _ *http.Request, err error) {
 	rw.WriteHeader(http.StatusBadGateway)
 	rw.Write([]byte(err.Error()))
 }

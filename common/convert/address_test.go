@@ -6,7 +6,7 @@ import (
 )
 
 func TestZltcMustToAddress(t *testing.T) {
-	zltc := "zltc_nFgGmfSks6uQPT5hqMRQ8fdkKMprSUdbN"
+	zltc := "zltc_gLpU8MFUgdECP5wJdhoZXVr4kmYH5xuir"
 	address := ZltcMustToAddress(zltc)
 	fmt.Println(address.String())
 }
