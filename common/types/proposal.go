@@ -2,7 +2,9 @@ package types
 
 import (
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/samber/lo"
+	"math/big"
 )
 
 type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | SubchainProposal] struct {
@@ -55,16 +57,17 @@ func (c *ContractLifecycleProposal) GetContractStates() []ContractLifecycleState
 // ModifyChainConfigProposal 修改链配置提案
 // State ProposalState
 type ModifyChainConfigProposal struct {
-	Id             string   `json:"proposalId"`
-	State          uint8    `json:"proposalState"`
-	Nonce          uint64   `json:"nonce"`
-	Type           uint8    `json:"modifyType"`
-	Period         uint32   `json:"period"`
-	IsDictatorship bool     `json:"isDictatorship"`
-	NoEmptyAnchor  bool     `json:"noEmptyAnchor"`
-	DeployRule     uint8    `json:"deployRule"`
-	LatcSaint      []string `json:"latcSaint"`
-	Consensus      string   `json:"consensus"`
+	Id                string   `json:"proposalId"`
+	State             uint8    `json:"proposalState"`
+	Nonce             uint64   `json:"nonce"`
+	Type              uint8    `json:"modifyType"`
+	Period            uint32   `json:"period"`
+	IsDictatorship    bool     `json:"isDictatorship"`
+	NoEmptyAnchor     bool     `json:"noEmptyAnchor"`
+	DeployRule        uint8    `json:"deployRule"`
+	LatcSaint         []string `json:"latcSaint"`
+	Consensus         string   `json:"consensus"`
+	RelatedProposalId string   `json:"nodeCertProposal"`
 }
 
 // SubchainProposal 以链建链的提案内容
@@ -91,6 +94,30 @@ type SubchainProposal struct {
 		ParentHash             string `json:"parentHash,omitempty"`
 		JoinSubchainProposalId string `json:"joinProposalId,omitempty"` // the proposal id that apply for join subchain
 	} `json:"ChainConfig,omitempty"`
+}
+
+type NodeCertificateProposal struct {
+	Id                string     `json:"proposalId"`
+	State             uint8      `json:"proposalState"`
+	Nonce             uint64     `json:"nonce"`
+	Receipt           string     `json:"receipt"`
+	Launcher          string     `json:"launcher"`
+	CreatedAt         uint64     `json:"createAt"`
+	ModifiedAt        uint64     `json:"modifiedAt"`
+	TxHash            string     `json:"txHash"`
+	PreDBNumber       uint64     `json:"dbNumber"`
+	ProposalAddress   string     `json:"proposalAddress"`
+	OrganizationName  string     `json:"orgName"`
+	NodeCerts         []NodeCert `json:"nodeCertParam"`
+	RelatedProposalId string     `json:"configModifyProposal"`
+}
+
+type NodeCert struct {
+	Address      common.Address `json:"address,omitempty"`      // 申请的节点地址/撤销的节点地址
+	SerialNumber *big.Int       `json:"serialNumber,omitempty"` // 撤销证书的序列号
+	CertDigest   []byte         `json:"certDigest,omitempty"`   // 证书摘要
+	Signs        []byte         `json:"signs,omitempty"`        // 共识节点签名
+	Revoked      bool           `json:"revoked,omitempty"`      // 是否已经撤销
 }
 
 // ProposalState 提案状态
