@@ -7,7 +7,7 @@ import (
 	"math/big"
 )
 
-type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | SubchainProposal] struct {
+type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | SubchainProposal | NodeCertificateProposal] struct {
 	Type    ProposalType `json:"proposalType,omitempty"`
 	Content *T           `json:"proposalContent,omitempty"`
 }
@@ -148,6 +148,7 @@ const (
 //   - ProposalTypeContractLifecycle		合约生命周期
 //   - ProposalTypeModifyChainConfiguration 修改链配置
 //   - ProposalTypeChainByChain				以链建链
+//   - ProposalTypeNodeCertificate          节点证书
 type ProposalType uint8
 
 const (
@@ -156,6 +157,7 @@ const (
 	ProposalTypeContractLifecycle
 	ProposalTypeModifyChainConfiguration
 	ProposalTypeChainByChain
+	ProposalTypeNodeCertificate
 )
 
 // ModifyChainConfigurationType 修改链配置类型
