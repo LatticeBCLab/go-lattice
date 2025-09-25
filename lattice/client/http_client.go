@@ -373,12 +373,13 @@ type HttpApi interface {
 	GetTBlocksByHeights(ctx context.Context, chainId string, accountAddress string, heights []uint64) ([]*types.TransactionBlock, error)
 	// GetDBlocksByHeights 根据守护区块高度区间查询守护区块
 	GetDBlocksByHeights(ctx context.Context, chainId string, heights []uint64) ([]*types.DaemonBlock, error)
-	// PublishCert 根据节点的公钥发布证书，返回证书序列号
-	PublishCert(ctx context.Context, chainId string, pubKey []string) ([]string, error)
 	ProxyReEncryption(ctx context.Context, chainId string, ciphertext, businessAddress, initiator, whitelist string) (string, error)
 	GetRecentDBlocks(ctx context.Context, chainId string, limit uint32) ([]*types.DaemonBlock, error)
 	GetTBlockCount(ctx context.Context, chainId string) (*types.TBlockCount, error)
-	ImportCertificate(ctx context.Context, chainId string, pemCertificates []string) error
+	ImportCertificates(ctx context.Context, chainId string, pemCertificates []string) error
+	// PublishCertificates 根据节点的公钥发布证书，返回证书序列号
+	PublishCertificates(ctx context.Context, chainId string, publicKeys []string) ([]string, error)
+	GetCertificate(ctx context.Context, chainId string, serialNumber string) (*types.NodeCertificate, error)
 }
 
 type httpApi struct {
