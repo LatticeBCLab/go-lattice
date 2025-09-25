@@ -36,6 +36,7 @@ type ProposalContract interface {
 	//   - string
 	//   - error
 	Disapprove(proposalId string) (string, error)
+	ApproveWithSign(proposalId, sign, fromAddress string) (string, error)
 	// Refresh 刷新提案
 	Refresh(proposalId string) (string, error)
 	// BatchRefresh 批量刷新提案
@@ -83,6 +84,15 @@ func (c *proposalContract) Disapprove(proposalId string) (string, error) {
 	return fn.Encode()
 }
 
+func (c *proposalContract) ApproveWithSign(proposalId, sign, fromAddress string) (string, error) {
+	fn, err := c.abi.GetLatticeFunction("signVote", proposalId, sign, fromAddress)
+	if err != nil {
+		return "", err
+	}
+
+	return fn.Encode()
+}
+
 func (c *proposalContract) Refresh(proposalId string) (string, error) {
 	fn, err := c.abi.GetLatticeFunction("refresh", proposalId)
 	if err != nil {
@@ -114,86 +124,115 @@ var ProposalBuiltinContract = Contract{
 	Description: "提案投票合约",
 	Address:     "zltc_amgWuhifLRUoZc3GSbv9wUUz6YUfTuWy5",
 	AbiString: `[
-		{
-			"inputs": [
-				{
-					"internalType": "string",
-					"name": "ProposalId",
-					"type": "string"
-				},
-				{
-					"internalType": "uint8",
-					"name": "VoteSuggestion",
-					"type": "uint8"
-				}
-			],
-			"name": "vote",
-			"outputs": [
-				{
-					"internalType": "bytes",
-					"name": "",
-					"type": "bytes"
-				}
-			],
-			"stateMutability": "pure",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "string",
-					"name": "ProposalId",
-					"type": "string"
-				}
-			],
-			"name": "refresh",
-			"outputs": [
-				{
-					"internalType": "bytes",
-					"name": "",
-					"type": "bytes"
-				}
-			],
-			"stateMutability": "pure",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "string[]",
-					"name": "proposalIds",
-					"type": "string[]"
-				}
-			],
-			"name": "batchRefresh",
-			"outputs": [
-				{
-					"internalType": "bytes",
-					"name": "",
-					"type": "bytes"
-				}
-			],
-			"stateMutability": "pure",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "string",
-					"name": "proposalId",
-					"type": "string"
-				}
-			],
-			"name": "cancel",
-			"outputs": [
-				{
-					"internalType": "bytes",
-					"name": "",
-					"type": "bytes"
-				}
-			],
-			"stateMutability": "pure",
-			"type": "function"
-		}
-	]`,
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "ProposalId",
+                "type": "string"
+            },
+            {
+                "internalType": "uint8",
+                "name": "VoteSuggestion",
+                "type": "uint8"
+            }
+        ],
+        "name": "vote",
+        "outputs": [
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "ProposalId",
+                "type": "string"
+            },
+            {
+                "internalType": "bytes",
+                "name": "sign",
+                "type": "bytes"
+            },
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            }
+        ],
+        "name": "signVote",
+        "outputs": [
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "ProposalId",
+                "type": "string"
+            }
+        ],
+        "name": "refresh",
+        "outputs": [
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string[]",
+                "name": "proposalIds",
+                "type": "string[]"
+            }
+        ],
+        "name": "batchRefresh",
+        "outputs": [
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "proposalId",
+                "type": "string"
+            }
+        ],
+        "name": "cancel",
+        "outputs": [
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    }
+]`,
 }
