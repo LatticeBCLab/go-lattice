@@ -25,7 +25,7 @@ const (
 )
 
 type RevokeNodeCertificateParam struct {
-	SerialNumber uint32 `json:"serialNumber"`
+	SerialNumber string `json:"serialNumber"`
 	Client       string `json:"client"`
 }
 
@@ -71,7 +71,7 @@ func (c *nodeCertificateContract) Apply(certificateType NodeCertificateType, org
 
 func (c *nodeCertificateContract) Revoke(params []*RevokeNodeCertificateParam) (string, error) {
 	fn, err := c.abi.GetLatticeFunction("revoke",
-		lo.Map(params, func(param *RevokeNodeCertificateParam, index int) uint32 {
+		lo.Map(params, func(param *RevokeNodeCertificateParam, index int) string {
 			return param.SerialNumber
 		}),
 		lo.Map(params, func(param *RevokeNodeCertificateParam, index int) string {

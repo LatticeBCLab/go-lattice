@@ -26,7 +26,7 @@ func TestNodeCertificateContractEncode(t *testing.T) {
 	t.Run("Revoke", func(t *testing.T) {
 		actual, err := contract.Revoke([]*RevokeNodeCertificateParam{
 			{
-				SerialNumber: 0,
+				SerialNumber: "0",
 				Client:       "zltc_gLpU8MFUgdECP5wJdhoZXVr4kmYH5xuir",
 			},
 		})
