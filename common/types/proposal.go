@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/samber/lo"
 	"math/big"
 )
@@ -113,11 +112,11 @@ type NodeCertificateProposal struct {
 }
 
 type NodeCert struct {
-	Address      common.Address `json:"address,omitempty"`      // 申请的节点地址/撤销的节点地址
-	SerialNumber *big.Int       `json:"serialNumber,omitempty"` // 撤销证书的序列号
-	CertDigest   []byte         `json:"certDigest,omitempty"`   // 证书摘要
-	Signs        []byte         `json:"signs,omitempty"`        // 共识节点签名
-	Revoked      bool           `json:"revoked,omitempty"`      // 是否已经撤销
+	Address      string   `json:"address,omitempty"`      // 申请的节点地址/撤销的节点地址
+	SerialNumber *big.Int `json:"serialNumber,omitempty"` // 撤销证书的序列号
+	CertDigest   []byte   `json:"certDigest,omitempty"`   // 证书摘要
+	Signs        []byte   `json:"signs,omitempty"`        // 共识节点签名
+	Revoked      bool     `json:"revoked,omitempty"`      // 是否已经撤销
 }
 
 // ProposalState 提案状态
