@@ -144,6 +144,11 @@ func TestHttpClientRequest(t *testing.T) {
 		assert.NoError(t, err)
 		t.Log(result)
 	})
+
+	t.Run("import certificate", func(t *testing.T) {
+		err := httpApi.ImportCertificate(ctx, chainId, "12345")
+		assert.NoError(t, err)
+	})
 }
 
 func TestConfig(t *testing.T) {

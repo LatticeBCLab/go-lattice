@@ -376,7 +376,7 @@ type HttpApi interface {
 	ProxyReEncryption(ctx context.Context, chainId string, ciphertext, businessAddress, initiator, whitelist string) (string, error)
 	GetRecentDBlocks(ctx context.Context, chainId string, limit uint32) ([]*types.DaemonBlock, error)
 	GetTBlockCount(ctx context.Context, chainId string) (*types.TBlockCount, error)
-	ImportCertificates(ctx context.Context, chainId string, pemCertificates []string) error
+	ImportCertificate(ctx context.Context, chainId string, pemCertificate string) error
 	// PublishCertificates 根据节点的公钥发布证书，返回证书序列号
 	PublishCertificates(ctx context.Context, chainId string, publicKeys []string) ([]string, error)
 	GetCertificate(ctx context.Context, chainId string, serialNumber string) (*types.NodeCertificate, error)

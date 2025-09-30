@@ -62,12 +62,11 @@ func (api *httpApi) ProxyReEncryption(ctx context.Context, chainId string, ciphe
 	return *response.Result, nil
 }
 
-// ImportCertificates 导入证书
-func (api *httpApi) ImportCertificates(ctx context.Context, chainId string, pemCertificates []string) error {
+func (api *httpApi) ImportCertificate(ctx context.Context, chainId string, pemCertificate string) error {
 	response, err := Post[any](
 		ctx,
 		api.NodeUrl,
-		NewJsonRpcBody("wallet_importCert", pemCertificates),
+		NewJsonRpcBody("wallet_importCert", pemCertificate),
 		api.newHeaders(chainId),
 		api.transport,
 	)
