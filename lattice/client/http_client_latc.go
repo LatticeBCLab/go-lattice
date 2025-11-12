@@ -37,7 +37,7 @@ func (api *httpApi) GetNodeCertificate(ctx context.Context) (*types.NodeCertific
 
 func x509CertificateToNodeCertificate(certificate *x509.Certificate) (*types.NodeCertificate, error) {
 	subjectLocality := certificate.Subject.Locality
-	blockHeight, err := strconv.ParseUint(subjectLocality[0], 10, 64)
+	blockHeight, err := strconv.ParseUint(certificate.Subject.SerialNumber, 10, 64)
 	if err != nil {
 		log.Error().Err(err)
 		return nil, err
@@ -50,8 +50,8 @@ func x509CertificateToNodeCertificate(certificate *x509.Certificate) (*types.Nod
 	return &types.NodeCertificate{
 		Certificate:        certificate,
 		BlockHeightAtIssue: blockHeight,
-		Type:               types.NodeCertificateType(subjectLocality[1]),
-		OwnerAddress:       subjectLocality[2],
+		Type:               types.NodeCertificateType(subjectLocality[0]),
+		OwnerAddress:       subjectLocality[1],
 		PEMCertificate:     string(pem.EncodeToMemory(block)),
 	}, err
 }
