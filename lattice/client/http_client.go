@@ -196,6 +196,8 @@ func NewHttpApi(args *HttpApiInitParam) HttpApi {
 
 // HttpApi This is the interface for the HTTP API of the Lattice node.
 type HttpApi interface {
+	NewHeaders(chainId string) map[string]string
+	GetTransport() http.RoundTripper
 	// CanDial 测试是否可以连接到节点
 	CanDial(timeout time.Duration) error
 	// Forward 转发原始的http请求
@@ -439,6 +441,14 @@ func (api *httpApi) newHeaders(chainId string) map[string]string {
 		headers[headerAuthorize] = fmt.Sprintf("Bearer %s", token)
 	}
 	return headers
+}
+
+func (api *httpApi) NewHeaders(chainId string) map[string]string {
+	return api.newHeaders(chainId)
+}
+
+func (api *httpApi) GetTransport() http.RoundTripper {
+	return api.transport
 }
 
 func (api *httpApi) CanDial(timeout time.Duration) error {
