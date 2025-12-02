@@ -1,9 +1,10 @@
 package types
 
 import (
+	"strconv"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rs/zerolog/log"
-	"strconv"
 )
 
 type Receipt struct {

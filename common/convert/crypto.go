@@ -2,6 +2,7 @@ package convert
 
 import (
 	"crypto/ecdsa"
+
 	"github.com/tjfoc/gmsm/sm2"
 )
 

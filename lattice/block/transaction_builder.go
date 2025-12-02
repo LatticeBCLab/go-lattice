@@ -1,10 +1,11 @@
 package block
 
 import (
-	"github.com/LatticeBCLab/go-lattice/common/types"
-	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"time"
+
+	"github.com/LatticeBCLab/go-lattice/common/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type TransactionBuilder interface {

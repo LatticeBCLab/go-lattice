@@ -2,12 +2,13 @@ package builtin
 
 import (
 	"fmt"
+	"math/big"
+	"testing"
+
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
-	"math/big"
-	"testing"
 )
 
 func TestChainBuildsChainContract_NewSubChain(t *testing.T) {

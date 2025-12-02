@@ -3,9 +3,10 @@ package client
 import (
 	"context"
 	"encoding/json"
+	"math/big"
+
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/wallet"
-	"math/big"
 )
 
 func (api *httpApi) GetNodeInfo(ctx context.Context) (*types.NodeInfo, error) {

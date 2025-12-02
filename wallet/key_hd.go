@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"fmt"
+
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tyler-smith/go-bip32"
 	"github.com/tyler-smith/go-bip39"

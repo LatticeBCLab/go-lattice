@@ -2,9 +2,10 @@ package key
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/defiweb/go-eth/hexutil"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestECDHEExchange_Exchange(t *testing.T) {

@@ -2,10 +2,11 @@ package wallet
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/crypto"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestFileKey(t *testing.T) {

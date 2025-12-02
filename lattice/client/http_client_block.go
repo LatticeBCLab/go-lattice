@@ -2,8 +2,9 @@ package client
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"math/big"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/LatticeBCLab/go-lattice/common/types"
 )

@@ -7,14 +7,15 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
+	"math/big"
+
 	"github.com/LatticeBCLab/go-lattice/common/constant"
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/tjfoc/gmsm/sm2"
 	"github.com/tjfoc/gmsm/sm3"
-	"io"
-	"math/big"
 )
 
 var (

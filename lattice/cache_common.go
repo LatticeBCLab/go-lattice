@@ -2,9 +2,10 @@ package lattice
 
 import (
 	"context"
+	"time"
+
 	"github.com/allegro/bigcache/v3"
 	"github.com/rs/zerolog/log"
-	"time"
 )
 
 func NewCache(lifeDuration, cleanInterval time.Duration) Cache {

@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestProxyReEncryptionContract_Encode(t *testing.T) {

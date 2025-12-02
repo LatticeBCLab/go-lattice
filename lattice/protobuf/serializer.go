@@ -1,10 +1,11 @@
 package protobuf
 
 import (
-	"google.golang.org/protobuf/reflect/protoregistry"
 	"io"
 	"strings"
 	"sync"
+
+	"google.golang.org/protobuf/reflect/protoregistry"
 
 	"github.com/bufbuild/protocompile/parser"
 	"github.com/bufbuild/protocompile/reporter"

@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFileStorageContract_UploadFile(t *testing.T) {

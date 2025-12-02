@@ -1,14 +1,15 @@
 package block
 
 import (
+	"io"
+	"math/big"
+
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/crypto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/rlp"
-	"io"
-	"math/big"
 )
 
 // TransactionType 交易类型别名

@@ -2,8 +2,9 @@ package types
 
 import (
 	"fmt"
-	"github.com/samber/lo"
 	"math/big"
+
+	"github.com/samber/lo"
 )
 
 type Proposal[T ContractLifecycleProposal | ModifyChainConfigProposal | SubchainProposal | NodeCertificateProposal] struct {

@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/lattice/client"
 	"github.com/allegro/bigcache/v3"
 	"github.com/rs/zerolog/log"
-	"sync"
-	"time"
 )
 
 // NewMemoryBlockCache 初始化一个内存缓存

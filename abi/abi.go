@@ -3,10 +3,11 @@ package abi
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/rs/zerolog/log"
-	"strings"
 )
 
 func NewAbi(abiString string) LatticeAbi {

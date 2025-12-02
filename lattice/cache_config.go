@@ -1,8 +1,9 @@
 package lattice
 
 import (
-	"github.com/allegro/bigcache/v3"
 	"time"
+
+	"github.com/allegro/bigcache/v3"
 )
 
 func NewMemoryCacheConfig(lifeDuration time.Duration, cleanInterval time.Duration) bigcache.Config {

@@ -9,14 +9,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
+	"strings"
+
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/crypto"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/scrypt"
-	"io"
-	"strings"
 )
 
 const (

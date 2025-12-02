@@ -3,11 +3,12 @@ package crypto
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"io"
+
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/LatticeBCLab/go-lattice/crypto/secp256k1"
 	"github.com/LatticeBCLab/go-lattice/crypto/sm2p256v1"
 	"github.com/ethereum/go-ethereum/common"
-	"io"
 )
 
 var instance CryptographyApi

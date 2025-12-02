@@ -2,6 +2,7 @@ package status
 
 import (
 	"fmt"
+
 	"github.com/LatticeBCLab/go-lattice/common/codes"
 )
 

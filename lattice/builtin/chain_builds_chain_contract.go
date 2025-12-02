@@ -2,11 +2,12 @@ package builtin
 
 import (
 	"encoding/json"
+	"math/big"
+
 	"github.com/LatticeBCLab/go-lattice/abi"
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"math/big"
 )
 
 const (

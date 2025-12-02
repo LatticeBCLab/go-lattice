@@ -11,9 +11,10 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/LatticeBCLab/go-lattice/wallet/wordlist"
 	"math/big"
 	"strings"
+
+	"github.com/LatticeBCLab/go-lattice/wallet/wordlist"
 
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -120,7 +121,7 @@ func EntropyFromMnemonic(mnemonic string) ([]byte, error) {
 	b := big.NewInt(0)
 	for _, v := range mnemonicSlice {
 		index, found := wordMap[v]
-		if found == false {
+		if !found {
 			return nil, fmt.Errorf("word `%v` not found in reverse map", v)
 		}
 		var wordBytes [2]byte

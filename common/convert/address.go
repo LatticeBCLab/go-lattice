@@ -2,10 +2,11 @@ package convert
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/ethereum/go-ethereum/common"
-	"strings"
 )
 
 // AddressToZltc 将ETH地址转为ZLTC地址

@@ -7,11 +7,12 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"io"
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
-	"io"
-	"math/big"
 )
 
 var (

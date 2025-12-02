@@ -5,13 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/LatticeBCLab/go-lattice/common/types"
-	"github.com/rs/zerolog/log"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/LatticeBCLab/go-lattice/common/types"
+	"github.com/rs/zerolog/log"
 )
 
 func (api *httpApi) UploadFile(ctx context.Context, chainId, filePath string) (*types.UploadFileResponse, error) {

@@ -2,9 +2,10 @@ package builtin
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestTraceabilityContract_Write(t *testing.T) {

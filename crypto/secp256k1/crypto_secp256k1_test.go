@@ -2,10 +2,11 @@ package secp256k1
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/defiweb/go-eth/hexutil"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestSecp256k1(t *testing.T) {

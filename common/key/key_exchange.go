@@ -6,12 +6,13 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"hash"
+
 	"github.com/defiweb/go-eth/hexutil"
 	"github.com/rs/zerolog/log"
 	"github.com/tjfoc/gmsm/sm3"
 	"github.com/tjfoc/gmsm/sm4"
 	"golang.org/x/crypto/scrypt"
-	"hash"
 )
 
 const defaultRandomBytesSize = 32

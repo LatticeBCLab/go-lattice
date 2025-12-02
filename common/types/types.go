@@ -5,9 +5,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/samber/lo"
 	"math/big"
 	"strings"
+
+	"github.com/samber/lo"
 
 	"github.com/LatticeBCLab/go-lattice/common/constant"
 )

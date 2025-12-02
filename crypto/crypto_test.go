@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common/hexutil"
+
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/LatticeBCLab/go-lattice/common/types"
 	"github.com/stretchr/testify/assert"
@@ -51,4 +53,14 @@ func TestConvertPublicKeyToAddressForSecp256k1(t *testing.T) {
 	actual := convert.AddressToZltc(address)
 	expected := "zltc_cWAvRSgCKgfyp5Rz5TH8srmrZsH5fVYpg"
 	assert.Equal(t, expected, actual)
+}
+
+func TestVerifySignature(t *testing.T) {
+	privateKeyHex := "0x2ef3dd8527ea8ba2a8a189a659291608d1c1c9a2b2826813178e0f2a7a08f21e"
+	message := "0xdaff9b15436bf3682a2c3ac7c62715757b7c4cf6731081201e9e8feebde2df1e"
+	signature := "0x1be0ce64de3c2ed58f82b4ac5a1d3f09df14f15be900fe9098a7df4ecec37c9e5d4632d89f8ff4b97f9d45b503c9892a26ba6d9d5d95d68784cbc34fb3563d405e"
+	cryptoInstance := NewCrypto(types.Sm2p256v1)
+	privateKey, _ := cryptoInstance.HexToSK(privateKeyHex)
+	pass := cryptoInstance.Verify(hexutil.MustDecode(message), hexutil.MustDecode(signature), &privateKey.PublicKey)
+	assert.True(t, pass)
 }
