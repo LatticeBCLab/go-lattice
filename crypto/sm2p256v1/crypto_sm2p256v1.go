@@ -19,8 +19,8 @@ import (
 )
 
 var (
-	secp256k1N, _  = new(big.Int).SetString("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141", 16)
-	secp256k1halfN = new(big.Int).Div(secp256k1N, big.NewInt(2))
+	secp256k1N, _ = new(big.Int).SetString("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141", 16)
+	//secp256k1halfN = new(big.Int).Div(secp256k1N, big.NewInt(2))
 )
 
 func New() *GmApi {
@@ -176,7 +176,7 @@ func (i *GmApi) Sign(hash []byte, sk *ecdsa.PrivateKey) (signature []byte, err e
 	signature[64] = constant.Sm2p256v1SignatureRemark
 
 	if len(signature) != 65 {
-		return nil, errors.New(fmt.Sprintf("sig length is wrong !!! sig length is %d ", len(signature)))
+		return nil, fmt.Errorf("sig length is wrong !!! sig length is %d ", len(signature))
 	}
 
 	// calculate E
@@ -220,7 +220,7 @@ func (i *GmApi) CompressPK(pk *ecdsa.PublicKey) []byte {
 // DecompressPK 解压缩公钥
 func (i *GmApi) DecompressPK(pk []byte) (*ecdsa.PublicKey, error) {
 	if len(pk) != 33 {
-		return nil, errors.New(fmt.Sprintf("DecompressPubKey length is wrong !,lenth is %d", len(pk)))
+		return nil, fmt.Errorf("DecompressPubKey length is wrong !,lenth is %d", len(pk))
 	}
 	return convert.Sm2PKToEcdsaPK(sm2.Decompress(pk)), nil
 }
