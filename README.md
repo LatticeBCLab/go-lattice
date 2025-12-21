@@ -1,4 +1,4 @@
-<h1 align="center">Lattice.go</h1>
+ <h1 align="center">Lattice.go</h1>
 
 <p align="center">
     <img alt="Static Badge" src="https://img.shields.io/badge/go-v1.22.8-blue?logo=go">
@@ -29,6 +29,7 @@ Go language implementation of blockchain SDK.
 ## ⏰ Schedule
 
 - [ ] 2024-12-15: Complete the website construction.
+- [ ] TODO: Optimize `AccountLock` with **Striped Locking** to fix memory leaks and improve concurrency performance.
 
 
 ## Reference
