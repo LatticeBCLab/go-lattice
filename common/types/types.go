@@ -585,7 +585,7 @@ type CurrentIDB struct {
 
 type DIDB struct {
 	IdBlockInfo *CurrentIDB `json:"idBlockInfo"`
-	DocHash     string      `json:"docHash"`
+	DIDDocInfo  *DIDDocInfo `json:"didDocInfo"`
 }
 
 type DIDDocInfo struct {
