@@ -568,3 +568,40 @@ type AccountBalance struct {
 	AvailableBalance string `json:"balance,omitempty"`
 	PendingBalance   string `json:"pending,omitempty"`
 }
+
+type CurrentIDB struct {
+	ParentHash   string `json:"parentHash"`
+	DaemonNumber uint64 `json:"daemonNumber"`
+	Hash         string `json:"hash"`
+	Number       uint64 `json:"number"`
+	Address      string `json:"addr"`
+	DaemonHash   string `json:"daemonHash"`
+	Strategies   struct {
+		Version int    `json:"Version"`
+		Data    string `json:"Data"`
+	} `json:"strategies"`
+	Extras string `json:"extras"`
+}
+
+type DIDB struct {
+	IdBlockInfo *CurrentIDB `json:"idBlockInfo"`
+	DocHash     string      `json:"docHash"`
+}
+
+type DIDDocInfo struct {
+	Version            uint8              `json:"version"`
+	Context            []string           `json:"context"`
+	Id                 string             `json:"id"`
+	VerificationMethod []*VerifMethodItem `json:"verificationMethod"`
+	Authentication     []string           `json:"authentication"`
+	AssertionMethod    []string           `json:"assertionMethod"`
+	Created            uint64             `json:"created"`
+	Updated            uint64             `json:"updated"`
+	Options            []string           `json:"options"`
+}
+
+type VerifMethodItem struct {
+	Id        string `json:"id"`
+	Type      string `json:"type"`
+	PublicKey string `json:"publicKey"`
+}

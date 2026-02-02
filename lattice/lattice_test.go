@@ -12,6 +12,7 @@ import (
 	"github.com/LatticeBCLab/go-lattice/common/constant"
 	"github.com/LatticeBCLab/go-lattice/common/convert"
 	"github.com/LatticeBCLab/go-lattice/common/types"
+	"github.com/LatticeBCLab/go-lattice/lattice/block"
 	"github.com/LatticeBCLab/go-lattice/lattice/builtin"
 	"github.com/LatticeBCLab/go-lattice/lattice/protobuf"
 	"github.com/ethereum/go-ethereum/common"
@@ -116,6 +117,49 @@ func TestAttestation(t *testing.T) {
 		r, err := json.Marshal(receipt)
 		assert.NoError(t, err)
 		t.Log(string(r))
+	})
+
+	t.Run("Test construct traceability", func(t *testing.T) {
+		privateKey := "0xb797270aab585e237498f203b6b7c85f812db111303330b7b306cebcfc08f913"
+		chainId := 226
+		accountAddress := "zltc_VX9PLtnifLDsoMDCeiqx1FyBG4R9DwTsD"
+		businessAddress := "zltc_YBomBNykwMqxm719giBL3VtYV4ABT9a8D"
+		uri := 55834574854
+		height := 39183625
+		parentHash := "0x935ed4e42a7ea94672365686528df4917ad0ac5f8a2159065f388c6270a1c485"
+		daemonHash := "0x628ebddb45260dfa03245a85e3ced85bbfc03461a3dffd92ea1d186b851f4b83"
+
+		jsonData := `{"Hash":"1"}`
+		fd := protobuf.MakeFileDescriptor(strings.NewReader("syntax = \"proto3\";\n\nmessage TCertHashDebug {\n\tstring Hash = 1;\n}"))
+		dataBytes, err := protobuf.MarshallMessage(fd, jsonData)
+		assert.NoError(t, err)
+		data, err := contract.Write(&builtin.WriteLedgerRequest{
+			ProtocolUri: uint64(uri),
+			Hash:        "1",
+			Data:        convert.BytesToBytes32Arr(dataBytes),
+			Address:     convert.ZltcMustToAddress(businessAddress),
+		})
+		assert.NoError(t, err)
+
+		transaction := block.NewTransactionBuilder(block.TransactionTypeCallContract).
+			SetLatestBlock(&types.LatestBlock{
+				Height:          uint64(height),
+				Hash:            common.HexToHash(parentHash),
+				DaemonBlockHash: common.HexToHash(daemonHash),
+			}).
+			SetOwner(accountAddress).
+			SetLinker("zltc_QLbz7JHiBTspUvTPzLHy5biDS9mu53mmv").
+			SetCode(data).
+			SetPayload("0x").
+			SetAmount(0).
+			SetJoule(0).
+			Build()
+		err = transaction.SignTX(uint64(chainId), types.Sm2p256v1, privateKey)
+		assert.NoError(t, err)
+
+		bs, err := json.Marshal(transaction)
+		assert.NoError(t, err)
+		fmt.Println(string(bs))
 	})
 }
 

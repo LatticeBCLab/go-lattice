@@ -29,12 +29,16 @@ func TestSm2p256v1Api_GenerateKeyPair(t *testing.T) {
 }
 
 func TestSm2p256v1Api_HexToSK(t *testing.T) {
-	sk := "0xb3e4575b72bffe9e27d7bb75f56cfbefcb0da2bfc2b457369b674c13662b0b9b"
+	sk := "0xb797270aab585e237498f203b6b7c85f812db111303330b7b306cebcfc08f913"
 	crypto := New()
 	priv, err := crypto.HexToSK(sk)
 	if err != nil {
 		t.Error(err)
 	}
+	crypto.Verify(
+		hexutil.MustDecode("0x0d93d4aaaea5dc74818b6f33f95672a362e553b7272e646fa5b4a44cc6e9b833"),
+		hexutil.MustDecode("0x24e2393dc5aba1b35616401d022a753650331d91bb6c26384dee9cdb3f8d522fef18a7d5031da24d6c60c16ca632674158cbbe5bf65ea0613db4ce57654be7850168b5f899747b1dfcd2f76118d8437713df31f250516a8de1473042228c0d6529"),
+		&priv.PublicKey)
 	fmt.Println(crypto.PKToHexString(&priv.PublicKey))
 }
 
