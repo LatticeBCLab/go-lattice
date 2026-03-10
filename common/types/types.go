@@ -605,3 +605,54 @@ type VerifMethodItem struct {
 	Type      string `json:"type"`
 	PublicKey string `json:"publicKey"`
 }
+
+type CreateDataContractParams struct {
+	ContractId        string      `json:"contractId"`
+	ContractName      string      `json:"contractName"`
+	ContractAbstract  string      `json:"contractAbstract,omitempty"`
+	SignMode          string      `json:"signMode,omitempty"`
+	HasPrivacyCompute bool        `json:"hasPrivacyCompute,omitempty"`
+	ActivationTime    uint64      `json:"activationTime"`
+	EndTime           uint64      `json:"endTime"`
+	Strategies        []Strategy  `json:"strategies,omitempty"`
+	Signatories       []Signatory `json:"signatories,omitempty"`
+	Code              []byte      `json:"code,omitempty"`
+}
+
+type Strategy struct {
+	ResourceId    string         `json:"resourceId"`
+	Connects      []ConnectInfo  `json:"connects"` // 数据连接ID
+	ResourceName  string         `json:"resourceName"`
+	Abstract      string         `json:"abstract"`
+	Operation     string         `json:"operation"`
+	StrategyNodes []StrategyNode `json:"strategyNodes"`
+	Rules         []Rule         `json:"rules"`
+}
+
+type ConnectInfo struct {
+	ConnectId    string `json:"connectId"`
+	AccessType   string `json:"accessType"`
+	AccessConfig string `json:"accessConfig"`
+}
+
+type StrategyNode struct {
+	NodeId       string `json:"nodeId"`
+	NodeName     string `json:"nodeName"`
+	NodePeerId   string `json:"nodePeerId"`
+	StrategyType string `json:"strategyType"` // provider, consumer, ...
+}
+
+type Signatory struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Sign []byte `json:"sign"`
+}
+
+type Rule struct {
+	Name           string         `json:"name"`
+	Grule          string         `json:"grule"`
+	Type           uint8          `json:"type"` // 默认全是允许
+	FactJsonString string         `json:"factJsonString"`
+	FactBytes      string         `json:"factBytes"`
+	Fact           map[string]any `json:"fact"`
+}

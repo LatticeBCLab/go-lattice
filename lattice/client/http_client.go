@@ -384,6 +384,7 @@ type HttpApi interface {
 	GetCertificate(ctx context.Context, chainId string, serialNumber string) (*types.NodeCertificate, error)
 	GetCurrentIDB(ctx context.Context, chainId, owner string) (*types.CurrentIDB, error)
 	GetDIDBByHash(ctx context.Context, chainId, hash, docHash string) (*types.DIDB, error)
+	GetCreateContractSolidity(ctx context.Context, params *types.CreateDataContractParams) (string, error)
 }
 
 type httpApi struct {
