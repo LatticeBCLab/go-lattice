@@ -27,15 +27,53 @@ const (
 
 var latticeApi = NewLattice(
 	&ChainConfig{Curve: types.Sm2p256v1},
-	&ConnectingNodeConfig{Ip: "172.22.0.25", HttpPort: 31015, JwtSecret: "4EWRP6LZ", JwtTokenExpirationDuration: 10 * time.Hour},
+	&ConnectingNodeConfig{Ip: "172.22.0.75", HttpPort: 10332, JwtSecret: "4EWRP6LZ", JwtTokenExpirationDuration: 10 * time.Hour},
 	NewMemoryBlockCache(10*time.Second, time.Minute, time.Minute),
 	NewAccountLock(),
 	&Options{MaxIdleConnsPerHost: 200},
 )
 
 var credentials = &Credentials{
-	AccountAddress: "zltc_j5yLhxm8fkwJkuhapqmqmJ1vYY2gLfPLy",
-	PrivateKey:     "0x88d80c38a8a10e03b54c2c2234e90d9809030a78e4fd2f99a6a189629b530f90",
+	AccountAddress: "zltc_YVnLuVEeptec5jY1929GdiySwWWpUCyZe",
+	PrivateKey:     "0x5d5df56554ae04c431b65925be37bee41a61eee3348278a0b9a7527e7e1d76e5",
+}
+
+func TestIdentityContract(t *testing.T) {
+	contract := builtin.NewIdentityContract()
+	t.Run("Create did", func(t *testing.T) {
+		doc := `{
+            "version": 1,
+            "context": [
+                "https://www.w3.org/ns/did/v1"
+            ],
+            "id": "did:jg:zltc_gm:zltc_YVnLuVEeptec5jY1929GdiySwWWpUCyZe",
+            "verificationMethod": [
+                {
+                    "id": "did:jg:zltc_gm:zltc_YVnLuVEeptec5jY1929GdiySwWWpUCyZe#keys-1",
+                    "type": "SM2",
+                    "publicKey": "04e96ec5e3d6e77f506e5066f9c50461c554c41f836684a5a92d455404b37b1710d7ca05c395733fa895eb980e48892c7b7464df4f395c4e17bac2c558133ac4cf"
+                }
+            ],
+            "authentication": [
+                "did:jg:zltc_gm:zltc_XD1yYM1DhzkBd5PoX6Wf63J1fprVdyRpi#keys-1"
+            ],
+            "assertionMethod": [
+                "did:jg:zltc_gm:zltc_YVnLuVEeptec5jY1929GdiySwWWpUCyZe#keys-1"
+            ],
+            "created": 1768439323223,
+            "updated": 1768439323223,
+            "options": null
+        }`
+		data, err := contract.CreateDID(credentials.AccountAddress, doc)
+		assert.NoError(t, err)
+		hash, receipt, err := latticeApi.CallContractWaitReceipt(context.Background(), credentials, chainId, contract.ContractAddress(), data, constant.ZeroPayload, 0, 0, DefaultFixedRetryStrategy())
+		assert.NoError(t, err)
+		t.Log(hash.String())
+		r, err := json.Marshal(receipt)
+		assert.NoError(t, err)
+		t.Logf("业务合约地址：%s", receipt.ContractRet)
+		t.Log(string(r))
+	})
 }
 
 func TestAttestation(t *testing.T) {

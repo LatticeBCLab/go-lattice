@@ -17,6 +17,8 @@ type IdentityContract interface {
 	ContractAddress() string
 	// ChangeIdentity 更换身份
 	ChangeIdentity(oldAddress, newAddress, data string) (string, error)
+	// CreateDID 创建DID
+	CreateDID(oldAddress, doc string) (string, error)
 }
 
 type identityContract struct {
@@ -39,32 +41,68 @@ func (c *identityContract) ChangeIdentity(oldAddress, newAddress, data string) (
 	return function.Encode()
 }
 
+func (c *identityContract) CreateDID(oldAddress, doc string) (string, error) {
+	function, err := c.abi.GetLatticeFunction("createDID", oldAddress, doc)
+	if err != nil {
+		return "", err
+	}
+	return function.Encode()
+}
+
 var IdentityBuiltinContract = Contract{
 	Description: "身份合约",
 	Address:     "zltc_aQdmesGLjoJ5FJ65t2F7Nf9tTAT2C3dxA",
 	AbiString: `[
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_oldAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_newAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "string",
-                "name": "_data",
-                "type": "string"
-            }
-        ],
-        "name": "changeIdentity",
-        "outputs": [],
-        "stateMutability": "pure",
-        "type": "function"
-    }
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_oldAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_newAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_data",
+				"type": "string"
+			}
+		],
+		"name": "changeIdentity",
+		"outputs": [],
+		"stateMutability": "pure",
+		"type": "function"
+	},{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_oldAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_doc",
+				"type": "string"
+			}
+		],
+		"name": "createDID",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "_idbHash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_diddocHash",
+				"type": "string"
+			}
+		],
+		"stateMutability": "pure",
+		"type": "function"
+}
 ]`,
 }
