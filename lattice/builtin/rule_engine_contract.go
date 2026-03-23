@@ -120,7 +120,7 @@ type ResourceInfoParams struct {
 	ResourceStage     string              `json:"resourceStage"`
 	SafeLevel         string              `json:"safeLevel"`
 	Industry          string              `json:"industry"`
-	Privacy           string              `json:"privacy"`
+	Privacy           bool                `json:"privacy"`
 	Feature           bool                `json:"feature"`
 	Owner             string              `json:"owner"`
 	Desc              string              `json:"desc"`
@@ -365,7 +365,7 @@ type resourceInfoParam struct {
 	ResourceStage     string                   `abi:"resourceStage"`
 	SafeLevel         string                   `abi:"safeLevel"`
 	Industry          string                   `abi:"industry"`
-	Privacy           string                   `abi:"privacy"`
+	Privacy           bool                     `abi:"privacy"`
 	Feature           bool                     `abi:"feature"`
 	Owner             string                   `abi:"owner"`
 	Desc              string                   `abi:"desc"`
@@ -837,9 +837,9 @@ var RuleEngineBuiltinContract = Contract{
                         "type": "string"
                     },
                     {
-                        "internalType": "string",
+                        "internalType": "bool",
                         "name": "privacy",
-                        "type": "string"
+                        "type": "bool"
                     },
                     {
                         "internalType": "bool",
@@ -1221,9 +1221,9 @@ var RuleEngineBuiltinContract = Contract{
                         "type": "string"
                     },
                     {
-                        "internalType": "string",
+                        "internalType": "bool",
                         "name": "privacy",
-                        "type": "string"
+                        "type": "bool"
                     },
                     {
                         "internalType": "bool",
