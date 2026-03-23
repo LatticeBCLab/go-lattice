@@ -102,6 +102,10 @@ func TestRuleEngineContractEncode(t *testing.T) {
 			ResourceID:        "res-8f9d2a1b",
 			ResourceName:      "user_behavior_logs",
 			ResourceStage:     "production",
+			SafeLevel:         "L3",
+			Industry:          "internet",
+			Privacy:           "high",
+			Feature:           true,
 			Owner:             "data-team-admin",
 			Desc:              "Daily user click and browsing behavior logs",
 			ValidityStartTime: "2024-01-01 00:00:00",
@@ -120,6 +124,7 @@ func TestRuleEngineContractEncode(t *testing.T) {
 					},
 				},
 			},
+			MetadataConfig: []string{"pii:user_id", "retention:365d"},
 		}
 
 		actual1, err := contract.CreateResource(args)

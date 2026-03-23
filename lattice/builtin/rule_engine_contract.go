@@ -118,11 +118,16 @@ type ResourceInfoParams struct {
 	ResourceID        string              `json:"resourceId"`
 	ResourceName      string              `json:"resourceName"`
 	ResourceStage     string              `json:"resourceStage"`
+	SafeLevel         string              `json:"safeLevel"`
+	Industry          string              `json:"industry"`
+	Privacy           string              `json:"privacy"`
+	Feature           bool                `json:"feature"`
 	Owner             string              `json:"owner"`
 	Desc              string              `json:"desc"`
 	ValidityStartTime string              `json:"validityStartTime"`
 	ValidityEndTime   string              `json:"validityEndTime"`
 	Tables            []DataResourceTable `json:"tables"`
+	MetadataConfig    []string            `json:"metadataConfig"`
 }
 
 type SourceInfoParams struct {
@@ -358,11 +363,16 @@ type resourceInfoParam struct {
 	ResourceID        string                   `abi:"resourceId"`
 	ResourceName      string                   `abi:"resourceName"`
 	ResourceStage     string                   `abi:"resourceStage"`
+	SafeLevel         string                   `abi:"safeLevel"`
+	Industry          string                   `abi:"industry"`
+	Privacy           string                   `abi:"privacy"`
+	Feature           bool                     `abi:"feature"`
 	Owner             string                   `abi:"owner"`
 	Desc              string                   `abi:"desc"`
 	ValidityStartTime string                   `abi:"validityStartTime"`
 	ValidityEndTime   string                   `abi:"validityEndTime"`
 	Tables            []dataResourceTableParam `abi:"tables"`
+	MetadataConfig    []string                 `abi:"metadataConfig"`
 }
 
 type sourceInfoParam struct {
@@ -443,6 +453,10 @@ func toResourceInfoParam(args ResourceInfoParams) resourceInfoParam {
 		ResourceID:        args.ResourceID,
 		ResourceName:      args.ResourceName,
 		ResourceStage:     args.ResourceStage,
+		SafeLevel:         args.SafeLevel,
+		Industry:          args.Industry,
+		Privacy:           args.Privacy,
+		Feature:           args.Feature,
 		Owner:             args.Owner,
 		Desc:              args.Desc,
 		ValidityStartTime: args.ValidityStartTime,
@@ -461,6 +475,7 @@ func toResourceInfoParam(args ResourceInfoParams) resourceInfoParam {
 				}),
 			}
 		}),
+		MetadataConfig: args.MetadataConfig,
 	}
 }
 
@@ -550,581 +565,750 @@ var RuleEngineBuiltinContract = Contract{
 	Description: "规则引擎合约",
 	Address:     "zltc_aVwgkXjLrjc1TQaXAbD6WwgMFJ1mVuEGF",
 	AbiString: `[
-		{
-			"type": "function",
-			"name": "accessContract",
-			"inputs": [
-				{
-					"name": "args",
-					"type": "tuple",
-					"components": [
-						{
-							"name": "contractAddr",
-							"type": "address"
-						},
-						{
-							"name": "resourceId",
-							"type": "string"
-						},
-						{
-							"name": "operation",
-							"type": "string"
-						},
-						{
-							"name": "rules",
-							"type": "tuple[]",
-							"components": [
-								{
-									"name": "name",
-									"type": "string"
-								},
-								{
-									"name": "grule",
-									"type": "string"
-								},
-								{
-									"name": "Type",
-									"type": "uint8"
-								},
-								{
-									"name": "factJsonString",
-									"type": "string"
-								}
-							]
-						}
-					]
-				}
-			],
-			"outputs": [],
-			"stateMutability": "view"
-		},
-		{
-			"type": "function",
-			"name": "createContract",
-			"inputs": [
-				{
-					"name": "args",
-					"type": "tuple",
-					"components": [
-						{
-							"name": "contractId",
-							"type": "string"
-						},
-						{
-							"name": "contractName",
-							"type": "string"
-						},
-						{
-							"name": "contractAbstract",
-							"type": "string"
-						},
-						{
-							"name": "signMode",
-							"type": "string"
-						},
-						{
-							"name": "hasPrivacyCompute",
-							"type": "bool"
-						},
-						{
-							"name": "activationTime",
-							"type": "uint64"
-						},
-						{
-							"name": "endTime",
-							"type": "uint64"
-						},
-						{
-							"name": "strategies",
-							"type": "tuple[]",
-							"components": [
-								{
-									"name": "resourceId",
-									"type": "string"
-								},
-								{
-									"name": "connects",
-									"type": "tuple[]",
-									"components": [
-										{
-											"name": "connectId",
-											"type": "string"
-										},
-										{
-											"name": "accessType",
-											"type": "string"
-										},
-										{
-											"name": "accessConfig",
-											"type": "string"
-										},
-										{
-											"name": "entity",
-											"type": "string"
-										}
-									]
-								},
-								{
-									"name": "resourceName",
-									"type": "string"
-								},
-								{
-									"name": "abstract",
-									"type": "string"
-								},
-								{
-									"name": "operation",
-									"type": "string"
-								},
-								{
-									"name": "strategyNodes",
-									"type": "tuple[]",
-									"components": [
-										{
-											"name": "nodeId",
-											"type": "string"
-										},
-										{
-											"name": "nodeName",
-											"type": "string"
-										},
-										{
-											"name": "nodePeerId",
-											"type": "string"
-										},
-										{
-											"name": "strategyType",
-											"type": "string"
-										}
-									]
-								},
-								{
-									"name": "rules",
-									"type": "tuple[]",
-									"components": [
-										{
-											"name": "name",
-											"type": "string"
-										},
-										{
-											"name": "grule",
-											"type": "string"
-										},
-										{
-											"name": "Type",
-											"type": "uint8"
-										},
-										{
-											"name": "factJsonString",
-											"type": "string"
-										}
-									]
-								}
-							]
-						},
-						{
-							"name": "signatories",
-							"type": "tuple[]",
-							"components": [
-								{
-									"name": "id",
-									"type": "string"
-								},
-								{
-									"name": "name",
-									"type": "string"
-								},
-								{
-									"name": "sign",
-									"type": "bytes"
-								}
-							]
-						},
-						{
-							"name": "code",
-							"type": "bytes"
-						}
-					]
-				}
-			],
-			"outputs": [],
-			"stateMutability": "view"
-		},
-		{
-			"type": "function",
-			"name": "createResource",
-			"inputs": [
-				{
-					"name": "args",
-					"type": "tuple",
-					"components": [
-						{
-							"name": "resourceId",
-							"type": "string"
-						},
-						{
-							"name": "resourceName",
-							"type": "string"
-						},
-						{
-							"name": "resourceStage",
-							"type": "string"
-						},
-						{
-							"name": "owner",
-							"type": "string"
-						},
-						{
-							"name": "desc",
-							"type": "string"
-						},
-						{
-							"name": "validityStartTime",
-							"type": "string"
-						},
-						{
-							"name": "validityEndTime",
-							"type": "string"
-						},
-						{
-							"name": "tables",
-							"type": "tuple[]",
-							"components": [
-								{
-									"name": "tableId",
-									"type": "string"
-								},
-								{
-									"name": "datasourceId",
-									"type": "string"
-								},
-								{
-									"name": "tableName",
-									"type": "string"
-								},
-								{
-									"name": "columns",
-									"type": "tuple[]",
-									"components": [
-										{
-											"name": "colName",
-											"type": "string"
-										},
-										{
-											"name": "colType",
-											"type": "string"
-										},
-										{
-											"name": "colComment",
-											"type": "string"
-										}
-									]
-								}
-							]
-						}
-					]
-				}
-			],
-			"outputs": [],
-			"stateMutability": "nonpayable"
-		},
-		{
-			"type": "function",
-			"name": "upgradeContract",
-			"inputs": [
-				{
-					"name": "args",
-					"type": "tuple",
-					"components": [
-						{
-							"name": "contractId",
-							"type": "string"
-						},
-						{
-							"name": "contractName",
-							"type": "string"
-						},
-						{
-							"name": "contractAbstract",
-							"type": "string"
-						},
-						{
-							"name": "signMode",
-							"type": "string"
-						},
-						{
-							"name": "hasPrivacyCompute",
-							"type": "bool"
-						},
-						{
-							"name": "activationTime",
-							"type": "uint64"
-						},
-						{
-							"name": "endTime",
-							"type": "uint64"
-						},
-						{
-							"name": "strategies",
-							"type": "tuple[]",
-							"components": [
-								{
-									"name": "resourceId",
-									"type": "string"
-								},
-								{
-									"name": "connects",
-									"type": "tuple[]",
-									"components": [
-										{
-											"name": "connectId",
-											"type": "string"
-										},
-										{
-											"name": "accessType",
-											"type": "string"
-										},
-										{
-											"name": "accessConfig",
-											"type": "string"
-										}
-									]
-								},
-								{
-									"name": "resourceName",
-									"type": "string"
-								},
-								{
-									"name": "abstract",
-									"type": "string"
-								},
-								{
-									"name": "operation",
-									"type": "string"
-								},
-								{
-									"name": "strategyNodes",
-									"type": "tuple[]",
-									"components": [
-										{
-											"name": "nodeId",
-											"type": "string"
-										},
-										{
-											"name": "nodeName",
-											"type": "string"
-										},
-										{
-											"name": "nodePeerId",
-											"type": "string"
-										},
-										{
-											"name": "strategyType",
-											"type": "string"
-										}
-									]
-								},
-								{
-									"name": "rules",
-									"type": "tuple[]",
-									"components": [
-										{
-											"name": "name",
-											"type": "string"
-										},
-										{
-											"name": "grule",
-											"type": "string"
-										},
-										{
-											"name": "Type",
-											"type": "uint8"
-										},
-										{
-											"name": "factJsonString",
-											"type": "string"
-										}
-									]
-								}
-							]
-						},
-						{
-							"name": "signatories",
-							"type": "tuple[]",
-							"components": [
-								{
-									"name": "id",
-									"type": "string"
-								},
-								{
-									"name": "name",
-									"type": "string"
-								},
-								{
-									"name": "sign",
-									"type": "bytes"
-								}
-							]
-						},
-						{
-							"name": "code",
-							"type": "bytes"
-						}
-					]
-				},
-				{
-					"name": "contractAddr",
-					"type": "address"
-				}
-			],
-			"outputs": [],
-			"stateMutability": "nonpayable"
-		},
-		{
-			"type": "function",
-			"name": "signContract",
-			"inputs": [
-				{
-					"name": "contractAddr",
-					"type": "address"
-				},
-				{
-					"name": "signatories",
-					"type": "tuple[]",
-					"components": [
-						{
-							"name": "id",
-							"type": "string"
-						},
-						{
-							"name": "name",
-							"type": "string"
-						},
-						{
-							"name": "sign",
-							"type": "bytes"
-						}
-					]
-				}
-			],
-			"outputs": [],
-			"stateMutability": "nonpayable"
-		},
-		{
-			"type": "function",
-			"name": "createSource",
-			"inputs": [
-				{
-					"name": "args",
-					"type": "tuple",
-					"components": [
-						{
-							"name": "id",
-							"type": "string"
-						},
-						{
-							"name": "name",
-							"type": "string"
-						},
-						{
-							"name": "owner",
-							"type": "string"
-						},
-						{
-							"name": "abstract",
-							"type": "string"
-						},
-						{
-							"name": "sourceType",
-							"type": "string"
-						},
-						{
-							"name": "config",
-							"type": "string"
-						}
-					]
-				}
-			],
-			"outputs": [],
-			"stateMutability": "nonpayable"
-		},
-		{
-			"type": "function",
-			"name": "createProduct",
-			"inputs": [
-				{
-					"name": "args",
-					"type": "tuple",
-					"components": [
-						{
-							"name": "resourceId",
-							"type": "string"
-						},
-						{
-							"name": "resourceName",
-							"type": "string"
-						},
-						{
-							"name": "resourceStage",
-							"type": "string"
-						},
-						{
-							"name": "owner",
-							"type": "string"
-						},
-						{
-							"name": "desc",
-							"type": "string"
-						},
-						{
-							"name": "validityStartTime",
-							"type": "string"
-						},
-						{
-							"name": "validityEndTime",
-							"type": "string"
-						},
-						{
-							"name": "tables",
-							"type": "tuple[]",
-							"components": [
-								{
-									"name": "tableId",
-									"type": "string"
-								},
-								{
-									"name": "datasourceId",
-									"type": "string"
-								},
-								{
-									"name": "tableName",
-									"type": "string"
-								},
-								{
-									"name": "columns",
-									"type": "tuple[]",
-									"components": [
-										{
-											"name": "colName",
-											"type": "string"
-										},
-										{
-											"name": "colType",
-											"type": "string"
-										},
-										{
-											"name": "colComment",
-											"type": "string"
-										}
-									]
-								}
-							]
-						}
-					]
-				}
-			],
-			"outputs": [],
-			"stateMutability": "nonpayable"
-		}
-	]`,
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "address",
+                        "name": "contractAddr",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "resourceId",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "operation",
+                        "type": "string"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "name",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "grule",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "Type",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "factJsonString",
+                                "type": "string"
+                            }
+                        ],
+                        "internalType": "struct Resource.Rule[]",
+                        "name": "rules",
+                        "type": "tuple[]"
+                    }
+                ],
+                "internalType": "struct Resource.AccessParams",
+                "name": "args",
+                "type": "tuple"
+            }
+        ],
+        "name": "accessContract",
+        "outputs": [],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "string",
+                        "name": "contractId",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "contractName",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "contractAbstract",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "signMode",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "hasPrivacyCompute",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint64",
+                        "name": "activationTime",
+                        "type": "uint64"
+                    },
+                    {
+                        "internalType": "uint64",
+                        "name": "endTime",
+                        "type": "uint64"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "resourceId",
+                                "type": "string"
+                            },
+                            {
+                                "components": [
+                                    {
+                                        "internalType": "string",
+                                        "name": "connectId",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "accessType",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "accessConfig",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "entity",
+                                        "type": "string"
+                                    }
+                                ],
+                                "internalType": "struct Resource.ConnectInfo[]",
+                                "name": "connects",
+                                "type": "tuple[]"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "resourceName",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "abstract",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "operation",
+                                "type": "string"
+                            },
+                            {
+                                "components": [
+                                    {
+                                        "internalT ype": "string",
+                                        "name": "nodeId",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "nodeName",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "nodePeerId",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "strategyType",
+                                        "type": "string"
+                                    }
+                                ],
+                                "internalType": "struct Resource.StrategyNode[]",
+                                "name": "strategyNodes",
+                                "type": "tuple[]"
+                            },
+                            {
+                                "components": [
+                                    {
+                                        "internalType": "string",
+                                        "name": "name",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "grule",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "uint8",
+                                        "name": "Type",
+                                        "type": "uint8"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "factJsonString",
+                                        "type": "string"
+                                    }
+                                ],
+                                "internalType": "struct Resource.Rule[]",
+                                "name": "rules",
+                                "type": "tuple[]"
+                            }
+                        ],
+                        "internalType": "struct Resource.Strategy[]",
+                        "name": "strategies",
+                        "type": "tuple[]"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "id",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "name",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "bytes",
+                                "name": "sign",
+                                "type": "bytes"
+                            }
+                        ],
+                        "internalType": "struct Resource.Signatory[]",
+                        "name": "signatories",
+                        "type": "tuple[]"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "code",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct Resource.ContractParams",
+                "name": "args",
+                "type": "tuple"
+            }
+        ],
+        "name": "createContract",
+        "outputs": [],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "string",
+                        "name": "resourceId",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "resourceName",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "resourceStage",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "safeLevel",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "industry",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "privacy",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "feature",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "owner",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "desc",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "validityStartTime",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "validityEndTime",
+                        "type": "string"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "tableId",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "datasourceId",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "tableName",
+                                "type": "string"
+                            },
+                            {
+                                "components": [
+                                    {
+                                        "internalType": "string",
+                                        "name": "colName",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "colType",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "colComment",
+                                        "type": "string"
+                                    }
+                                ],
+                                "internalType": "struct Resource.DataResourceColumn[]",
+                                "name": "columns",
+                                "type": "tuple[]"
+                            }
+                        ],
+                        "internalType": "struct Resource.DataResourceTable[]",
+                        "name": "tables",
+                        "type": "tuple[]"
+                    },
+                    {
+                        "internalType": "string[]",
+                        "name": "metadataConfig",
+                        "type": "string[]"
+                    }
+                ],
+                "internalType": "struct Resource.ResourceInfoParams",
+                "name": "args",
+                "type": "tuple"
+            }
+        ],
+        "name": "createResource",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "string",
+                        "name": "contractId",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "contractName",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "contractAbstract",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "signMode",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "hasPrivacyCompute",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint64",
+                        "name": "activationTime",
+                        "type": "uint64"
+                    },
+                    {
+                        "internalType": "uint64",
+                        "name": "endTime",
+                        "type": "uint64"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "resourceId",
+                                "type": "string"
+                            },
+                            {
+                                "components": [
+                                    {
+                                        "internalType": "string",
+                                        "name": "connectId",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "accessType",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "accessConfig",
+                                        "type": "string"
+                                    }
+                                ],
+                                "internalType": "struct Resource.ConnectInfo[]",
+                                "name": "connects",
+                                "type": "tuple[]"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "resourceName",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "abstract",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "operation",
+                                "type": "string"
+                            },
+                            {
+                                "components": [
+                                    {
+                                        "internalType": "string",
+                                        "name": "nodeId",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "nodeName",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "nodePeerId",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "strategyType",
+                                        "type": "string"
+                                    }
+                                ],
+                                "internalType": "struct Resource.StrategyNode[]",
+                                "name": "strategyNodes",
+                                "type": "tuple[]"
+                            },
+                            {
+                                "components": [
+                                    {
+                                        "internalType": "string",
+                                        "name": "name",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "grule",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "uint8",
+                                        "name": "Type",
+                                        "type": "uint8"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "factJsonString",
+                                        "type": "string"
+                                    }
+                                ],
+                                "internalType": "struct Resource.Rule[]",
+                                "name": "rules",
+                                "type": "tuple[]"
+                            }
+                        ],
+                        "internalType": "struct Resource.Strategy[]",
+                        "name": "strategies",
+                        "type": "tuple[]"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "id",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "name",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "bytes",
+                                "name": "sign",
+                                "type": "bytes"
+                            }
+                        ],
+                        "internalType": "struct Resource.Signatory[]",
+                        "name": "signatories",
+                        "type": "tuple[]"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "code",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct Resource.ContractParams",
+                "name": "args",
+                "type": "tuple"
+            },
+            {
+                "internalType": "address",
+                "name": "contractAddr",
+                "type": "address"
+            }
+        ],
+        "name": "upgradeContract",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "contractAddr",
+                "type": "address"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "string",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "sign",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct Resource.Signatory[]",
+                "name": "signatories",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "signContract",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "string",
+                        "name": "id",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "owner",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "abstract",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "sourceType",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "config",
+                        "type": "string"
+                    }
+                ],
+                "internalType": "struct Resource.SourceInfoParams",
+                "name": "args",
+                "type": "tuple"
+            }
+        ],
+        "name": "createSource",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "string",
+                        "name": "resourceId",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "resourceName",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "resourceStage",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "safeLevel",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "industry",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "privacy",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "feature",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "owner",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "desc",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "validityStartTime",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "validityEndTime",
+                        "type": "string"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "tableId",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "datasourceId",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "tableName",
+                                "type": "string"
+                            },
+                            {
+                                "components": [
+                                    {
+                                        "internalType": "string",
+                                        "name": "colName",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "colType",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
+                                        "name": "colComment",
+                                        "type": "string"
+                                    }
+                                ],
+                                "internalType": "struct Resource.DataResourceColumn[]",
+                                "name": "columns",
+                                "type": "tuple[]"
+                            }
+                        ],
+                        "internalType": "struct Resource.DataResourceTable[]",
+                        "name": "tables",
+                        "type": "tuple[]"
+                    },
+                    {
+                        "internalType": "string[]",
+                        "name": "metadataConfig",
+                        "type": "string[]"
+                    }
+                ],
+                "internalType": "struct Resource.ResourceInfoParams",
+                "name": "args",
+                "type": "tuple"
+            }
+        ],
+        "name": "createProduct",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]`,
 }
