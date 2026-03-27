@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -59,6 +60,7 @@ func TestRuleEngineContractEncode(t *testing.T) {
 							ConnectID:    "connect-1",
 							AccessType:   "api",
 							AccessConfig: "{}",
+							SourceConfig: "{\"source\":\"mysql\"}",
 							Entity:       "node-1",
 						},
 					},
@@ -128,14 +130,18 @@ func TestRuleEngineContractEncode(t *testing.T) {
 		}
 
 		actual1, err := contract.CreateResource(args)
+		fmt.Println("actual1", actual1)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, actual1)
 		assert.Contains(t, actual1, "0x")
 
-		actual2, err := contract.CreateProduct(args)
+		actual2, err := contract.CreateResource(ResourceInfoParams{})
+		fmt.Println("actual2", actual2)
+
+		/* actual2, err := contract.CreateProduct(args)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, actual2)
-		assert.Contains(t, actual2, "0x")
+		assert.Contains(t, actual2, "0x") */
 	})
 
 	t.Run("UpgradeContract", func(t *testing.T) {

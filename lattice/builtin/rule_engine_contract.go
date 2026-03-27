@@ -33,6 +33,7 @@ type CreateConnectInfo struct {
 	ConnectID    string `json:"connectId"`
 	AccessType   string `json:"accessType"`
 	AccessConfig string `json:"accessConfig"`
+	SourceConfig string `json:"sourceConfig"`
 	Entity       string `json:"entity"`
 }
 
@@ -278,6 +279,7 @@ type createConnectInfoParam struct {
 	ConnectID    string `abi:"connectId"`
 	AccessType   string `abi:"accessType"`
 	AccessConfig string `abi:"accessConfig"`
+	SourceConfig string `abi:"sourceConfig"`
 	Entity       string `abi:"entity"`
 }
 
@@ -502,6 +504,7 @@ func toCreateStrategyParams(strategies []Strategy) []createStrategyParam {
 					ConnectID:    connect.ConnectID,
 					AccessType:   connect.AccessType,
 					AccessConfig: connect.AccessConfig,
+					SourceConfig: connect.SourceConfig,
 					Entity:       connect.Entity,
 				}
 			}),
@@ -687,6 +690,11 @@ var RuleEngineBuiltinContract = Contract{
                                     },
                                     {
                                         "internalType": "string",
+                                        "name": "sourceConfig",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "internalType": "string",
                                         "name": "entity",
                                         "type": "string"
                                     }
@@ -713,7 +721,7 @@ var RuleEngineBuiltinContract = Contract{
                             {
                                 "components": [
                                     {
-                                        "internalT ype": "string",
+                                        "internalType": "string",
                                         "name": "nodeId",
                                         "type": "string"
                                     },
