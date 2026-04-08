@@ -80,6 +80,7 @@ type ContractParams struct {
 	ContractID        string      `json:"contractId"`
 	ContractName      string      `json:"contractName"`
 	ContractAbstract  string      `json:"contractAbstract"`
+	ContractFrom      string      `json:"contractFrom"`
 	SignMode          string      `json:"signMode"`
 	HasPrivacyCompute bool        `json:"hasPrivacyCompute"`
 	ActivationTime    uint64      `json:"activationTime"`
@@ -93,6 +94,7 @@ type UpgradeContractParams struct {
 	ContractID        string            `json:"contractId"`
 	ContractName      string            `json:"contractName"`
 	ContractAbstract  string            `json:"contractAbstract"`
+	ContractFrom      string            `json:"contractFrom"`
 	SignMode          string            `json:"signMode"`
 	HasPrivacyCompute bool              `json:"hasPrivacyCompute"`
 	ActivationTime    uint64            `json:"activationTime"`
@@ -326,6 +328,7 @@ type createContractParam struct {
 	ContractID        string                `abi:"contractId"`
 	ContractName      string                `abi:"contractName"`
 	ContractAbstract  string                `abi:"contractAbstract"`
+	ContractFrom      string                `abi:"contractFrom"`
 	SignMode          string                `abi:"signMode"`
 	HasPrivacyCompute bool                  `abi:"hasPrivacyCompute"`
 	ActivationTime    uint64                `abi:"activationTime"`
@@ -339,6 +342,7 @@ type upgradeContractParam struct {
 	ContractID        string                 `abi:"contractId"`
 	ContractName      string                 `abi:"contractName"`
 	ContractAbstract  string                 `abi:"contractAbstract"`
+	ContractFrom      string                 `abi:"contractFrom"`
 	SignMode          string                 `abi:"signMode"`
 	HasPrivacyCompute bool                   `abi:"hasPrivacyCompute"`
 	ActivationTime    uint64                 `abi:"activationTime"`
@@ -415,6 +419,7 @@ func toCreateContractParam(args ContractParams) (createContractParam, error) {
 		ContractID:        args.ContractID,
 		ContractName:      args.ContractName,
 		ContractAbstract:  args.ContractAbstract,
+		ContractFrom:      args.ContractFrom,
 		SignMode:          args.SignMode,
 		HasPrivacyCompute: args.HasPrivacyCompute,
 		ActivationTime:    args.ActivationTime,
@@ -440,6 +445,7 @@ func toUpgradeContractParam(args UpgradeContractParams) (upgradeContractParam, e
 		ContractID:        args.ContractID,
 		ContractName:      args.ContractName,
 		ContractAbstract:  args.ContractAbstract,
+		ContractFrom:      args.ContractFrom,
 		SignMode:          args.SignMode,
 		HasPrivacyCompute: args.HasPrivacyCompute,
 		ActivationTime:    args.ActivationTime,
@@ -642,6 +648,11 @@ var RuleEngineBuiltinContract = Contract{
                     {
                         "internalType": "string",
                         "name": "contractAbstract",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "contractFrom",
                         "type": "string"
                     },
                     {
@@ -951,6 +962,11 @@ var RuleEngineBuiltinContract = Contract{
                     {
                         "internalType": "string",
                         "name": "contractAbstract",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "contractFrom",
                         "type": "string"
                     },
                     {
